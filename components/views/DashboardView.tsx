@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle2, Clock, MessageCircle, Share2, TrendingUp, ChevronRight } from 'lucide-react';
+import { CheckCircle2, Clock, MessageCircle, Share2, TrendingUp, ChevronRight, Users } from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer, Cell } from 'recharts';
 import { Header } from '@/components/Header';
 import { formatTime, cleanDisplayMessage } from '@/lib/utils';
@@ -236,11 +236,21 @@ export function DashboardView({ setView, tasks, lineSyncs, confirmedRecords }: D
         </div>
       </div>
 
-      {/* Quick Share */}
-      <div className="px-6">
+      {/* Share Buttons */}
+      <div className="px-6 space-y-3">
+        <button
+          onClick={() => window.open('https://haogu-app-web.vercel.app/share/family', '_blank')}
+          className="w-full bg-primary-50 border border-primary-100 p-4 rounded-2xl flex items-center justify-center gap-3 hover:bg-primary-100 active:scale-95 transition-all group shadow-sm"
+        >
+          <div className="bg-primary-500 text-white p-2 rounded-lg group-hover:scale-110 transition-transform">
+            <Users size={20} />
+          </div>
+          <span className="text-sm font-bold text-primary-600">分享給家人</span>
+        </button>
+
         <button
           onClick={handleShare}
-          className="w-full bg-accent-50 border border-accent-100 p-4 rounded-2xl flex items-center justify-center gap-3 hover:bg-accent-100 transition-colors group shadow-sm"
+          className="w-full bg-accent-50 border border-accent-100 p-4 rounded-2xl flex items-center justify-center gap-3 hover:bg-accent-100 active:scale-95 transition-all group shadow-sm"
         >
           <div className="bg-accent-500 text-white p-2 rounded-lg group-hover:scale-110 transition-transform">
             <Share2 size={20} />
