@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm ls *)",
+      "Bash(curl *)",
+      "Bash(taskkill *)",
+      "PowerShell(Stop-Process *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\work\\\\haogu-app\" -Recurse -Directory)",
+      "Bash(Select-Object FullName)",
+      "Bash(Sort-Object FullName)",
+      "Bash(npm install *)",
+      "Bash(node -e \"require\\('@supabase/supabase-js'\\); console.log\\('ok'\\)\")",
+      "Bash(npx tsc *)",
+      "Bash(node *)"
+    ]
+  }
+}
