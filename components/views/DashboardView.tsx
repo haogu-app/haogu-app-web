@@ -10,9 +10,40 @@ interface DashboardViewProps {
   setView: (v: View) => void;
   tasks: CareTask[];
   lineSyncs: RawLineSync[];
+  confirmedRecords: RawLineSync[];
 }
 
-export function DashboardView({ setView, tasks, lineSyncs }: DashboardViewProps) {
+export function DashboardView({ setView, tasks, lineSyncs, confirmedRecords }: DashboardViewProps) {
+  const handleShareConfirmed = () => {
+    const now = new Date();
+    const todayRecords = confirmedRecords
+      .filter((r) => {
+        const d = new Date(r.receivedAt || r['收到時間'] || '');
+        return (
+          d.getFullYear() === now.getFullYear() &&
+          d.getMonth() === now.getMonth() &&
+          d.getDate() === now.getDate()
+        );
+      })
+      .sort((a, b) => (a.receivedAt || '').localeCompare(b.receivedAt || ''));
+
+    let text: string;
+    if (todayRecords.length === 0) {
+      text = '今日尚無已確認照顧紀錄。\n\n查看好顧：\nhttps://haogu-app-web.vercel.app';
+    } else {
+      const lines = todayRecords
+        .map((r, i) => {
+          const time = formatTime(r.receivedAt || r['收到時間'] || '', true);
+          const summary = r.recordSummary || r['AI整理結果'] || r.displayMessage || '';
+          return `${i + 1}. ${time} ${summary}`;
+        })
+        .join('\n');
+      text = `今日照顧摘要：\n${lines}\n\n查看完整照顧紀錄：\nhttps://haogu-app-web.vercel.app`;
+    }
+
+    window.open(`https://line.me/R/share?text=${encodeURIComponent(text)}`, '_blank');
+  };
+
   const handleShare = () => {
     const summaryText = tasks
       .map((t) => `- ${t.time} ${t.title}${t.completed ? ' (已完成)' : ''}`)
@@ -22,7 +53,7 @@ export function DashboardView({ setView, tasks, lineSyncs }: DashboardViewProps)
       month: '2-digit',
       day: '2-digit',
     });
-    const summary = `【好顧】今日照顧摘要 (${todayStr})\n\n照顧進度重點：\n${summaryText || '（暫無紀錄）'}\n\n更多詳細紀錄請點：https://haogu.app/share/today`;
+    const summary = `【好顧】今日照顧摘要 (${todayStr})\n\n照顧進度重點：\n${summaryText || '（暫無紀錄）'}\n\n更多詳細紀錄請點：https://haogu-app-web.vercel.app`;
     const encoded = encodeURIComponent(summary);
     window.open(`https://line.me/R/msg/text/?${encoded}`, '_blank');
   };
@@ -147,6 +178,14 @@ export function DashboardView({ setView, tasks, lineSyncs }: DashboardViewProps)
               <p className="text-center py-4 text-sm text-primary-100/50">今日尚無重點照顧摘要紀錄</p>
             )}
           </div>
+
+          <button
+            onClick={handleShareConfirmed}
+            className="w-full mt-4 bg-white/20 backdrop-blur-sm border border-white/30 py-2.5 rounded-xl flex items-center justify-center gap-2 text-white text-sm font-bold hover:bg-white/30 active:scale-95 transition-all"
+          >
+            <Share2 size={16} />
+            分享到 LINE
+          </button>
         </div>
       </div>
 

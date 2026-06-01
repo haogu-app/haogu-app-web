@@ -76,7 +76,7 @@ export default function App() {
 
     switch (view) {
       case 'dashboard':
-        return <DashboardView setView={setView} tasks={tasks} lineSyncs={lineSyncs} />;
+        return <DashboardView setView={setView} tasks={tasks} lineSyncs={lineSyncs} confirmedRecords={confirmedRecords} />;
       case 'lineSync':
         return (
           <LineSyncView
