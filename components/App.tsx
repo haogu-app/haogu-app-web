@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { XCircle, Inbox } from 'lucide-react';
+import { XCircle } from 'lucide-react';
 import { NavBar } from '@/components/NavBar';
 import { DebugPanel } from '@/components/DebugPanel';
 import { QuickRecordModal } from '@/components/QuickRecordModal';
@@ -58,18 +58,6 @@ export default function App() {
           </div>
           <h3 className="font-bold text-slate-700 text-lg">資料讀取失敗</h3>
           <p className="text-xs text-slate-400 mt-2">請確認您的網路連線或 Apps Script 位置是否有效</p>
-        </div>
-      );
-    }
-
-    if (apiStatus === 'SUCCESS' && lineSyncs.length === 0) {
-      return (
-        <div className="flex flex-col items-center justify-center py-20 px-6 text-center bg-white min-h-[400px] m-6 rounded-3xl border border-slate-100 shadow-sm">
-          <div className="bg-slate-50 text-slate-400 p-4 rounded-full mb-4">
-            <Inbox size={36} />
-          </div>
-          <h3 className="font-bold text-slate-700 text-lg">目前尚無照顧紀錄</h3>
-          <p className="text-xs text-slate-400 mt-2">一旦收到 LINE 群組的新數據將會立刻同步在此</p>
         </div>
       );
     }

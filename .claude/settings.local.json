@@ -12,7 +12,9 @@
       "Bash(node -e \"require\\('@supabase/supabase-js'\\); console.log\\('ok'\\)\")",
       "Bash(npx tsc *)",
       "Bash(node *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
     ]
   }
 }
