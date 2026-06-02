@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/lib/supabase';
+import { FAMILY_ID } from '@/lib/constants';
 import type { CareTask } from '@/lib/types';
 
 interface QuickRecordModalProps {
@@ -29,13 +31,46 @@ export function QuickRecordModal({ isOpen, onClose, onSubmit }: QuickRecordModal
   const [type, setType] = useState<CareTask['type']>('用藥');
   const [time, setTime] = useState('08:00');
   const [detail, setDetail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   if (!isOpen) return null;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    setLoading(true);
+    setError('');
+
+    // Build display content
     const prefix = type === '血壓' ? '量血壓' : type === '其他' ? '' : type;
-    const title = [prefix, detail].filter(Boolean).join(' ') || type;
-    onSubmit({ time, title, type, completed: true });
+    const content = [prefix, detail].filter(Boolean).join(' ') || type;
+    const summary = `阿嬤 ${time} ${content}`;
+
+    // Insert directly into care_records (confirmed=true so it appears in today's summary)
+    const { error: dbError } = await supabase.from('care_records').insert({
+      family_id: FAMILY_ID,
+      received_at: new Date().toISOString(),
+      original_message: summary,
+      display_message: summary,
+      record_summary: summary,
+      reply_message: '已新增快速紀錄',
+      source: 'app',
+      contains_tag: false,
+      confirmed: true,
+    });
+
+    setLoading(false);
+
+    if (dbError) {
+      setError('送出失敗，請再試一次');
+      return;
+    }
+
+    // Also notify parent for tasks table (legacy, non-blocking)
+    onSubmit({ time, title: content, type, completed: true });
+
+    // Reset and close
+    setDetail('');
+    setType('用藥');
     onClose();
   };
 
@@ -102,11 +137,16 @@ export function QuickRecordModal({ isOpen, onClose, onSubmit }: QuickRecordModal
             </div>
           </div>
 
+          {error && (
+            <p className="text-xs text-red-500 text-center -mt-2">{error}</p>
+          )}
+
           <button
             onClick={handleSubmit}
-            className="w-full bg-primary-500 text-white rounded-2xl py-4 font-bold shadow-lg shadow-primary-200 mt-4 active:scale-[0.98] transition-transform"
+            disabled={loading}
+            className="w-full bg-primary-500 text-white rounded-2xl py-4 font-bold shadow-lg shadow-primary-200 mt-4 active:scale-[0.98] transition-transform disabled:opacity-60"
           >
-            送出紀錄
+            {loading ? '送出中...' : '送出紀錄'}
           </button>
         </div>
       </motion.div>
