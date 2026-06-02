@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MessageCircle, Share2, TrendingUp, ChevronRight, Check, Plus } from 'lucide-react';
+import { MessageCircle, Share2, ChevronRight, Check, Plus } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
-import { BarChart, Bar, ResponsiveContainer, Cell } from 'recharts';
 import { EditRecordModal } from '@/components/EditRecordModal';
 import { Header } from '@/components/Header';
 import { formatTime, cleanDisplayMessage, detectSubject, cleanSummaryText, extractEventTime } from '@/lib/utils';
@@ -89,14 +88,6 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
     }
   };
 
-  const dynamicStats = [
-    { name: '陪診',    hours: lineSyncs.filter((s) => s['原始訊息']?.includes('診')).length * 3 || 2, color: '#4a7c59' },
-    { name: '日常照護', hours: lineSyncs.filter((s) => s['原始訊息']?.includes('食') || s['原始訊息']?.includes('餐')).length * 5 || 4, color: '#6b9080' },
-    { name: '用藥管理', hours: lineSyncs.filter((s) => s['原始訊息']?.includes('藥')).length * 2 || 1, color: '#8ebbb0' },
-    { name: '聯絡採買', hours: lineSyncs.length || 1, color: '#ff9f1c' },
-  ];
-  const totalHours = dynamicStats.reduce((s, i) => s + i.hours, 0);
-  const estimatedValue = (totalHours * 300).toLocaleString();
   const todayDateStr = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' });
 
   return (
@@ -223,53 +214,6 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
               <><Share2 size={16} />一鍵分享到 LINE</>
             )}
           </button>
-        </div>
-      </div>
-
-      {/* Stats Summary Card */}
-      <div className="px-6">
-        <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <TrendingUp size={18} className="text-primary-500" />
-              <h3 className="font-bold text-slate-700">照顧投入統計</h3>
-            </div>
-            <span className="text-[10px] text-slate-400 font-medium">本月累計</span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-              <p className="text-[10px] text-slate-400 mb-1">投入時間</p>
-              <div className="flex items-end gap-1">
-                <span className="text-xl font-bold text-primary-500">{totalHours}</span>
-                <span className="text-[10px] text-slate-400 pb-0.5">小時</span>
-              </div>
-            </div>
-            <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-              <p className="text-[10px] text-slate-400 mb-1">估算價值</p>
-              <div className="flex items-end gap-1">
-                <span className="text-xl font-bold text-slate-800">{estimatedValue}</span>
-                <span className="text-[10px] text-slate-400 pb-0.5">NT$</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="h-32 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={dynamicStats}>
-                <Bar dataKey="hours" radius={[4, 4, 0, 0]} barSize={24}>
-                  {dynamicStats.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="mt-4 flex items-center justify-between">
-            <p className="text-[10px] text-slate-400 italic">✨ 你的付出很有價值</p>
-            <div className="text-[10px] text-slate-300">($300/hr)</div>
-          </div>
         </div>
       </div>
 
