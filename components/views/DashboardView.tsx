@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { MessageCircle, Share2, TrendingUp, ChevronRight, Check, Plus } from 'lucide-react';
+import { AnimatePresence } from 'motion/react';
 import { BarChart, Bar, ResponsiveContainer, Cell } from 'recharts';
+import { EditRecordModal } from '@/components/EditRecordModal';
 import { Header } from '@/components/Header';
 import { formatTime, cleanDisplayMessage, detectSubject, cleanSummaryText, extractEventTime } from '@/lib/utils';
 
@@ -19,6 +21,7 @@ interface DashboardViewProps {
 export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRecord }: DashboardViewProps) {
   const [shareCopied, setShareCopied] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [editRecord, setEditRecord] = useState<RawLineSync | null>(null);
 
   useEffect(() => {
     setIsMobile(/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent));
@@ -45,7 +48,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
     });
 
   // Flat summary items — skip entries with no meaningful text
-  type SummaryItem = { time: string; text: string };
+  type SummaryItem = { time: string; text: string; record: RawLineSync };
   const allItems: SummaryItem[] = todayRecords
     .map((r) => {
       const raw = r.recordSummary || r['AI整理結果'] || r.displayMessage || '';
@@ -53,7 +56,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
       const text = cleanSummaryText(raw, subject);
       const timeSource = r.originalMessage || r['原始訊息'] || r.displayMessage || raw;
       const time = extractEventTime(timeSource) ?? formatTime(r.receivedAt || r['收到時間'] || '', true);
-      return { time, text };
+      return { time, text, record: r };
     })
     .filter((item) => item.text.length >= 2);
 
@@ -173,8 +176,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
         <div className="bg-gradient-to-br from-primary-400 to-primary-600 rounded-3xl p-6 text-white shadow-lg shadow-primary-200">
           <div className="flex justify-between items-start mb-4">
             <div>
-              <p className="text-primary-100 text-sm mb-1">今天照顧摘要</p>
-              <h2 className="text-2xl font-bold">照顧摘要動態</h2>
+              <h2 className="text-2xl font-bold">今天照顧摘要</h2>
             </div>
             <div className="flex flex-col items-end gap-1.5">
               <div className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px]">
@@ -194,12 +196,19 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
               </div>
             ) : (
               allItems.map((item, i) => (
-                <div key={i} className="flex items-center gap-3 bg-white/10 rounded-xl px-3 py-2">
+                <button
+                  key={i}
+                  onClick={() => item.record._dbId ? setEditRecord(item.record) : undefined}
+                  className="w-full flex items-center gap-3 bg-white/10 rounded-xl px-3 py-2 text-left hover:bg-white/20 active:scale-[0.99] transition-all"
+                >
                   <span className="text-sm font-mono tabular-nums text-primary-100/80 shrink-0 w-12">
                     {item.time}
                   </span>
-                  <span className="text-sm font-bold text-white">{item.text}</span>
-                </div>
+                  <span className="text-sm font-bold text-white flex-1">{item.text}</span>
+                  {item.record._dbId && (
+                    <ChevronRight size={14} className="text-white/40 shrink-0" />
+                  )}
+                </button>
               ))
             )}
           </div>
@@ -263,6 +272,15 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
           </div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {editRecord && (
+          <EditRecordModal
+            record={editRecord}
+            onClose={() => setEditRecord(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

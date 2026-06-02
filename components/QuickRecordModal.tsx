@@ -28,6 +28,7 @@ const PLACEHOLDERS: Record<CareTask['type'], string> = {
 };
 
 export function QuickRecordModal({ isOpen, onClose, onSubmit }: QuickRecordModalProps) {
+  const [subject, setSubject] = useState('阿嬤');
   const [type, setType] = useState<CareTask['type']>('用藥');
   const [time, setTime] = useState('08:00');
   const [detail, setDetail] = useState('');
@@ -43,7 +44,7 @@ export function QuickRecordModal({ isOpen, onClose, onSubmit }: QuickRecordModal
     // Build display content
     const prefix = type === '血壓' ? '量血壓' : type === '其他' ? '' : type;
     const content = [prefix, detail].filter(Boolean).join(' ') || type;
-    const summary = `阿嬤 ${time} ${content}`;
+    const summary = `${subject} ${time} ${content}`;
 
     // Insert directly into care_records (confirmed=true so it appears in today's summary)
     const { error: dbError } = await supabase.from('care_records').insert({
@@ -69,6 +70,7 @@ export function QuickRecordModal({ isOpen, onClose, onSubmit }: QuickRecordModal
     onSubmit({ time, title: content, type, completed: true });
 
     // Reset and close
+    setSubject('阿嬤');
     setDetail('');
     setType('用藥');
     onClose();
@@ -94,6 +96,27 @@ export function QuickRecordModal({ isOpen, onClose, onSubmit }: QuickRecordModal
         <h3 className="text-xl font-bold text-slate-800 mb-6">快速記錄照顧事項</h3>
 
         <div className="space-y-6">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">照顧對象</p>
+              <input
+                type="text"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                placeholder="阿嬤"
+                className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+              />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">執行時間</p>
+              <input
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+              />
+            </div>
+          </div>
           <div>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">選擇類型</p>
             <div className="grid grid-cols-4 gap-3">
@@ -115,26 +138,15 @@ export function QuickRecordModal({ isOpen, onClose, onSubmit }: QuickRecordModal
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">執行時間</p>
-              <input
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
-              />
-            </div>
-            <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">備註內容</p>
-              <input
-                type="text"
-                placeholder={PLACEHOLDERS[type]}
-                value={detail}
-                onChange={(e) => setDetail(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
-              />
-            </div>
+          <div>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">備註內容</p>
+            <input
+              type="text"
+              placeholder={PLACEHOLDERS[type]}
+              value={detail}
+              onChange={(e) => setDetail(e.target.value)}
+              className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+            />
           </div>
 
           {error && (
