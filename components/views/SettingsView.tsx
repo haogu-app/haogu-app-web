@@ -1,6 +1,6 @@
 'use client';
 
-import { MessageCircle, ShieldCheck, ExternalLink } from 'lucide-react';
+import { MessageCircle, ShieldCheck } from 'lucide-react';
 import { Header } from '@/components/Header';
 
 export function SettingsView() {
@@ -13,24 +13,20 @@ export function SettingsView() {
         <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-5">
           <h3 className="font-bold text-slate-700">LINE 同步設定</h3>
 
-          <div className="bg-green-50 border border-green-100 rounded-2xl p-4 flex items-center gap-3">
+          <a
+            href="https://lin.ee/N4yUobv"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-green-50 border border-green-100 rounded-2xl p-4 flex items-center gap-3 active:scale-[0.99] transition-transform"
+          >
             <div className="bg-green-100 p-2 rounded-xl text-green-600 shrink-0">
               <MessageCircle size={20} />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold text-slate-700">好顧 LINE 官方帳號</p>
               <p className="text-xs text-slate-400 mt-0.5">ID：@418xupmk</p>
+              <p className="text-xs text-green-600 font-medium mt-1">點擊加入好友</p>
             </div>
-          </div>
-
-          <a
-            href="https://lin.ee/N4yUobv"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl bg-green-500 text-white text-sm font-bold active:scale-95 transition-transform shadow-md shadow-green-200"
-          >
-            <ExternalLink size={16} />
-            加入好顧 LINE
           </a>
         </div>
       </div>
