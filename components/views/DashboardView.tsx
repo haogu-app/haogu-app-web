@@ -178,7 +178,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
               rel="noopener noreferrer"
               className="w-full py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 bg-green-500 text-white hover:bg-green-600 active:scale-95 transition-all"
             >
-              前往 LINE 記錄
+              用 LINE 記錄
             </a>
             <button
               onClick={handleCopyTemplate}
@@ -261,7 +261,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
               rel="noopener noreferrer"
               className="flex-1 py-2.5 rounded-xl text-sm font-bold text-center bg-green-500 text-white hover:bg-green-600 active:scale-95 transition-all"
             >
-              前往 LINE 記錄
+              用 LINE 記錄
             </a>
             <button
               onClick={handleCopyTemplate}

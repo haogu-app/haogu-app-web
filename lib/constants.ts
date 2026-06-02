@@ -9,5 +9,5 @@ export const FAMILY_MEMBERS = [
 export const FAMILY_ID =
   process.env.NEXT_PUBLIC_FAMILY_ID ?? '00000000-0000-0000-0000-000000000001';
 
-/** LINE Official Account deep-link — update here when OA ID changes. */
-export const LINE_OA_URL = 'https://line.me/R/ti/p/@haogu';
+/** LINE Official Account link — update here when OA changes. */
+export const LINE_OA_URL = 'https://lin.ee/ZQwOK4e';
