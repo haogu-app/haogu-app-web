@@ -21,7 +21,7 @@ export function Header({ title, showLogo, showBack, onBack }: HeaderProps) {
         )}
         {showLogo ? (
           <Image
-            src="/haogu-logo.jpg"
+            src="/haogu-logo.png"
             alt="好顧"
             width={280}
             height={112}
