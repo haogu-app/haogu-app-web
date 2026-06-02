@@ -76,27 +76,51 @@ export function detectCategory(text: string): string {
 }
 
 /**
- * Extract an event time (HH:MM) from Chinese care record text.
- * Handles period prefixes: 早上/上午 (am), 下午/晚上/夜裡 (pm), 中午 (noon).
- * Returns null when no time pattern is found.
+ * Extract an event time (HH:MM) from a single text string.
+ * Priority: HH:MM colon format → Chinese period + hour pattern.
+ *
+ * Rules:
+ *   - 晚上/下午/中午 + h < 12  → add 12 (PM)
+ *   - 晚上17點 / 下午15點       → keep as-is (already ≥ 12, no double-add)
+ *   - 「半」                    → 30 minutes
+ *   - h is clamped to 23 max
  *
  * Examples:
- *   "晚上17點吃胃藥"  → "17:00"
+ *   "晚上6點吃胃藥"   → "18:00"
+ *   "晚上17點"        → "17:00"
  *   "晚上9點"         → "21:00"
  *   "下午3點30分"     → "15:30"
+ *   "晚上6點半"       → "18:30"
  *   "早上8點"         → "08:00"
+ *   "14:30"           → "14:30"
  */
 export function extractEventTime(text: string): string | null {
+  if (!text) return null;
+
+  // 1. HH:MM colon format (checked first)
+  const colonMatch = text.match(/\b(\d{1,2}):(\d{2})\b/);
+  if (colonMatch) {
+    const h = parseInt(colonMatch[1], 10);
+    const m = parseInt(colonMatch[2], 10);
+    if (h <= 23 && m <= 59) {
+      return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    }
+  }
+
+  // 2. Chinese period + hour + optional minutes/半
   const m = text.match(
-    /(早上|上午|清晨|凌晨|中午|下午|晚上|夜裡)?\s*(\d+)\s*[點時](?:\s*(\d+)\s*分?)?/,
+    /(早上|上午|清晨|凌晨|中午|下午|晚上|夜裡)?\s*(\d+)\s*[點時]\s*(半|\d+分?)?/,
   );
   if (!m) return null;
-  const [, period = '', hourStr, minStr] = m;
+
+  const [, period = '', hourStr, minPart = ''] = m;
   let h = parseInt(hourStr, 10);
-  const min = minStr ? parseInt(minStr, 10) : 0;
-  // Convert to 24-hour: pm periods add 12 only when hour < 12
+  const min = minPart === '半' ? 30 : minPart ? parseInt(minPart, 10) : 0;
+
+  // Add 12 for PM periods — only when h < 12 to avoid 17 → 29
   if (['下午', '晚上', '夜裡', '中午'].includes(period) && h < 12) h += 12;
-  return `${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+
+  return `${String(Math.min(h, 23)).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
 }
 
 /**

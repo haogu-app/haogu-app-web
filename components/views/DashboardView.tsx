@@ -56,8 +56,10 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
     const subject = detectSubject(raw);
     const category = detectCategory(raw);
     const text = cleanSummaryText(raw, subject);
-    // Prefer event time extracted from message content; fall back to received_at
-    const time = extractEventTime(raw) ?? formatTime(r.receivedAt || r['收到時間'] || '', true);
+    // Try original_message first (preserves user's input time), then other fields, last received_at
+    const timeSource =
+      r.originalMessage || r['原始訊息'] || r.displayMessage || raw;
+    const time = extractEventTime(timeSource) ?? formatTime(r.receivedAt || r['收到時間'] || '', true);
     if (!grouped.has(subject)) grouped.set(subject, new Map());
     const catMap = grouped.get(subject)!;
     if (!catMap.has(category)) catMap.set(category, []);
