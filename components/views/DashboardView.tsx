@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { MessageCircle, Share2, TrendingUp, ChevronRight, Copy, Check } from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer, Cell } from 'recharts';
 import { Header } from '@/components/Header';
-import { formatTime, cleanDisplayMessage, detectSubject, detectCategory, cleanSummaryText } from '@/lib/utils';
+import { formatTime, cleanDisplayMessage, detectSubject, detectCategory, cleanSummaryText, extractEventTime } from '@/lib/utils';
 import { LINE_OA_URL } from '@/lib/constants';
 import type { RawLineSync, View } from '@/lib/types';
 
@@ -56,7 +56,8 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
     const subject = detectSubject(raw);
     const category = detectCategory(raw);
     const text = cleanSummaryText(raw, subject);
-    const time = formatTime(r.receivedAt || r['收到時間'] || '', true);
+    // Prefer event time extracted from message content; fall back to received_at
+    const time = extractEventTime(raw) ?? formatTime(r.receivedAt || r['收到時間'] || '', true);
     if (!grouped.has(subject)) grouped.set(subject, new Map());
     const catMap = grouped.get(subject)!;
     if (!catMap.has(category)) catMap.set(category, []);

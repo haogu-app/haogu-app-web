@@ -76,6 +76,30 @@ export function detectCategory(text: string): string {
 }
 
 /**
+ * Extract an event time (HH:MM) from Chinese care record text.
+ * Handles period prefixes: 早上/上午 (am), 下午/晚上/夜裡 (pm), 中午 (noon).
+ * Returns null when no time pattern is found.
+ *
+ * Examples:
+ *   "晚上17點吃胃藥"  → "17:00"
+ *   "晚上9點"         → "21:00"
+ *   "下午3點30分"     → "15:30"
+ *   "早上8點"         → "08:00"
+ */
+export function extractEventTime(text: string): string | null {
+  const m = text.match(
+    /(早上|上午|清晨|凌晨|中午|下午|晚上|夜裡)?\s*(\d+)\s*[點時](?:\s*(\d+)\s*分?)?/,
+  );
+  if (!m) return null;
+  const [, period = '', hourStr, minStr] = m;
+  let h = parseInt(hourStr, 10);
+  const min = minStr ? parseInt(minStr, 10) : 0;
+  // Convert to 24-hour: pm periods add 12 only when hour < 12
+  if (['下午', '晚上', '夜裡', '中午'].includes(period) && h < 12) h += 12;
+  return `${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+}
+
+/**
  * Strip subject name, time expressions, and leading action verbs to produce a
  * short display label. Falls back to the original text if the result is too short.
  */
