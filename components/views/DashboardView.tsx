@@ -178,7 +178,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
               rel="noopener noreferrer"
               className="w-full py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 bg-green-500 text-white hover:bg-green-600 active:scale-95 transition-all"
             >
-              用 LINE 記錄
+              還沒加入 LINE？加入好顧 LINE
             </a>
             <button
               onClick={handleCopyTemplate}
@@ -254,18 +254,10 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
         </button>
 
         {lineSyncs.length === 0 && (
-          <div className="flex gap-2 mt-3">
-            <a
-              href={LINE_OA_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 py-2.5 rounded-xl text-sm font-bold text-center bg-green-500 text-white hover:bg-green-600 active:scale-95 transition-all"
-            >
-              用 LINE 記錄
-            </a>
+          <div className="mt-3">
             <button
               onClick={handleCopyTemplate}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all ${
+              className={`w-full py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all ${
                 copied ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
