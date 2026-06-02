@@ -1,14 +1,21 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { CheckCircle2, MessageCircle, Share2, TrendingUp, ChevronRight, Copy, Check } from 'lucide-react';
+import { MessageCircle, Share2, TrendingUp, ChevronRight, Copy, Check } from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer, Cell } from 'recharts';
 import { Header } from '@/components/Header';
-import { formatTime, cleanDisplayMessage } from '@/lib/utils';
+import { formatTime, cleanDisplayMessage, detectSubject, detectCategory, cleanSummaryText } from '@/lib/utils';
 import { LINE_OA_URL } from '@/lib/constants';
 import type { RawLineSync, View } from '@/lib/types';
 
 const TEMPLATE = '#好顧 阿嬤晚上9點吃胃藥';
+
+const SUBJECT_EMOJI: Record<string, string> = {
+  阿嬤: '👵', 阿公: '👴', 爸爸: '👨', 媽媽: '👩', 家人: '👤',
+};
+const CATEGORY_EMOJI: Record<string, string> = {
+  用藥: '💊', 量測: '📊', 飲食: '🍱', 就醫: '🏥', 清潔: '🛁', 狀態: '💬', 其他: '📝',
+};
 
 interface DashboardViewProps {
   setView: (v: View) => void;
@@ -41,6 +48,21 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
     })
     .sort((a, b) => (a.receivedAt || '').localeCompare(b.receivedAt || ''));
 
+  // Group today's records by subject → category
+  type CareEntry = { time: string; text: string };
+  const grouped = new Map<string, Map<string, CareEntry[]>>();
+  for (const r of todayRecords) {
+    const raw = r.recordSummary || r['AI整理結果'] || r.displayMessage || '';
+    const subject = detectSubject(raw);
+    const category = detectCategory(raw);
+    const text = cleanSummaryText(raw, subject);
+    const time = formatTime(r.receivedAt || r['收到時間'] || '', true);
+    if (!grouped.has(subject)) grouped.set(subject, new Map());
+    const catMap = grouped.get(subject)!;
+    if (!catMap.has(category)) catMap.set(category, []);
+    catMap.get(category)!.push({ time, text });
+  }
+
   const showOnboarding = !onboardingDone && confirmedRecords.length === 0;
 
   const handleDismissOnboarding = () => {
@@ -63,21 +85,24 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
     setTimeout(() => setCopied(false), 2500);
   };
 
-  const handleShareConfirmed = async () => {
-    const familyUrl = 'https://haogu-app-web.vercel.app';
-    let text: string;
-    if (todayRecords.length === 0) {
-      text = `今日尚無已確認照顧紀錄。\n\n查看家人近況頁：\n${familyUrl}`;
-    } else {
-      const lines = todayRecords
-        .map((r, i) => {
-          const time = formatTime(r.receivedAt || r['收到時間'] || '', true);
-          const summary = r.recordSummary || r['AI整理結果'] || r.displayMessage || '';
-          return `${i + 1}. ${time} ${summary}`;
-        })
-        .join('\n');
-      text = `今日照顧摘要：\n${lines}\n\n查看完整照顧紀錄：\n${familyUrl}`;
+  const buildShareText = (): string => {
+    const url = 'https://haogu-app-web.vercel.app';
+    if (todayRecords.length === 0) return `今日尚無已確認照顧紀錄。\n\n查看好顧：\n${url}`;
+    const lines: string[] = ['今日照顧摘要：'];
+    for (const [subject, catMap] of grouped) {
+      lines.push('');
+      lines.push(`${SUBJECT_EMOJI[subject] ?? '👤'} ${subject}`);
+      for (const [category, entries] of catMap) {
+        lines.push(`${CATEGORY_EMOJI[category] ?? '📝'} ${category}`);
+        for (const { time, text } of entries) lines.push(`  ${time} ${text}`);
+      }
     }
+    lines.push('', url);
+    return lines.join('\n');
+  };
+
+  const handleShareConfirmed = async () => {
+    const text = buildShareText();
 
     if (isMobile) {
       window.open(`https://line.me/R/share?text=${encodeURIComponent(text)}`, '_blank');
@@ -288,25 +313,37 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
             </div>
           </div>
 
-          <div className="space-y-3 max-h-[220px] overflow-y-auto no-scrollbar">
-            {todayRecords.map((r) => (
-              <div key={r._dbId} className="flex items-center gap-3 bg-white/10 rounded-xl p-3">
-                <CheckCircle2 size={18} className="text-primary-100 shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <span className="text-sm font-medium leading-relaxed">
-                    {r.recordSummary || r['AI整理結果'] || r.displayMessage}
-                  </span>
-                  <p className="text-[10px] text-primary-100/70">
-                    {formatTime(r.receivedAt || r['收到時間'] || '', true)}
-                  </p>
-                </div>
-              </div>
-            ))}
-            {todayRecords.length === 0 && (
+          <div className="space-y-3 max-h-[260px] overflow-y-auto no-scrollbar">
+            {todayRecords.length === 0 ? (
               <div className="text-center py-4 space-y-1">
                 <p className="text-sm text-primary-100/70">今日尚無已確認照顧紀錄</p>
                 <p className="text-xs text-primary-100/50">完成確認後，這裡會自動產生今日摘要</p>
               </div>
+            ) : (
+              Array.from(grouped.entries()).map(([subject, catMap]) => (
+                <div key={subject}>
+                  <p className="text-sm font-bold text-white mb-2">
+                    {SUBJECT_EMOJI[subject] ?? '👤'} {subject}
+                  </p>
+                  {Array.from(catMap.entries()).map(([category, entries]) => (
+                    <div key={category} className="ml-1 mb-2 last:mb-0">
+                      <p className="text-[11px] font-semibold text-primary-100 mb-1">
+                        {CATEGORY_EMOJI[category] ?? '📝'} {category}
+                      </p>
+                      <div className="space-y-1 ml-1">
+                        {entries.map((entry, i) => (
+                          <div key={i} className="flex items-baseline gap-2 bg-white/10 rounded-lg px-2.5 py-1.5">
+                            <span className="text-[10px] text-primary-100/80 font-mono tabular-nums shrink-0">
+                              {entry.time}
+                            </span>
+                            <span className="text-xs text-white/90 leading-relaxed">{entry.text}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))
             )}
           </div>
 
