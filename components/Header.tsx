@@ -20,13 +20,12 @@ export function Header({ title, showLogo, showBack, onBack }: HeaderProps) {
           </button>
         )}
         {showLogo ? (
-          <div className="w-full flex justify-center">
+          <div className="w-full flex justify-center py-4">
             <Image
-              src="/haogu-logo.png"
+              src="/haogu-icon.png"
               alt="好顧"
-              width={280}
-              height={100}
-              className="h-14 w-auto object-contain"
+              width={520}
+              height={180}
               priority
             />
           </div>
