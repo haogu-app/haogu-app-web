@@ -20,7 +20,7 @@ export function QuickRecordModal({ isOpen, onClose, onSubmit }: QuickRecordModal
   const types = [
     { label: '量血壓', value: '血壓' as const, icon: HeartPulse, color: 'text-red-500' },
     { label: '回診', value: '回診' as const, icon: Stethoscope, color: 'text-blue-500' },
-    { label: '提醒吃藥', value: '用藥' as const, icon: Pill, color: 'text-green-500' },
+    { label: '用藥記錄', value: '用藥' as const, icon: Pill, color: 'text-green-500' },
     { label: '飲食紀錄', value: '飲食' as const, icon: Utensils, color: 'text-orange-500' },
   ];
 
@@ -33,7 +33,7 @@ export function QuickRecordModal({ isOpen, onClose, onSubmit }: QuickRecordModal
         : type === '回診'
           ? `陪同回診 ${detail}`
           : type === '用藥'
-            ? `提醒吃藥 ${detail}`
+            ? `用藥記錄 ${detail}`
             : `飲食紀錄 ${detail}`;
     onSubmit({ time, title, type, completed: true });
     onClose();
