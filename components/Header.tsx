@@ -24,8 +24,8 @@ export function Header({ title, showLogo, showBack, onBack }: HeaderProps) {
             <Image
               src="/haogu-icon.png"
               alt="好顧"
-              width={520}
-              height={180}
+              width={420}
+              height={100}
               priority
             />
           </div>
