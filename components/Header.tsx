@@ -20,14 +20,17 @@ export function Header({ title, showLogo, showBack, onBack }: HeaderProps) {
           </button>
         )}
         {showLogo ? (
-          <Image
-            src="/haogu-logo.jpg"
-            alt="好顧"
-            width={160}
-            height={64}
-            className="h-9 w-auto object-contain"
-            priority
-          />
+          <div className="flex items-center gap-2">
+            <Image
+              src="/haogu-icon.png"
+              alt=""
+              width={36}
+              height={36}
+              className="h-9 w-9 object-contain mix-blend-multiply"
+              priority
+            />
+            <span className="text-xl font-bold" style={{ color: '#2F8F83' }}>好顧</span>
+          </div>
         ) : (
           <h1 className="text-xl font-bold text-slate-800">{title}</h1>
         )}
