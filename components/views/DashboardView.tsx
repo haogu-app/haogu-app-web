@@ -55,21 +55,20 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
     });
 
   // Group today's records by subject → category
-  type CareEntry = { time: string; text: string };
+  type CareEntry = { time: string; regTime: string; text: string };
   const grouped = new Map<string, Map<string, CareEntry[]>>();
   for (const r of todayRecords) {
     const raw = r.recordSummary || r['AI整理結果'] || r.displayMessage || '';
     const subject = detectSubject(raw);
     const category = detectCategory(raw);
     const text = cleanSummaryText(raw, subject);
-    // Try original_message first (preserves user's input time), then other fields, last received_at
-    const timeSource =
-      r.originalMessage || r['原始訊息'] || r.displayMessage || raw;
-    const time = extractEventTime(timeSource) ?? formatTime(r.receivedAt || r['收到時間'] || '', true);
+    const timeSource = r.originalMessage || r['原始訊息'] || r.displayMessage || raw;
+    const regTime = formatTime(r.receivedAt || r['收到時間'] || '', true);
+    const time = extractEventTime(timeSource) ?? regTime;
     if (!grouped.has(subject)) grouped.set(subject, new Map());
     const catMap = grouped.get(subject)!;
     if (!catMap.has(category)) catMap.set(category, []);
-    catMap.get(category)!.push({ time, text });
+    catMap.get(category)!.push({ time, regTime, text });
   }
 
   const showOnboarding = !onboardingDone && confirmedRecords.length === 0;
@@ -341,11 +340,18 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
                       </p>
                       <div className="space-y-1 ml-1">
                         {entries.map((entry, i) => (
-                          <div key={i} className="flex items-baseline gap-2 bg-white/10 rounded-lg px-2.5 py-1.5">
-                            <span className="text-[10px] text-primary-100/80 font-mono tabular-nums shrink-0">
-                              {entry.time}
-                            </span>
-                            <span className="text-xs text-white/90 leading-relaxed">{entry.text}</span>
+                          <div key={i} className="bg-white/10 rounded-lg px-2.5 py-1.5">
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-[10px] text-primary-100/80 font-mono tabular-nums shrink-0">
+                                {entry.time}
+                              </span>
+                              <span className="text-xs text-white/90 leading-relaxed">{entry.text}</span>
+                            </div>
+                            {entry.regTime !== entry.time && (
+                              <p className="text-[9px] text-primary-100/40 mt-0.5 tabular-nums">
+                                登記：{entry.regTime}
+                              </p>
+                            )}
                           </div>
                         ))}
                       </div>
