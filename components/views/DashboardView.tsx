@@ -18,9 +18,12 @@ interface DashboardViewProps {
 
 export function DashboardView({ setView, lineSyncs, confirmedRecords }: DashboardViewProps) {
   const [copied, setCopied] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [onboardingDone, setOnboardingDone] = useState(false);
 
   useEffect(() => {
+    setIsMobile(/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent));
     if (localStorage.getItem('onboarding_completed') === 'true') {
       setOnboardingDone(true);
     }
@@ -60,7 +63,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
     setTimeout(() => setCopied(false), 2500);
   };
 
-  const handleShareConfirmed = () => {
+  const handleShareConfirmed = async () => {
     const familyUrl = 'https://haogu-app-web.vercel.app/share/family';
     let text: string;
     if (todayRecords.length === 0) {
@@ -75,7 +78,23 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
         .join('\n');
       text = `今日照顧摘要：\n${lines}\n\n查看完整照顧紀錄：\n${familyUrl}`;
     }
-    window.open(`https://line.me/R/share?text=${encodeURIComponent(text)}`, '_blank');
+
+    if (isMobile) {
+      window.open(`https://line.me/R/share?text=${encodeURIComponent(text)}`, '_blank');
+    } else {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const el = document.createElement('textarea');
+        el.value = text;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+      }
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 3000);
+    }
   };
 
   const dynamicStats = [
@@ -295,8 +314,17 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
             onClick={handleShareConfirmed}
             className="w-full mt-4 bg-white/20 backdrop-blur-sm border border-white/30 py-2.5 rounded-xl flex items-center justify-center gap-2 text-white text-sm font-bold hover:bg-white/30 active:scale-95 transition-all"
           >
-            <Share2 size={16} />
-            分享到 LINE
+            {shareCopied ? (
+              <>
+                <Check size={16} />
+                已複製照顧摘要，請貼到 LINE 傳給家人
+              </>
+            ) : (
+              <>
+                <Share2 size={16} />
+                {isMobile ? '分享到 LINE' : '複製 LINE 分享文字'}
+              </>
+            )}
           </button>
         </div>
       </div>
