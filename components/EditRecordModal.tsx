@@ -41,33 +41,62 @@ export function EditRecordModal({ record, onClose }: EditRecordModalProps) {
   const [error, setError] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const buildSummary = () => {
-    const prefix = type === '血壓' ? '量血壓' : type === '其他' ? '' : type;
-    const content = [prefix, detail].filter(Boolean).join(' ') || type;
-    return `${subject} ${time} ${content}`;
-  };
+  // Format: "照顧對象 時間 備註" — type is NOT part of the summary text
+  const buildSummary = () => `${subject} ${time} ${detail || type}`.trim();
 
   const handleUpdate = async () => {
-    if (!record._dbId) return;
+    if (!record._dbId) {
+      console.error('[EditRecord] Missing _dbId, aborting update');
+      setError('無法更新：缺少紀錄 ID');
+      return;
+    }
     setLoading(true);
     setError('');
     const summary = buildSummary();
+    console.log('[EditRecord] Updating', record._dbId, '→', summary);
+
     const { error: dbError } = await supabase
       .from('care_records')
-      .update({ original_message: summary, display_message: summary, record_summary: summary })
+      .update({
+        original_message: summary,
+        display_message: summary,
+        record_summary: summary,
+        confirmed: true,
+      })
       .eq('id', record._dbId);
+
     setLoading(false);
-    if (dbError) { setError('更新失敗，請再試一次'); return; }
+    if (dbError) {
+      console.error('[EditRecord] Update failed:', dbError);
+      setError('更新失敗，請稍後再試');
+      return;
+    }
+    console.log('[EditRecord] Update success');
     onClose();
   };
 
   const handleDelete = async () => {
-    if (!record._dbId) return;
+    if (!record._dbId) {
+      console.error('[EditRecord] Missing _dbId, aborting delete');
+      setError('無法刪除：缺少紀錄 ID');
+      return;
+    }
     setLoading(true);
     setError('');
-    const { error: dbError } = await supabase.from('care_records').delete().eq('id', record._dbId);
+    console.log('[EditRecord] Deleting', record._dbId);
+
+    const { error: dbError } = await supabase
+      .from('care_records')
+      .delete()
+      .eq('id', record._dbId);
+
     setLoading(false);
-    if (dbError) { setError('刪除失敗，請再試一次'); return; }
+    if (dbError) {
+      console.error('[EditRecord] Delete failed:', dbError);
+      setError('刪除失敗，請稍後再試');
+      return;
+    }
+    console.log('[EditRecord] Delete success');
     onClose();
   };
 
@@ -95,12 +124,20 @@ export function EditRecordModal({ record, onClose }: EditRecordModalProps) {
         <AnimatePresence mode="wait">
           {confirmDelete ? (
             <motion.div key="confirm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
-              <p className="text-sm text-slate-600 text-center py-4">確認要刪除這筆紀錄嗎？</p>
+              <p className="text-sm text-slate-600 text-center py-4">確定要刪除這筆照顧紀錄嗎？</p>
+              {error && <p className="text-xs text-red-500 text-center">{error}</p>}
               <div className="flex gap-3">
-                <button onClick={() => setConfirmDelete(false)} className="flex-1 py-3 rounded-2xl border border-slate-200 text-sm font-bold text-slate-600">
+                <button
+                  onClick={() => setConfirmDelete(false)}
+                  className="flex-1 py-3 rounded-2xl border border-slate-200 text-sm font-bold text-slate-600"
+                >
                   取消
                 </button>
-                <button onClick={handleDelete} disabled={loading} className="flex-1 py-3 rounded-2xl bg-red-500 text-white text-sm font-bold disabled:opacity-60">
+                <button
+                  onClick={handleDelete}
+                  disabled={loading}
+                  className="flex-1 py-3 rounded-2xl bg-red-500 text-white text-sm font-bold disabled:opacity-60"
+                >
                   {loading ? '刪除中...' : '確認刪除'}
                 </button>
               </div>
@@ -114,6 +151,7 @@ export function EditRecordModal({ record, onClose }: EditRecordModalProps) {
                     type="text"
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
+                    placeholder="阿嬤"
                     className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                   />
                 </div>
