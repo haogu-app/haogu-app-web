@@ -22,6 +22,26 @@ const TYPES: { label: string; emoji: string; value: CareTask['type'] }[] = [
   { label: '其他', emoji: '📝', value: '其他' },
 ];
 
+function formatDisplayTime(isoOrHHMM: string): string {
+  if (!isoOrHHMM) return '—';
+  let hours: number, minutes: number;
+  if (isoOrHHMM.includes('T') || (isoOrHHMM.includes('-') && isoOrHHMM.includes(':'))) {
+    const d = new Date(isoOrHHMM);
+    if (isNaN(d.getTime())) return '—';
+    hours = d.getHours();
+    minutes = d.getMinutes();
+  } else if (isoOrHHMM.includes(':')) {
+    const parts = isoOrHHMM.split(':').map(Number);
+    hours = parts[0];
+    minutes = parts[1];
+  } else {
+    return '—';
+  }
+  const meridiem = hours < 12 ? '上午' : '下午';
+  const h12 = hours % 12 || 12;
+  return `${meridiem} ${String(h12).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+}
+
 function toCareType(category: string): CareTask['type'] {
   if (category === '用藥') return '用藥';
   if (category === '量測') return '血壓';
@@ -177,6 +197,13 @@ export function EditRecordModal({ record, onClose, onDeleted, onSaved }: EditRec
                     className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                   />
                 </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">登記時間</p>
+                <p className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm text-slate-400">
+                  {formatDisplayTime(record.receivedAt || record['收到時間'] || '')}
+                </p>
               </div>
 
               <div>
