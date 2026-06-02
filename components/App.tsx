@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { XCircle } from 'lucide-react';
 import { NavBar } from '@/components/NavBar';
-import { DebugPanel } from '@/components/DebugPanel';
 import { QuickRecordModal } from '@/components/QuickRecordModal';
 import { DashboardView } from '@/components/views/DashboardView';
 import { LineSyncView } from '@/components/views/LineSyncView';
@@ -12,12 +11,10 @@ import { RecordsView } from '@/components/views/RecordsView';
 import { TasksView } from '@/components/views/TasksView';
 import { SettingsView } from '@/components/views/SettingsView';
 import { useLineSync } from '@/hooks/useLineSync';
-import { formatTime, getRecordSummary } from '@/lib/utils';
 import type { CareTask, RawLineSync, View } from '@/lib/types';
 
 export default function App() {
   const [view, setView] = useState<View>('dashboard');
-  const [showDebug, setShowDebug] = useState(false);
   const [isQuickRecordOpen, setIsQuickRecordOpen] = useState(false);
 
   const {
@@ -101,16 +98,12 @@ export default function App() {
       case 'tasks':
         return <TasksView lineSyncs={lineSyncs} />;
       case 'settings':
-        return <SettingsView showDebug={showDebug} setShowDebug={setShowDebug} />;
+        return <SettingsView />;
     }
   };
 
   return (
     <div className="relative min-h-screen bg-neutral-50 max-w-md mx-auto overflow-hidden shadow-2xl flex flex-col">
-      {showDebug && (
-        <DebugPanel apiStatus={apiStatus} apiErrorDetails={apiErrorDetails} lineSyncs={lineSyncs} />
-      )}
-
       <div className="flex-1 overflow-y-auto no-scrollbar pb-16">
         <AnimatePresence mode="wait">
           <motion.div
