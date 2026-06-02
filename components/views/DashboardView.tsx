@@ -5,9 +5,16 @@ import { MessageCircle, Share2, ChevronRight, Check, Plus } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import { EditRecordModal } from '@/components/EditRecordModal';
 import { Header } from '@/components/Header';
-import { formatTime, cleanDisplayMessage, detectSubject, cleanSummaryText, extractEventTime } from '@/lib/utils';
-
+import { formatTime, cleanDisplayMessage, detectSubject, cleanSummaryText, extractEventTime, detectCategory } from '@/lib/utils';
 import type { RawLineSync, View } from '@/lib/types';
+
+function categoryIcon(raw: string): string {
+  const cat = detectCategory(raw);
+  if (cat === '用藥') return '💊';
+  if (cat === '量測') return '🩺';
+  if (cat === '飲食') return '🍽️';
+  return '📝';
+}
 
 
 interface DashboardViewProps {
@@ -49,7 +56,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
     });
 
   // Flat summary items — skip entries with no meaningful text
-  type SummaryItem = { time: string; text: string; record: RawLineSync };
+  type SummaryItem = { time: string; text: string; icon: string; record: RawLineSync };
   const allItems: SummaryItem[] = todayRecords
     .map((r) => {
       const raw = r.recordSummary || r['AI整理結果'] || r.displayMessage || '';
@@ -57,7 +64,8 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
       const text = cleanSummaryText(raw, subject);
       const timeSource = r.originalMessage || r['原始訊息'] || r.displayMessage || raw;
       const time = extractEventTime(timeSource) ?? formatTime(r.receivedAt || r['收到時間'] || '', true);
-      return { time, text, record: r };
+      const icon = categoryIcon(raw);
+      return { time, text, icon, record: r };
     })
     .filter((item) => item.text.length >= 2);
 
@@ -198,9 +206,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
                     {item.time}
                   </span>
                   <span className="text-sm font-bold text-white flex-1">{item.text}</span>
-                  {item.record._dbId && (
-                    <ChevronRight size={14} className="text-white/40 shrink-0" />
-                  )}
+                  <span className="text-base shrink-0">{item.icon}</span>
                 </button>
               ))
             )}
