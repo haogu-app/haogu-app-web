@@ -64,7 +64,7 @@ export default function App() {
 
     switch (view) {
       case 'dashboard':
-        return <DashboardView setView={setView} lineSyncs={lineSyncs} confirmedRecords={confirmedRecords} onQuickRecord={() => setIsQuickRecordOpen(true)} />;
+        return <DashboardView setView={setView} lineSyncs={lineSyncs} confirmedRecords={confirmedRecords} />;
       case 'lineSync':
         return (
           <LineSyncView

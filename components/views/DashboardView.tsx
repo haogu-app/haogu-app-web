@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MessageCircle, Share2, TrendingUp, ChevronRight, Check, Plus } from 'lucide-react';
+import { MessageCircle, Share2, TrendingUp, ChevronRight, Check } from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer, Cell } from 'recharts';
 import { Header } from '@/components/Header';
 import { formatTime, cleanDisplayMessage, detectSubject, detectCategory, cleanSummaryText, extractEventTime } from '@/lib/utils';
-import { LINE_OA_URL } from '@/lib/constants';
+
 import type { RawLineSync, View } from '@/lib/types';
 
 const SUBJECT_EMOJI: Record<string, string> = {
@@ -19,17 +19,14 @@ interface DashboardViewProps {
   setView: (v: View) => void;
   lineSyncs: RawLineSync[];
   confirmedRecords: RawLineSync[];
-  onQuickRecord: () => void;
 }
 
-export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRecord }: DashboardViewProps) {
+export function DashboardView({ setView, lineSyncs, confirmedRecords }: DashboardViewProps) {
   const [shareCopied, setShareCopied] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [onboardingDone, setOnboardingDone] = useState(false);
 
   useEffect(() => {
     setIsMobile(/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent));
-    if (localStorage.getItem('onboarding_completed') === 'true') setOnboardingDone(true);
   }, []);
 
   const now = new Date();
@@ -67,13 +64,6 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
     if (!catMap.has(category)) catMap.set(category, []);
     catMap.get(category)!.push({ time, text });
   }
-
-  const showOnboarding = !onboardingDone && confirmedRecords.length === 0;
-
-  const handleDismissOnboarding = () => {
-    localStorage.setItem('onboarding_completed', 'true');
-    setOnboardingDone(true);
-  };
 
   const buildShareText = (): string => {
     const url = 'https://haogu-app-web.vercel.app';
@@ -131,53 +121,6 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
         </p>
       </div>
 
-      {/* Onboarding card */}
-      {showOnboarding && (
-        <div className="px-6">
-          <div className="bg-primary-50 border border-primary-100 rounded-2xl p-4 space-y-3">
-            <h3 className="font-bold text-primary-700 text-sm">開始使用好顧</h3>
-            <ol className="space-y-2.5">
-              <li className="flex items-start gap-2 text-sm text-slate-600">
-                <span className="text-primary-500 font-bold shrink-0">1.</span>
-                <span>
-                  在 LINE 傳送：
-                  <span className="inline-block bg-white border border-primary-200 text-primary-700 font-mono text-xs px-2 py-0.5 rounded-lg ml-1 whitespace-nowrap">
-                    #好顧 阿嬤晚上9點吃胃藥
-                  </span>
-                </span>
-              </li>
-              <li className="flex items-start gap-2 text-sm text-slate-600">
-                <span className="text-primary-500 font-bold shrink-0">2.</span>
-                <span>好顧會自動整理成照顧紀錄</span>
-              </li>
-              <li className="flex items-start gap-2 text-sm text-slate-600">
-                <span className="text-primary-500 font-bold shrink-0">3.</span>
-                <span>確認後可一鍵分享給家人</span>
-              </li>
-            </ol>
-            <button
-              onClick={onQuickRecord}
-              className="w-full py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 bg-primary-500 text-white hover:bg-primary-600 active:scale-95 transition-all"
-            >
-              <Plus size={16} />
-              快速記錄
-            </button>
-            <p className="text-xs text-slate-400 text-center">
-              尚未加入 LINE？
-              <a href={LINE_OA_URL} target="_blank" rel="noopener noreferrer" className="text-primary-500 underline ml-1">
-                加入好顧 LINE
-              </a>
-            </p>
-            <button
-              onClick={handleDismissOnboarding}
-              className="w-full pt-1 text-xs text-slate-400 hover:text-slate-600 transition-colors"
-            >
-              我知道了，不再顯示
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* LINE sync card */}
       <div className="px-6">
         <button
@@ -221,12 +164,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
               );
             })}
             {lineSyncs.length === 0 && (
-              <div className="text-center py-3 space-y-1">
-                <p className="text-xs text-slate-500 font-medium">尚無待確認紀錄</p>
-                <p className="text-[11px] text-slate-400">
-                  你可以點下方「快速記錄」新增一筆照顧紀錄
-                </p>
-              </div>
+              <p className="text-xs text-slate-400 text-center py-3">尚無待確認紀錄</p>
             )}
           </div>
         </button>
