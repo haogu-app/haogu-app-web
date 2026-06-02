@@ -5,6 +5,7 @@ import type { Dispatch, SetStateAction } from 'react';
 import type { CareTask, RawLineSync, CareRecordRow, TaskRow } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
 import { FAMILY_ID } from '@/lib/constants';
+import { isCompleteRecord } from '@/lib/utils';
 
 type ApiStatus = 'LOADING' | 'SUCCESS' | 'ERROR';
 
@@ -79,8 +80,26 @@ export function useLineSync() {
       if (confirmedRes.error) throw confirmedRes.error;
       if (tasksRes.error) throw tasksRes.error;
 
-      setLineSyncsInternal((pendingRes.data as CareRecordRow[]).map(rowToLineSync));
-      setConfirmedRecordsInternal((confirmedRes.data as CareRecordRow[]).map(rowToLineSync));
+      const pending = pendingRes.data as CareRecordRow[];
+
+      // Auto-confirm records that have subject + time + content (Make may write confirmed=false)
+      const toAutoConfirm = pending.filter((row) =>
+        isCompleteRecord(row.original_message || row.display_message || row.record_summary || ''),
+      );
+
+      if (toAutoConfirm.length > 0) {
+        await supabase
+          .from('care_records')
+          .update({ confirmed: true })
+          .in('id', toAutoConfirm.map((r) => r.id));
+      }
+
+      const autoIds = new Set(toAutoConfirm.map((r) => r.id));
+      setLineSyncsInternal(pending.filter((r) => !autoIds.has(r.id)).map(rowToLineSync));
+      setConfirmedRecordsInternal([
+        ...toAutoConfirm.map(rowToLineSync),
+        ...(confirmedRes.data as CareRecordRow[]).map(rowToLineSync),
+      ]);
       setTasksInternal((tasksRes.data as TaskRow[]).map(rowToCareTask));
       setApiStatus('SUCCESS');
       setApiErrorDetails(null);

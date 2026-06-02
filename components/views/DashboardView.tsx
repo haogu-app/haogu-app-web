@@ -11,7 +11,7 @@ import type { RawLineSync, View } from '@/lib/types';
 const TEMPLATE = '#好顧 阿嬤晚上9點吃胃藥';
 
 const SUBJECT_EMOJI: Record<string, string> = {
-  阿嬤: '👵', 阿公: '👴', 爸爸: '👨', 媽媽: '👩', 家人: '👤',
+  阿嬤: '👵', 阿公: '👴', 爸爸: '👨', 媽媽: '👩', 奶奶: '👵', 爺爺: '👴', 家人: '👤',
 };
 const CATEGORY_EMOJI: Record<string, string> = {
   用藥: '💊', 量測: '📊', 飲食: '🍱', 就醫: '🏥', 清潔: '🛁', 狀態: '💬', 其他: '📝',
@@ -46,7 +46,13 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
         d.getDate() === now.getDate()
       );
     })
-    .sort((a, b) => (a.receivedAt || '').localeCompare(b.receivedAt || ''));
+    .sort((a, b) => {
+      const key = (r: RawLineSync) => {
+        const src = r.originalMessage || r['原始訊息'] || r.displayMessage || r.recordSummary || '';
+        return extractEventTime(src) ?? formatTime(r.receivedAt || r['收到時間'] || '', true);
+      };
+      return key(b).localeCompare(key(a)); // newest first
+    });
 
   // Group today's records by subject → category
   type CareEntry = { time: string; text: string };

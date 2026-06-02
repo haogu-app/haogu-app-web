@@ -54,7 +54,7 @@ export function cleanDisplayMessage(text: unknown): string {
 
 // ─── Care summary classification ─────────────────────────────────────────────
 
-const CARE_SUBJECTS = ['阿嬤', '阿公', '爸爸', '媽媽'] as const;
+const CARE_SUBJECTS = ['阿嬤', '阿公', '爸爸', '媽媽', '奶奶', '爺爺'] as const;
 
 /** Detect the care subject from a record summary string. */
 export function detectSubject(text: string): string {
@@ -138,6 +138,21 @@ export function cleanSummaryText(text: string, subject: string): string {
   // Clean stray punctuation
   t = t.replace(/^\s*[，。、：:]/g, '').trim();
   return t.length >= 2 ? t : text;
+}
+
+/**
+ * Returns true when a text string contains all three required fields:
+ * recognised subject + parseable event time + care-related content.
+ * Used in useLineSync to auto-confirm records that Make wrote with confirmed=false.
+ */
+export function isCompleteRecord(text: string): boolean {
+  if (!text) return false;
+  if (detectSubject(text) === '家人') return false;
+  if (!extractEventTime(text)) return false;
+  // Has a recognised care category, OR enough content after stripping subject/time
+  if (detectCategory(text) !== '其他') return true;
+  const sub = detectSubject(text);
+  return cleanSummaryText(text.replace(/#好顧/g, ''), sub).length >= 2;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
