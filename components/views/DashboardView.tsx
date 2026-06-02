@@ -189,7 +189,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
               allItems.map((item, i) => (
                 <button
                   key={i}
-                  onClick={() => item.record._dbId ? setEditRecord(item.record) : undefined}
+                  onClick={() => setEditRecord(item.record)}
                   className="w-full flex items-center gap-3 bg-white/10 rounded-xl px-3 py-2 text-left hover:bg-white/20 active:scale-[0.99] transition-all"
                 >
                   <span className="text-sm font-mono tabular-nums text-primary-100/80 shrink-0 w-12">
