@@ -88,7 +88,7 @@ export function DashboardView({ setView, tasks, lineSyncs, confirmedRecords }: D
 
   return (
     <div className="space-y-6 pb-32">
-      <Header title="你好，主要照顧者" />
+      <Header title="好顧" showLogo />
 
       {/* LINE Sync Notification */}
       <div className="px-6">

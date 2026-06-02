@@ -14,7 +14,14 @@
       "Bash(node *)",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(Copy-Item \"C:\\\\work\\\\haogu-app\\\\public\\\\haogu-logo.jpg.jpg\" \"C:\\\\work\\\\haogu-app\\\\public\\\\haogu-logo.jpg\")",
+      "Bash(Copy-Item \"C:\\\\work\\\\haogu-app\\\\public\\\\haogu-icon.png.png\" \"C:\\\\work\\\\haogu-app\\\\public\\\\haogu-icon.png\")",
+      "Bash(Write-Host \"Done\")",
+      "Bash(cp \"C:/work/haogu-app/public/haogu-logo.jpg.jpg\" \"C:/work/haogu-app/public/haogu-logo.jpg\")",
+      "Bash(cp \"C:/work/haogu-app/public/haogu-icon.png.png\" \"C:/work/haogu-app/public/haogu-icon.png\")",
+      "Bash(npm run *)",
+      "Bash(git restore *)"
     ]
   }
 }
