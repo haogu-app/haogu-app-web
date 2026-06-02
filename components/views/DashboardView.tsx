@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MessageCircle, Share2, TrendingUp, Copy, Check } from 'lucide-react';
+import { MessageCircle, Share2, TrendingUp, ChevronRight, Copy, Check } from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer, Cell } from 'recharts';
 import { Header } from '@/components/Header';
 import { formatTime, cleanDisplayMessage, detectSubject, detectCategory, cleanSummaryText, extractEventTime } from '@/lib/utils';
@@ -10,22 +10,17 @@ import type { RawLineSync, View } from '@/lib/types';
 
 const TEMPLATE = '#好顧 阿嬤晚上9點吃胃藥';
 
+const SUBJECT_EMOJI: Record<string, string> = {
+  阿嬤: '👵', 阿公: '👴', 爸爸: '👨', 媽媽: '👩', 奶奶: '👵', 爺爺: '👴', 家人: '👤',
+};
+const CATEGORY_EMOJI: Record<string, string> = {
+  用藥: '💊', 量測: '📊', 飲食: '🍱', 就醫: '🏥', 清潔: '🛁', 狀態: '💬', 其他: '📝',
+};
+
 interface DashboardViewProps {
   setView: (v: View) => void;
   lineSyncs: RawLineSync[];
   confirmedRecords: RawLineSync[];
-}
-
-type CareItem = { time: string; regTime: string; text: string; hasEventTime: boolean };
-type TimeGroup = { time: string; items: CareItem[] };
-
-function groupByTime(items: CareItem[]): TimeGroup[] {
-  const map = new Map<string, CareItem[]>();
-  for (const item of items) {
-    if (!map.has(item.time)) map.set(item.time, []);
-    map.get(item.time)!.push(item);
-  }
-  return Array.from(map.entries()).map(([time, its]) => ({ time, items: its }));
 }
 
 export function DashboardView({ setView, lineSyncs, confirmedRecords }: DashboardViewProps) {
@@ -40,51 +35,41 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
   }, []);
 
   const now = new Date();
-  const nowHHMM = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
-  // ── Today's confirmed records ────────────────────────────────────────────
-  const todayRecords = confirmedRecords.filter((r) => {
-    const d = new Date(r.receivedAt || r['收到時間'] || '');
-    return (
-      d.getFullYear() === now.getFullYear() &&
-      d.getMonth() === now.getMonth() &&
-      d.getDate() === now.getDate()
-    );
-  });
+  // Today's confirmed records, newest event time first
+  const todayRecords = confirmedRecords
+    .filter((r) => {
+      const d = new Date(r.receivedAt || r['收到時間'] || '');
+      return (
+        d.getFullYear() === now.getFullYear() &&
+        d.getMonth() === now.getMonth() &&
+        d.getDate() === now.getDate()
+      );
+    })
+    .sort((a, b) => {
+      const key = (r: RawLineSync) => {
+        const src = r.originalMessage || r['原始訊息'] || r.displayMessage || r.recordSummary || '';
+        return extractEventTime(src) ?? formatTime(r.receivedAt || r['收到時間'] || '', true);
+      };
+      return key(b).localeCompare(key(a));
+    });
 
-  // ── Stats ────────────────────────────────────────────────────────────────
-  const medicationCount = todayRecords.filter((r) => {
+  // Group by subject → category → entries
+  type CareEntry = { time: string; text: string };
+  const grouped = new Map<string, Map<string, CareEntry[]>>();
+  for (const r of todayRecords) {
     const raw = r.recordSummary || r['AI整理結果'] || r.displayMessage || '';
-    return detectCategory(raw) === '用藥';
-  }).length;
-
-  // ── Flat care items ──────────────────────────────────────────────────────
-  const allItems: CareItem[] = todayRecords.map((r) => {
-    const raw = r.recordSummary || r['AI整理結果'] || r.displayMessage || '';
-    const timeSource = r.originalMessage || r['原始訊息'] || r.displayMessage || raw;
-    const regTime = formatTime(r.receivedAt || r['收到時間'] || '', true);
-    const eventTime = extractEventTime(timeSource);
-    const time = eventTime ?? regTime;
     const subject = detectSubject(raw);
+    const category = detectCategory(raw);
     const text = cleanSummaryText(raw, subject);
-    return { time, regTime, text, hasEventTime: !!eventTime };
-  });
+    const timeSource = r.originalMessage || r['原始訊息'] || r.displayMessage || raw;
+    const time = extractEventTime(timeSource) ?? formatTime(r.receivedAt || r['收到時間'] || '', true);
+    if (!grouped.has(subject)) grouped.set(subject, new Map());
+    const catMap = grouped.get(subject)!;
+    if (!catMap.has(category)) catMap.set(category, []);
+    catMap.get(category)!.push({ time, text });
+  }
 
-  // upcoming: event time in future — sort ascending (nearest first)
-  const upcoming = allItems
-    .filter((i) => i.hasEventTime && i.time > nowHHMM)
-    .sort((a, b) => a.time.localeCompare(b.time));
-
-  // completed: no event time OR event time in past — sort descending (latest first)
-  const completed = allItems
-    .filter((i) => !i.hasEventTime || i.time <= nowHHMM)
-    .sort((a, b) => b.time.localeCompare(a.time));
-
-  const nextReminder = upcoming.length > 0 ? upcoming[0].time : null;
-  const upcomingGroups = groupByTime(upcoming);
-  const completedGroups = groupByTime(completed);
-
-  // ── Onboarding ───────────────────────────────────────────────────────────
   const showOnboarding = !onboardingDone && confirmedRecords.length === 0;
 
   const handleDismissOnboarding = () => {
@@ -107,22 +92,16 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
     setTimeout(() => setCopied(false), 2500);
   };
 
-  // ── Share text ───────────────────────────────────────────────────────────
   const buildShareText = (): string => {
     const url = 'https://haogu-app-web.vercel.app';
-    if (allItems.length === 0) return `今日尚無已確認照顧紀錄。\n\n查看好顧：\n${url}`;
+    if (todayRecords.length === 0) return `今日尚無已確認照顧紀錄。\n\n查看好顧：\n${url}`;
     const lines: string[] = ['【好顧】今日照顧摘要'];
-    if (upcoming.length > 0) {
-      lines.push('', '即將到來：');
-      upcomingGroups.forEach(({ time, items }) =>
-        items.forEach((it) => lines.push(`${time} ${it.text}`)),
-      );
-    }
-    if (completed.length > 0) {
-      lines.push('', '已完成：');
-      completedGroups.forEach(({ time, items }) =>
-        items.forEach((it) => lines.push(`${time} ${it.text}`)),
-      );
+    for (const [subject, catMap] of grouped) {
+      lines.push('', `${SUBJECT_EMOJI[subject] ?? '👤'} ${subject}`);
+      for (const [category, entries] of catMap) {
+        lines.push(`${CATEGORY_EMOJI[category] ?? '📝'} ${category}`);
+        for (const { time, text } of entries) lines.push(`  ${time} ${text}`);
+      }
     }
     lines.push('', '查看好顧：', url);
     return lines.join('\n');
@@ -148,7 +127,6 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
     }
   };
 
-  // ── Stats card (unchanged) ───────────────────────────────────────────────
   const dynamicStats = [
     { name: '陪診',    hours: lineSyncs.filter((s) => s['原始訊息']?.includes('診')).length * 3 || 2, color: '#4a7c59' },
     { name: '日常照護', hours: lineSyncs.filter((s) => s['原始訊息']?.includes('食') || s['原始訊息']?.includes('餐')).length * 5 || 4, color: '#6b9080' },
@@ -159,44 +137,8 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
   const estimatedValue = (totalHours * 300).toLocaleString();
   const todayDateStr = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' });
 
-  // ── Time-group renderer ──────────────────────────────────────────────────
-  const renderGroups = (groups: TimeGroup[]) =>
-    groups.map(({ time, items }) => (
-      <div key={time} className="bg-white/10 rounded-xl px-3 py-2.5">
-        {items.length === 1 ? (
-          <div className="flex items-start justify-between gap-3">
-            <span className="text-sm font-bold text-white leading-snug flex-1 min-w-0">
-              {time} {items[0].text}
-            </span>
-            {items[0].regTime !== time && (
-              <span className="text-[9px] text-primary-100/50 tabular-nums whitespace-nowrap shrink-0 pt-0.5">
-                登記於 {items[0].regTime}
-              </span>
-            )}
-          </div>
-        ) : (
-          <>
-            <p className="text-sm font-bold text-white mb-1.5">{time}</p>
-            <div className="space-y-1">
-              {items.map((item, i) => (
-                <div key={i} className="flex items-start justify-between gap-3">
-                  <span className="text-sm text-white/90 flex-1 min-w-0">· {item.text}</span>
-                  {item.regTime !== time && (
-                    <span className="text-[9px] text-primary-100/50 tabular-nums whitespace-nowrap shrink-0">
-                      登記於 {item.regTime}
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
-    ));
-
-  // ── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-5 pb-20">
+    <div className="space-y-6 pb-20">
       <Header title="好顧" showLogo />
 
       {/* Tagline */}
@@ -204,26 +146,6 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
         <p className="text-sm text-slate-500 text-center leading-relaxed">
           用 LINE 記錄長輩近況，AI 自動整理成家人看得懂的照顧摘要
         </p>
-      </div>
-
-      {/* Three-stat bar */}
-      <div className="px-6">
-        <div className="grid grid-cols-3 gap-3">
-          <div className="bg-white rounded-2xl p-3 text-center border border-slate-100 shadow-sm">
-            <p className="text-2xl font-bold text-primary-500 tabular-nums">{medicationCount}</p>
-            <p className="text-[10px] text-slate-400 mt-0.5 leading-tight">已完成用藥</p>
-          </div>
-          <div className="bg-white rounded-2xl p-3 text-center border border-slate-100 shadow-sm">
-            <p className={`text-2xl font-bold tabular-nums ${lineSyncs.length > 0 ? 'text-red-500' : 'text-slate-300'}`}>
-              {lineSyncs.length}
-            </p>
-            <p className="text-[10px] text-slate-400 mt-0.5 leading-tight">待確認紀錄</p>
-          </div>
-          <div className="bg-white rounded-2xl p-3 text-center border border-slate-100 shadow-sm">
-            <p className="text-xl font-bold text-slate-700 tabular-nums">{nextReminder ?? '無'}</p>
-            <p className="text-[10px] text-slate-400 mt-0.5 leading-tight">下次提醒</p>
-          </div>
-        </div>
       </div>
 
       {/* Onboarding card */}
@@ -277,59 +199,131 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
         </div>
       )}
 
-      {/* Compact pending notification */}
-      {lineSyncs.length > 0 && (
-        <div className="px-6">
-          <button
-            onClick={() => setView('lineSync')}
-            className="w-full bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-center justify-between hover:bg-amber-100 active:scale-[0.99] transition-all"
-          >
-            <div className="flex items-center gap-2.5">
-              <MessageCircle size={16} className="text-amber-500 shrink-0" />
-              <span className="text-sm font-bold text-amber-700">
-                有 {lineSyncs.length} 筆 LINE 紀錄待確認
-              </span>
+      {/* LINE sync card */}
+      <div className="px-6">
+        <button
+          onClick={() => setView('lineSync')}
+          className="w-full bg-white border border-primary-100 rounded-2xl p-4 flex flex-col gap-3 text-left shadow-sm hover:border-primary-300 transition-colors"
+        >
+          <div className="flex items-center gap-4 w-full">
+            <div className="bg-green-100 p-3 rounded-xl text-green-600">
+              <MessageCircle size={24} />
             </div>
-            <span className="text-xs font-bold text-amber-600 whitespace-nowrap">立即查看 →</span>
-          </button>
-        </div>
-      )}
+            <div className="flex-1">
+              <div className="flex items-center justify-between">
+                <h3 className="font-bold text-slate-700">待確認紀錄</h3>
+                {lineSyncs.length > 0 && (
+                  <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+                    {lineSyncs.length} 筆待確認
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-400 font-medium">從 LINE 收到的新紀錄會出現在這裡</p>
+            </div>
+            <ChevronRight className="text-slate-300" size={20} />
+          </div>
+
+          <div className="border-t border-slate-50 pt-2 w-full space-y-2">
+            {lineSyncs.slice(0, 3).map((sync, index) => {
+              const displayTxt =
+                sync.displayMessage || cleanDisplayMessage(sync.originalMessage || sync['原始訊息']);
+              return (
+                <div
+                  key={index}
+                  className="flex justify-between items-start text-xs bg-slate-50/60 p-2.5 rounded-xl border border-slate-100/50"
+                >
+                  <p className="text-slate-600 font-medium leading-relaxed truncate max-w-[220px] pr-2" title={displayTxt}>
+                    {displayTxt}
+                  </p>
+                  <span className="text-[10px] text-slate-400 font-semibold whitespace-nowrap bg-white px-1.5 py-0.5 rounded border border-slate-100 shadow-xs">
+                    {formatTime(sync.receivedAt || sync['收到時間'])}
+                  </span>
+                </div>
+              );
+            })}
+            {lineSyncs.length === 0 && (
+              <div className="text-center py-3 space-y-1">
+                <p className="text-xs text-slate-500 font-medium">尚無待確認紀錄</p>
+                <p className="text-[11px] text-slate-400">
+                  請到 LINE 傳送：
+                  <span className="font-mono text-primary-500 ml-1">#好顧 阿嬤晚上9點吃胃藥</span>
+                </p>
+              </div>
+            )}
+          </div>
+        </button>
+
+        {lineSyncs.length === 0 && (
+          <div className="flex gap-2 mt-3">
+            <a
+              href={LINE_OA_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 py-2.5 rounded-xl text-sm font-bold text-center bg-green-500 text-white hover:bg-green-600 active:scale-95 transition-all"
+            >
+              前往 LINE 記錄
+            </a>
+            <button
+              onClick={handleCopyTemplate}
+              className={`flex-1 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all ${
+                copied ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              {copied ? <Check size={14} /> : <Copy size={14} />}
+              {copied ? '已複製！' : '複製記錄格式'}
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Today Summary */}
       <div className="px-6">
-        <div className="bg-gradient-to-br from-primary-400 to-primary-600 rounded-3xl p-5 text-white shadow-lg shadow-primary-200">
-          <div className="flex justify-between items-center mb-4">
+        <div className="bg-gradient-to-br from-primary-400 to-primary-600 rounded-3xl p-6 text-white shadow-lg shadow-primary-200">
+          <div className="flex justify-between items-start mb-4">
             <div>
-              <p className="text-primary-100 text-xs mb-0.5">今天照顧摘要</p>
-              <h2 className="text-xl font-bold">照顧摘要動態</h2>
+              <p className="text-primary-100 text-sm mb-1">今天照顧摘要</p>
+              <h2 className="text-2xl font-bold">照顧摘要動態</h2>
             </div>
-            <div className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px]">
-              {todayDateStr}
+            <div className="flex flex-col items-end gap-1.5">
+              <div className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px]">
+                {todayDateStr}
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm border border-white/20 text-[10px] px-2 py-0.5 rounded-lg font-medium text-primary-50">
+                對象：家庭眷屬
+              </div>
             </div>
           </div>
 
-          {allItems.length === 0 ? (
-            <div className="text-center py-4 space-y-1">
-              <p className="text-sm text-primary-100/70">今日尚無已確認照顧紀錄</p>
-              <p className="text-xs text-primary-100/50">完成確認後，這裡會自動產生今日摘要</p>
-            </div>
-          ) : (
-            <div className="space-y-3 max-h-[320px] overflow-y-auto no-scrollbar">
-              {upcoming.length > 0 && (
-                <div>
-                  <p className="text-[10px] font-bold text-primary-200 uppercase tracking-wider mb-2">即將到來</p>
-                  <div className="space-y-1.5">{renderGroups(upcomingGroups)}</div>
+          <div className="space-y-4 max-h-[280px] overflow-y-auto no-scrollbar">
+            {todayRecords.length === 0 ? (
+              <div className="text-center py-4 space-y-1">
+                <p className="text-sm text-primary-100/70">今日尚無已確認照顧紀錄</p>
+                <p className="text-xs text-primary-100/50">完成確認後，這裡會自動產生今日摘要</p>
+              </div>
+            ) : (
+              Array.from(grouped.entries()).map(([subject, catMap]) => (
+                <div key={subject}>
+                  <p className="text-sm font-bold text-white mb-2">
+                    {SUBJECT_EMOJI[subject] ?? '👤'} {subject}
+                  </p>
+                  {Array.from(catMap.entries()).map(([category, entries]) => (
+                    <div key={category} className="ml-1 mb-3 last:mb-0">
+                      <p className="text-[11px] font-semibold text-primary-100 mb-1.5">
+                        {CATEGORY_EMOJI[category] ?? '📝'} {category}
+                      </p>
+                      <div className="space-y-1 ml-1">
+                        {entries.map((entry, i) => (
+                          <p key={i} className="text-sm font-bold text-white">
+                            {entry.time} {entry.text}
+                          </p>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              )}
-              {completed.length > 0 && (
-                <div>
-                  {upcoming.length > 0 && <div className="border-t border-white/10 pt-3" />}
-                  <p className="text-[10px] font-bold text-primary-200 uppercase tracking-wider mb-2">已完成</p>
-                  <div className="space-y-1.5">{renderGroups(completedGroups)}</div>
-                </div>
-              )}
-            </div>
-          )}
+              ))
+            )}
+          </div>
 
           <button
             onClick={handleShareConfirmed}
