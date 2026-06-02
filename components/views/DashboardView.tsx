@@ -1,10 +1,13 @@
 'use client';
 
-import { CheckCircle2, MessageCircle, Share2, TrendingUp, ChevronRight } from 'lucide-react';
+import { useState } from 'react';
+import { CheckCircle2, MessageCircle, Share2, TrendingUp, ChevronRight, Copy, Check } from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer, Cell } from 'recharts';
 import { Header } from '@/components/Header';
 import { formatTime, cleanDisplayMessage } from '@/lib/utils';
 import type { RawLineSync, View } from '@/lib/types';
+
+const TEMPLATE = '#好顧 阿嬤晚上9點吃胃藥';
 
 interface DashboardViewProps {
   setView: (v: View) => void;
@@ -13,6 +16,8 @@ interface DashboardViewProps {
 }
 
 export function DashboardView({ setView, lineSyncs, confirmedRecords }: DashboardViewProps) {
+  const [copied, setCopied] = useState(false);
+
   const now = new Date();
   const todayRecords = confirmedRecords
     .filter((r) => {
@@ -24,6 +29,21 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
       );
     })
     .sort((a, b) => (a.receivedAt || '').localeCompare(b.receivedAt || ''));
+
+  const handleCopyTemplate = async () => {
+    try {
+      await navigator.clipboard.writeText(TEMPLATE);
+    } catch {
+      const el = document.createElement('textarea');
+      el.value = TEMPLATE;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
 
   const handleShareConfirmed = () => {
     const familyUrl = 'https://haogu-app-web.vercel.app/share/family';
@@ -40,7 +60,6 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
         .join('\n');
       text = `今日照顧摘要：\n${lines}\n\n查看完整照顧紀錄：\n${familyUrl}`;
     }
-
     window.open(`https://line.me/R/share?text=${encodeURIComponent(text)}`, '_blank');
   };
 
@@ -76,7 +95,51 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
     <div className="space-y-6 pb-20">
       <Header title="好顧" showLogo />
 
-      {/* LINE Sync Notification */}
+      {/* Tagline */}
+      <div className="px-6 -mt-2">
+        <p className="text-sm text-slate-500 text-center leading-relaxed">
+          用 LINE 記錄長輩近況，AI 自動整理成家人看得懂的照顧摘要
+        </p>
+      </div>
+
+      {/* Onboarding Card */}
+      <div className="px-6">
+        <div className="bg-primary-50 border border-primary-100 rounded-2xl p-4 space-y-3">
+          <h3 className="font-bold text-primary-700 text-sm">開始使用好顧</h3>
+          <ol className="space-y-2.5">
+            <li className="flex items-start gap-2 text-sm text-slate-600">
+              <span className="text-primary-500 font-bold shrink-0">1.</span>
+              <span>
+                在 LINE 傳送：
+                <span className="inline-block bg-white border border-primary-200 text-primary-700 font-mono text-xs px-2 py-0.5 rounded-lg ml-1 whitespace-nowrap">
+                  #好顧 阿嬤晚上9點吃胃藥
+                </span>
+              </span>
+            </li>
+            <li className="flex items-start gap-2 text-sm text-slate-600">
+              <span className="text-primary-500 font-bold shrink-0">2.</span>
+              <span>好顧會自動整理成照顧紀錄</span>
+            </li>
+            <li className="flex items-start gap-2 text-sm text-slate-600">
+              <span className="text-primary-500 font-bold shrink-0">3.</span>
+              <span>確認後可一鍵分享給家人</span>
+            </li>
+          </ol>
+          <button
+            onClick={handleCopyTemplate}
+            className={`w-full py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 active:scale-95 transition-all ${
+              copied
+                ? 'bg-green-500 text-white'
+                : 'bg-primary-500 text-white hover:bg-primary-600'
+            }`}
+          >
+            {copied ? <Check size={16} /> : <Copy size={16} />}
+            {copied ? '已複製，可貼到 LINE 使用' : '複製記錄格式'}
+          </button>
+        </div>
+      </div>
+
+      {/* LINE Sync */}
       <div className="px-6">
         <button
           onClick={() => setView('lineSync')}
@@ -88,12 +151,14 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between">
-                <h3 className="font-bold text-slate-700">LINE 最新同步</h3>
-                <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
-                  {lineSyncs.length} 筆待確認
-                </span>
+                <h3 className="font-bold text-slate-700">待確認紀錄</h3>
+                {lineSyncs.length > 0 && (
+                  <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+                    {lineSyncs.length} 筆待確認
+                  </span>
+                )}
               </div>
-              <p className="text-xs text-slate-400 font-medium">按此前往確認或修改</p>
+              <p className="text-xs text-slate-400 font-medium">從 LINE 收到的新紀錄會出現在這裡</p>
             </div>
             <ChevronRight className="text-slate-300" size={20} />
           </div>
@@ -120,9 +185,13 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
               );
             })}
             {lineSyncs.length === 0 && (
-              <p className="text-xs text-slate-500 italic text-center py-2">
-                已從家庭 LINE 群組自動整理...
-              </p>
+              <div className="text-center py-3 space-y-1">
+                <p className="text-xs text-slate-500 font-medium">尚無待確認紀錄</p>
+                <p className="text-[11px] text-slate-400">
+                  請先在 LINE 傳送：
+                  <span className="font-mono text-primary-500 ml-1">#好顧 阿嬤晚上9點吃胃藥</span>
+                </p>
+              </div>
             )}
           </div>
         </button>
@@ -161,7 +230,10 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
               </div>
             ))}
             {todayRecords.length === 0 && (
-              <p className="text-center py-4 text-sm text-primary-100/50">今日尚無已確認照顧紀錄</p>
+              <div className="text-center py-4 space-y-1">
+                <p className="text-sm text-primary-100/70">今日尚無已確認照顧紀錄</p>
+                <p className="text-xs text-primary-100/50">完成確認後，這裡會自動產生今日摘要</p>
+              </div>
             )}
           </div>
 
