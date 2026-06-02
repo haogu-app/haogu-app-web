@@ -1,32 +1,31 @@
 'use client';
 
-import { CheckCircle2, Clock, MessageCircle, Share2, TrendingUp, ChevronRight } from 'lucide-react';
+import { CheckCircle2, MessageCircle, Share2, TrendingUp, ChevronRight } from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer, Cell } from 'recharts';
 import { Header } from '@/components/Header';
 import { formatTime, cleanDisplayMessage } from '@/lib/utils';
-import type { CareTask, RawLineSync, View } from '@/lib/types';
+import type { RawLineSync, View } from '@/lib/types';
 
 interface DashboardViewProps {
   setView: (v: View) => void;
-  tasks: CareTask[];
   lineSyncs: RawLineSync[];
   confirmedRecords: RawLineSync[];
 }
 
-export function DashboardView({ setView, tasks, lineSyncs, confirmedRecords }: DashboardViewProps) {
-  const handleShareConfirmed = () => {
-    const now = new Date();
-    const todayRecords = confirmedRecords
-      .filter((r) => {
-        const d = new Date(r.receivedAt || r['收到時間'] || '');
-        return (
-          d.getFullYear() === now.getFullYear() &&
-          d.getMonth() === now.getMonth() &&
-          d.getDate() === now.getDate()
-        );
-      })
-      .sort((a, b) => (a.receivedAt || '').localeCompare(b.receivedAt || ''));
+export function DashboardView({ setView, lineSyncs, confirmedRecords }: DashboardViewProps) {
+  const now = new Date();
+  const todayRecords = confirmedRecords
+    .filter((r) => {
+      const d = new Date(r.receivedAt || r['收到時間'] || '');
+      return (
+        d.getFullYear() === now.getFullYear() &&
+        d.getMonth() === now.getMonth() &&
+        d.getDate() === now.getDate()
+      );
+    })
+    .sort((a, b) => (a.receivedAt || '').localeCompare(b.receivedAt || ''));
 
+  const handleShareConfirmed = () => {
     const familyUrl = 'https://haogu-app-web.vercel.app/share/family';
     let text: string;
     if (todayRecords.length === 0) {
@@ -148,21 +147,21 @@ export function DashboardView({ setView, tasks, lineSyncs, confirmedRecords }: D
           </div>
 
           <div className="space-y-3 max-h-[220px] overflow-y-auto no-scrollbar">
-            {tasks.map((task) => (
-              <div key={task.id} className="flex items-center gap-3 bg-white/10 rounded-xl p-3">
-                {task.completed ? (
-                  <CheckCircle2 size={18} className="text-primary-100" />
-                ) : (
-                  <Clock size={18} className="text-accent-100" />
-                )}
-                <div className="flex-1">
-                  <span className="text-sm font-medium leading-relaxed">{task.title}</span>
-                  <p className="text-[10px] text-primary-100/70">{task.time}</p>
+            {todayRecords.map((r) => (
+              <div key={r._dbId} className="flex items-center gap-3 bg-white/10 rounded-xl p-3">
+                <CheckCircle2 size={18} className="text-primary-100 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <span className="text-sm font-medium leading-relaxed">
+                    {r.recordSummary || r['AI整理結果'] || r.displayMessage}
+                  </span>
+                  <p className="text-[10px] text-primary-100/70">
+                    {formatTime(r.receivedAt || r['收到時間'] || '', true)}
+                  </p>
                 </div>
               </div>
             ))}
-            {tasks.length === 0 && (
-              <p className="text-center py-4 text-sm text-primary-100/50">今日尚無重點照顧摘要紀錄</p>
+            {todayRecords.length === 0 && (
+              <p className="text-center py-4 text-sm text-primary-100/50">今日尚無已確認照顧紀錄</p>
             )}
           </div>
 
