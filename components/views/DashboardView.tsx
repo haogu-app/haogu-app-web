@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MessageCircle, Share2, TrendingUp, ChevronRight, Check } from 'lucide-react';
+import { MessageCircle, Share2, TrendingUp, ChevronRight, Check, Plus } from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer, Cell } from 'recharts';
 import { Header } from '@/components/Header';
 import { formatTime, cleanDisplayMessage, detectSubject, detectCategory, cleanSummaryText, extractEventTime } from '@/lib/utils';
@@ -19,9 +19,10 @@ interface DashboardViewProps {
   setView: (v: View) => void;
   lineSyncs: RawLineSync[];
   confirmedRecords: RawLineSync[];
+  onQuickRecord: () => void;
 }
 
-export function DashboardView({ setView, lineSyncs, confirmedRecords }: DashboardViewProps) {
+export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRecord }: DashboardViewProps) {
   const [shareCopied, setShareCopied] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -169,6 +170,17 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
           </div>
         </button>
 
+      </div>
+
+      {/* Quick Record CTA */}
+      <div className="px-6">
+        <button
+          onClick={onQuickRecord}
+          className="w-full h-12 rounded-2xl bg-primary-500 text-white text-sm font-bold flex items-center justify-center gap-2 shadow-md shadow-primary-200 hover:bg-primary-600 active:scale-95 transition-all"
+        >
+          <Plus size={18} />
+          快速記錄
+        </button>
       </div>
 
       {/* Today Summary */}
