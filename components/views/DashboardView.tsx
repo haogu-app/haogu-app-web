@@ -24,9 +24,10 @@ interface DashboardViewProps {
   onQuickRecord: () => void;
   onRecordDeleted: (dbId: string) => void;
   onRecordSaved: (dbId: string, summary: string) => void;
+  careTargetName: string;
 }
 
-export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRecord, onRecordDeleted, onRecordSaved }: DashboardViewProps) {
+export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRecord, onRecordDeleted, onRecordSaved, careTargetName }: DashboardViewProps) {
   const [shareCopied, setShareCopied] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [editRecord, setEditRecord] = useState<RawLineSync | null>(null);
@@ -178,7 +179,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
           <div className="flex justify-between items-start mb-4">
             <div>
               <h2 className="text-2xl font-bold">今天照顧摘要</h2>
-              <p className="text-xs text-white/60 mt-1">阿嬤的照顧紀錄</p>
+              <p className="text-xs text-white/60 mt-1">{careTargetName}的照顧紀錄</p>
             </div>
             <div className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px]">
               {todayDateStr}

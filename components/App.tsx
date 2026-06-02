@@ -5,17 +5,20 @@ import { AnimatePresence, motion } from 'motion/react';
 import { XCircle } from 'lucide-react';
 import { NavBar } from '@/components/NavBar';
 import { QuickRecordModal } from '@/components/QuickRecordModal';
+import { CareTargetSetupScreen } from '@/components/CareTargetSetupScreen';
 import { DashboardView } from '@/components/views/DashboardView';
 import { LineSyncView } from '@/components/views/LineSyncView';
 import { RecordsView } from '@/components/views/RecordsView';
 import { TasksView } from '@/components/views/TasksView';
 import { SettingsView } from '@/components/views/SettingsView';
 import { useLineSync } from '@/hooks/useLineSync';
+import { useCareTarget } from '@/hooks/useCareTarget';
 import type { CareTask, RawLineSync, View } from '@/lib/types';
 
 export default function App() {
   const [view, setView] = useState<View>('dashboard');
   const [isQuickRecordOpen, setIsQuickRecordOpen] = useState(false);
+  const { careTargetName, updateCareTargetName } = useCareTarget();
 
   const {
     lineSyncs,
@@ -83,7 +86,7 @@ export default function App() {
 
     switch (view) {
       case 'dashboard':
-        return <DashboardView setView={setView} lineSyncs={lineSyncs} confirmedRecords={confirmedRecords} onQuickRecord={() => setIsQuickRecordOpen(true)} onRecordDeleted={handleRecordDeleted} onRecordSaved={handleRecordSaved} />;
+        return <DashboardView setView={setView} lineSyncs={lineSyncs} confirmedRecords={confirmedRecords} onQuickRecord={() => setIsQuickRecordOpen(true)} onRecordDeleted={handleRecordDeleted} onRecordSaved={handleRecordSaved} careTargetName={careTargetName} />;
       case 'lineSync':
         return (
           <LineSyncView
@@ -98,9 +101,27 @@ export default function App() {
       case 'tasks':
         return <TasksView lineSyncs={lineSyncs} />;
       case 'settings':
-        return <SettingsView />;
+        return <SettingsView careTargetName={careTargetName} onUpdateCareTarget={updateCareTargetName} />;
     }
   };
+
+  // Loading profile
+  if (careTargetName === undefined) {
+    return (
+      <div className="relative min-h-screen bg-neutral-50 max-w-md mx-auto overflow-hidden shadow-2xl flex flex-col items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-4 border-primary-200 border-t-primary-500 animate-spin" />
+      </div>
+    );
+  }
+
+  // First-time setup
+  if (careTargetName === null) {
+    return (
+      <div className="relative min-h-screen bg-neutral-50 max-w-md mx-auto overflow-hidden shadow-2xl">
+        <CareTargetSetupScreen onComplete={updateCareTargetName} />
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen bg-neutral-50 max-w-md mx-auto overflow-hidden shadow-2xl flex flex-col">
