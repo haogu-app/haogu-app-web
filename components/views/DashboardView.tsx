@@ -15,9 +15,11 @@ interface DashboardViewProps {
   lineSyncs: RawLineSync[];
   confirmedRecords: RawLineSync[];
   onQuickRecord: () => void;
+  onRecordDeleted: (dbId: string) => void;
+  onRecordSaved: (dbId: string, summary: string) => void;
 }
 
-export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRecord }: DashboardViewProps) {
+export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRecord, onRecordDeleted, onRecordSaved }: DashboardViewProps) {
   const [shareCopied, setShareCopied] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [editRecord, setEditRecord] = useState<RawLineSync | null>(null);
@@ -222,6 +224,8 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
           <EditRecordModal
             record={editRecord}
             onClose={() => setEditRecord(null)}
+            onDeleted={(dbId) => { onRecordDeleted(dbId); setEditRecord(null); }}
+            onSaved={(dbId, summary) => { onRecordSaved(dbId, summary); setEditRecord(null); }}
           />
         )}
       </AnimatePresence>

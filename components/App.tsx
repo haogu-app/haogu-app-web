@@ -24,6 +24,7 @@ export default function App() {
     lineSyncs,
     setLineSyncs,
     confirmedRecords,
+    setConfirmedRecords,
     tasks,
     setTasks,
     apiStatus,
@@ -31,6 +32,20 @@ export default function App() {
     confirmRecord,
     deleteRecord,
   } = useLineSync();
+
+  const handleRecordDeleted = (dbId: string) => {
+    setConfirmedRecords((prev) => prev.filter((r) => r._dbId !== dbId));
+  };
+
+  const handleRecordSaved = (dbId: string, summary: string) => {
+    setConfirmedRecords((prev) =>
+      prev.map((r) =>
+        r._dbId === dbId
+          ? { ...r, recordSummary: summary, displayMessage: summary, originalMessage: summary }
+          : r,
+      ),
+    );
+  };
 
   const addTask = (t: Omit<CareTask, 'id'>) => {
     const newTask: CareTask = { ...t, id: Date.now().toString() };
@@ -64,7 +79,7 @@ export default function App() {
 
     switch (view) {
       case 'dashboard':
-        return <DashboardView setView={setView} lineSyncs={lineSyncs} confirmedRecords={confirmedRecords} onQuickRecord={() => setIsQuickRecordOpen(true)} />;
+        return <DashboardView setView={setView} lineSyncs={lineSyncs} confirmedRecords={confirmedRecords} onQuickRecord={() => setIsQuickRecordOpen(true)} onRecordDeleted={handleRecordDeleted} onRecordSaved={handleRecordSaved} />;
       case 'lineSync':
         return (
           <LineSyncView

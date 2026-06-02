@@ -11,6 +11,8 @@ import type { RawLineSync, CareTask } from '@/lib/types';
 interface EditRecordModalProps {
   record: RawLineSync;
   onClose: () => void;
+  onDeleted?: (dbId: string) => void;
+  onSaved?: (dbId: string, summary: string) => void;
 }
 
 const TYPES: { label: string; emoji: string; value: CareTask['type'] }[] = [
@@ -27,7 +29,7 @@ function toCareType(category: string): CareTask['type'] {
   return '其他';
 }
 
-export function EditRecordModal({ record, onClose }: EditRecordModalProps) {
+export function EditRecordModal({ record, onClose, onDeleted, onSaved }: EditRecordModalProps) {
   // Verify ID is present on mount — visible in browser DevTools console
   console.log('[EditRecord] opened with _dbId:', record._dbId, '| raw record:', record);
 
@@ -75,7 +77,11 @@ export function EditRecordModal({ record, onClose }: EditRecordModalProps) {
       return;
     }
     console.log('[EditRecord] Update success');
-    onClose();
+    if (onSaved && record._dbId) {
+      onSaved(record._dbId, buildSummary());
+    } else {
+      onClose();
+    }
   };
 
   const handleDelete = async () => {
@@ -100,7 +106,11 @@ export function EditRecordModal({ record, onClose }: EditRecordModalProps) {
       return;
     }
     console.log('[EditRecord] Delete success');
-    onClose();
+    if (onDeleted && record._dbId) {
+      onDeleted(record._dbId);
+    } else {
+      onClose();
+    }
   };
 
   return (

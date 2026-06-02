@@ -187,6 +187,7 @@ export function useLineSync() {
     lineSyncs,
     setLineSyncs,
     confirmedRecords,
+    setConfirmedRecords: setConfirmedRecordsInternal,
     tasks,
     setTasks,
     apiStatus,
