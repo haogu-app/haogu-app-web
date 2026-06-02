@@ -28,6 +28,9 @@ function toCareType(category: string): CareTask['type'] {
 }
 
 export function EditRecordModal({ record, onClose }: EditRecordModalProps) {
+  // Verify ID is present on mount — visible in browser DevTools console
+  console.log('[EditRecord] opened with _dbId:', record._dbId, '| raw record:', record);
+
   const raw = record.recordSummary || record['AI整理結果'] || record.displayMessage || '';
   const detectedSubject = detectSubject(raw);
   const timeSource = record.originalMessage || record['原始訊息'] || record.displayMessage || raw;
