@@ -4,16 +4,10 @@ import { useState, useEffect } from 'react';
 import { MessageCircle, Share2, TrendingUp, ChevronRight, Check, Plus } from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer, Cell } from 'recharts';
 import { Header } from '@/components/Header';
-import { formatTime, cleanDisplayMessage, detectSubject, detectCategory, cleanSummaryText, extractEventTime } from '@/lib/utils';
+import { formatTime, cleanDisplayMessage, detectSubject, cleanSummaryText, extractEventTime } from '@/lib/utils';
 
 import type { RawLineSync, View } from '@/lib/types';
 
-const SUBJECT_EMOJI: Record<string, string> = {
-  阿嬤: '👵', 阿公: '👴', 爸爸: '👨', 媽媽: '👩', 奶奶: '👵', 爺爺: '👴', 家人: '👤',
-};
-const CATEGORY_EMOJI: Record<string, string> = {
-  用藥: '💊', 量測: '📊', 飲食: '🍱', 就醫: '🏥', 清潔: '🛁', 狀態: '💬', 其他: '📝',
-};
 
 interface DashboardViewProps {
   setView: (v: View) => void;
@@ -50,33 +44,24 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
       return key(b).localeCompare(key(a));
     });
 
-  // Group by subject → category → entries
-  type CareEntry = { time: string; text: string };
-  const grouped = new Map<string, Map<string, CareEntry[]>>();
-  for (const r of todayRecords) {
-    const raw = r.recordSummary || r['AI整理結果'] || r.displayMessage || '';
-    const subject = detectSubject(raw);
-    const category = detectCategory(raw);
-    const text = cleanSummaryText(raw, subject);
-    const timeSource = r.originalMessage || r['原始訊息'] || r.displayMessage || raw;
-    const time = extractEventTime(timeSource) ?? formatTime(r.receivedAt || r['收到時間'] || '', true);
-    if (!grouped.has(subject)) grouped.set(subject, new Map());
-    const catMap = grouped.get(subject)!;
-    if (!catMap.has(category)) catMap.set(category, []);
-    catMap.get(category)!.push({ time, text });
-  }
+  // Flat summary items — skip entries with no meaningful text
+  type SummaryItem = { time: string; text: string };
+  const allItems: SummaryItem[] = todayRecords
+    .map((r) => {
+      const raw = r.recordSummary || r['AI整理結果'] || r.displayMessage || '';
+      const subject = detectSubject(raw);
+      const text = cleanSummaryText(raw, subject);
+      const timeSource = r.originalMessage || r['原始訊息'] || r.displayMessage || raw;
+      const time = extractEventTime(timeSource) ?? formatTime(r.receivedAt || r['收到時間'] || '', true);
+      return { time, text };
+    })
+    .filter((item) => item.text.length >= 2);
 
   const buildShareText = (): string => {
     const url = 'https://haogu-app-web.vercel.app';
-    if (todayRecords.length === 0) return `今日尚無已確認照顧紀錄。\n\n查看好顧：\n${url}`;
-    const lines: string[] = ['【好顧】今日照顧摘要'];
-    for (const [subject, catMap] of grouped) {
-      lines.push('', `${SUBJECT_EMOJI[subject] ?? '👤'} ${subject}`);
-      for (const [category, entries] of catMap) {
-        lines.push(`${CATEGORY_EMOJI[category] ?? '📝'} ${category}`);
-        for (const { time, text } of entries) lines.push(`  ${time} ${text}`);
-      }
-    }
+    if (allItems.length === 0) return `今日尚無已確認照顧紀錄。\n\n查看好顧：\n${url}`;
+    const lines: string[] = ['【好顧】今日照顧摘要', ''];
+    for (const { time, text } of allItems) lines.push(`${time} ${text}`);
     lines.push('', '查看好顧：', url);
     return lines.join('\n');
   };
@@ -201,32 +186,19 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
             </div>
           </div>
 
-          <div className="space-y-4 max-h-[280px] overflow-y-auto no-scrollbar">
-            {todayRecords.length === 0 ? (
+          <div className="space-y-1.5 max-h-[280px] overflow-y-auto no-scrollbar">
+            {allItems.length === 0 ? (
               <div className="text-center py-4 space-y-1">
                 <p className="text-sm text-primary-100/70">今日尚無已確認照顧紀錄</p>
                 <p className="text-xs text-primary-100/50">完成確認後，這裡會自動產生今日摘要</p>
               </div>
             ) : (
-              Array.from(grouped.entries()).map(([subject, catMap]) => (
-                <div key={subject}>
-                  <p className="text-sm font-bold text-white mb-2">
-                    {SUBJECT_EMOJI[subject] ?? '👤'} {subject}
-                  </p>
-                  {Array.from(catMap.entries()).map(([category, entries]) => (
-                    <div key={category} className="ml-1 mb-3 last:mb-0">
-                      <p className="text-[11px] font-semibold text-primary-100 mb-1.5">
-                        {CATEGORY_EMOJI[category] ?? '📝'} {category}
-                      </p>
-                      <div className="space-y-1 ml-1">
-                        {entries.map((entry, i) => (
-                          <p key={i} className="text-sm font-bold text-white">
-                            {entry.time} {entry.text}
-                          </p>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+              allItems.map((item, i) => (
+                <div key={i} className="flex items-center gap-3 bg-white/10 rounded-xl px-3 py-2">
+                  <span className="text-sm font-mono tabular-nums text-primary-100/80 shrink-0 w-12">
+                    {item.time}
+                  </span>
+                  <span className="text-sm font-bold text-white">{item.text}</span>
                 </div>
               ))
             )}
@@ -239,7 +211,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
             {shareCopied ? (
               <><Check size={16} />已複製照顧摘要，請貼到 LINE 傳給家人</>
             ) : (
-              <><Share2 size={16} />{isMobile ? '分享到 LINE' : '複製 LINE 分享文字'}</>
+              <><Share2 size={16} />一鍵分享到 LINE</>
             )}
           </button>
         </div>
