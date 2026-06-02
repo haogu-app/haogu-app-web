@@ -179,13 +179,8 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
             <div>
               <h2 className="text-2xl font-bold">今天照顧摘要</h2>
             </div>
-            <div className="flex flex-col items-end gap-1.5">
-              <div className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px]">
-                {todayDateStr}
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm border border-white/20 text-[10px] px-2 py-0.5 rounded-lg font-medium text-primary-50">
-                對象：家庭眷屬
-              </div>
+            <div className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px]">
+              {todayDateStr}
             </div>
           </div>
 
