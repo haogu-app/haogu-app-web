@@ -20,14 +20,16 @@ export function Header({ title, showLogo, showBack, onBack }: HeaderProps) {
           </button>
         )}
         {showLogo ? (
-          <Image
-            src="/haogu-logo.png"
-            alt="好顧"
-            width={280}
-            height={112}
-            className="h-14 w-auto object-contain object-left"
-            priority
-          />
+          <div className="w-full flex justify-center">
+            <Image
+              src="/haogu-logo.png"
+              alt="好顧"
+              width={280}
+              height={100}
+              className="h-14 w-auto object-contain"
+              priority
+            />
+          </div>
         ) : (
           <h1 className="text-xl font-bold text-slate-800">{title}</h1>
         )}
