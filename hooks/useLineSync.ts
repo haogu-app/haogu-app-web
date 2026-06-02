@@ -136,10 +136,16 @@ export function useLineSync() {
     };
   }, [loadData]);
 
-  /** Mark a pending care_record as confirmed — moves it to confirmedRecords */
-  const confirmRecord = useCallback(async (dbId: string) => {
+  /** Mark a pending care_record as confirmed, optionally updating its summary fields */
+  const confirmRecord = useCallback(async (dbId: string, summary?: string) => {
     setLineSyncsInternal((prev) => prev.filter((p) => p._dbId !== dbId));
-    await supabase.from('care_records').update({ confirmed: true }).eq('id', dbId);
+    const patch: Record<string, unknown> = { confirmed: true };
+    if (summary) {
+      patch.original_message = summary;
+      patch.display_message = summary;
+      patch.record_summary = summary;
+    }
+    await supabase.from('care_records').update(patch).eq('id', dbId);
   }, []);
 
   /** Permanently delete a care_record */

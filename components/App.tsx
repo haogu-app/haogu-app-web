@@ -13,7 +13,7 @@ import { TasksView } from '@/components/views/TasksView';
 import { SettingsView } from '@/components/views/SettingsView';
 import { useLineSync } from '@/hooks/useLineSync';
 import { formatTime, getRecordSummary } from '@/lib/utils';
-import type { CareTask, View } from '@/lib/types';
+import type { CareTask, RawLineSync, View } from '@/lib/types';
 
 export default function App() {
   const [view, setView] = useState<View>('dashboard');
@@ -52,10 +52,17 @@ export default function App() {
     setTasks((prev) => [...prev, newTask].sort((a, b) => a.time.localeCompare(b.time)));
   };
 
-  const confirmLineSync = (idx: number) => {
+  const confirmLineSync = (idx: number, summary: string) => {
     const item = lineSyncs[idx];
     if (!item?._dbId) return;
-    confirmRecord(item._dbId);
+    const updatedItem: RawLineSync = {
+      ...item,
+      recordSummary: summary,
+      displayMessage: summary,
+      originalMessage: summary,
+    };
+    setConfirmedRecords((prev) => [updatedItem, ...prev]);
+    confirmRecord(item._dbId, summary);
   };
 
   const deleteLineSync = (idx: number) => {

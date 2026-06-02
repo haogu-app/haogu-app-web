@@ -1,15 +1,184 @@
 'use client';
 
 import { useState } from 'react';
-import { MessageCircle, ShieldCheck, ArrowRight, ChevronRight, ChevronLeft, Clock, FileText } from 'lucide-react';
+import { MessageCircle, ShieldCheck, ArrowRight, ChevronRight } from 'lucide-react';
 import { Header } from '@/components/Header';
-import { cleanDisplayMessage, formatTime, getRecordSummary } from '@/lib/utils';
-import type { RawLineSync } from '@/lib/types';
+import { cleanDisplayMessage, formatTime, cn, detectSubject, detectCategory, cleanSummaryText, extractEventTime } from '@/lib/utils';
+import type { RawLineSync, CareTask } from '@/lib/types';
+
+const TYPES: { label: string; emoji: string; value: CareTask['type'] }[] = [
+  { label: '用藥', emoji: '💊', value: '用藥' },
+  { label: '飲食', emoji: '🍽️', value: '飲食' },
+  { label: '血壓', emoji: '🩺', value: '血壓' },
+  { label: '其他', emoji: '📝', value: '其他' },
+];
+
+function toCareType(category: string): CareTask['type'] {
+  if (category === '用藥') return '用藥';
+  if (category === '量測') return '血壓';
+  if (category === '飲食') return '飲食';
+  return '其他';
+}
+
+// ─── Detail / edit form ───────────────────────────────────────────────────────
+
+interface PendingRecordFormProps {
+  sync: RawLineSync;
+  onBack: () => void;
+  onConfirm: (summary: string) => void;
+  onDelete: () => void;
+}
+
+function PendingRecordForm({ sync, onBack, onConfirm, onDelete }: PendingRecordFormProps) {
+  const raw = sync.recordSummary || sync['AI整理結果'] || sync.displayMessage || '';
+  const detectedSubject = detectSubject(raw);
+  const timeSource = sync.originalMessage || sync['原始訊息'] || sync.displayMessage || raw;
+  const detectedTime = extractEventTime(timeSource) ?? '';
+
+  const [subject, setSubject] = useState(detectedSubject === '家人' ? '' : detectedSubject);
+  const [time, setTime] = useState(detectedTime);
+  const [type, setType] = useState<CareTask['type']>(toCareType(detectCategory(raw)));
+  const [detail, setDetail] = useState(cleanSummaryText(raw, detectedSubject));
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const displayTxt = sync.displayMessage || cleanDisplayMessage(sync.originalMessage || sync['原始訊息']);
+
+  const missing: string[] = [];
+  if (!time) missing.push('執行時間');
+  if (!subject.trim()) missing.push('照顧對象');
+
+  const buildSummary = () => `${subject} ${time} ${detail || type}`.trim();
+
+  if (confirmDelete) {
+    return (
+      <div className="space-y-6 pb-24">
+        <Header title="確認刪除" showBack onBack={() => setConfirmDelete(false)} />
+        <div className="px-6 space-y-4">
+          <p className="text-sm text-slate-600 text-center py-6">確定要刪除這筆待確認紀錄嗎？</p>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setConfirmDelete(false)}
+              className="flex-1 py-3 rounded-2xl border border-slate-200 text-sm font-bold text-slate-600"
+            >
+              取消
+            </button>
+            <button
+              onClick={onDelete}
+              className="flex-1 py-3 rounded-2xl bg-red-500 text-white text-sm font-bold"
+            >
+              確認刪除
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 pb-24">
+      <Header title="補充並確認" showBack onBack={onBack} />
+
+      <div className="px-6 space-y-5">
+        {/* 原始訊息 */}
+        <div className="bg-primary-50/40 border border-primary-100/60 rounded-2xl p-4">
+          <div className="flex items-center gap-2 text-primary-600 mb-2">
+            <MessageCircle size={14} />
+            <span className="text-[10px] font-bold tracking-tight uppercase">原始訊息</span>
+          </div>
+          <p className="text-sm text-slate-600 leading-relaxed">{displayTxt}</p>
+        </div>
+
+        {/* 照顧對象 + 執行時間 */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">照顧對象</p>
+            <input
+              type="text"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              placeholder="阿嬤"
+              className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+            />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">執行時間</p>
+            <input
+              type="time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              className={cn(
+                'w-full bg-slate-50 border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2',
+                !time ? 'border-red-200 focus:ring-red-500/20' : 'border-slate-100 focus:ring-primary-500/20',
+              )}
+            />
+          </div>
+        </div>
+
+        {/* 類型 */}
+        <div>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">類型</p>
+          <div className="grid grid-cols-4 gap-3">
+            {TYPES.map((t) => (
+              <button
+                key={t.value}
+                onClick={() => setType(t.value)}
+                className={cn(
+                  'flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all',
+                  type === t.value
+                    ? 'bg-primary-50 border-primary-500 ring-2 ring-primary-500/10'
+                    : 'bg-white border-slate-100',
+                )}
+              >
+                <span className="text-xl leading-none">{t.emoji}</span>
+                <span className="text-[10px] font-bold text-slate-600">{t.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 備註內容 */}
+        <div>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">備註內容</p>
+          <input
+            type="text"
+            value={detail}
+            onChange={(e) => setDetail(e.target.value)}
+            placeholder="輸入備註內容"
+            className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+          />
+        </div>
+
+        {/* 缺少欄位提示 */}
+        {missing.length > 0 && (
+          <p className="text-xs text-red-500 font-medium">缺少：{missing.join('、')}</p>
+        )}
+
+        {/* 操作按鈕 */}
+        <div className="flex gap-3 pt-1">
+          <button
+            onClick={() => onConfirm(buildSummary())}
+            className="flex-1 py-4 rounded-2xl text-sm font-bold bg-primary-500 text-white shadow-md shadow-primary-100 active:scale-95 transition-transform"
+          >
+            儲存並確認
+          </button>
+          <button
+            onClick={() => setConfirmDelete(true)}
+            className="py-4 px-5 rounded-2xl text-sm font-bold bg-red-50 text-red-500 border border-red-100 active:scale-95 transition-transform"
+          >
+            刪除
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── List view ────────────────────────────────────────────────────────────────
 
 interface LineSyncViewProps {
   onBack: () => void;
   lineSyncs: RawLineSync[];
-  onConfirm: (idx: number) => void;
+  onConfirm: (idx: number, summary: string) => void;
   onDelete: (idx: number) => void;
 }
 
@@ -29,71 +198,21 @@ export function LineSyncView({ onBack, lineSyncs, onConfirm, onDelete }: LineSyn
       return null;
     }
 
-    const displayTxt =
-      sync.displayMessage || cleanDisplayMessage(sync.originalMessage || sync['原始訊息']);
-    const sumTxt =
-      sync.recordSummary ||
-      (sync['AI整理結果'] ? cleanDisplayMessage(sync['AI整理結果']) : '解析進行中...');
-    const timeStr = formatTime(sync.receivedAt || sync['收到時間']);
-
     return (
-      <div className="space-y-6 pb-24">
-        <Header title="確認紀錄" showBack onBack={() => setSelectedIdx(null)} />
-
-        <div className="px-6 space-y-4">
-          {/* 取得時間 */}
-          <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm flex items-center gap-3">
-            <div className="bg-slate-50 p-2 rounded-lg text-slate-400">
-              <Clock size={18} />
-            </div>
-            <div>
-              <p className="text-[10px] text-slate-400 font-semibold mb-0.5">取得時間</p>
-              <p className="text-sm font-bold text-slate-700">{timeStr}</p>
-            </div>
-          </div>
-
-          {/* 原始訊息 */}
-          <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm">
-            <div className="flex items-center gap-2 text-primary-500 mb-3">
-              <MessageCircle size={16} />
-              <span className="text-[10px] font-bold tracking-tight uppercase">原始訊息</span>
-            </div>
-            <p className="text-sm text-slate-600 leading-relaxed">{displayTxt}</p>
-          </div>
-
-          {/* 整理結果 */}
-          <div className="bg-primary-50/40 border border-primary-100/60 rounded-2xl p-4">
-            <div className="flex items-center gap-2 text-primary-600 mb-3">
-              <FileText size={16} />
-              <span className="text-[10px] font-bold tracking-tight uppercase">自動整理結果</span>
-            </div>
-            <p className="text-sm font-bold text-slate-700 leading-relaxed">{sumTxt}</p>
-          </div>
-
-          {/* 操作按鈕 */}
-          <div className="flex gap-3 pt-2">
-            <button
-              onClick={() => {
-                onConfirm(selectedIdx);
-                setSelectedIdx(null);
-                showToast('已確認紀錄，並加入今日照顧摘要');
-              }}
-              className="flex-1 py-4 rounded-2xl text-sm font-bold bg-primary-500 text-white shadow-md shadow-primary-100 active:scale-95 transition-transform"
-            >
-              確認紀錄
-            </button>
-            <button
-              onClick={() => {
-                onDelete(selectedIdx);
-                setSelectedIdx(null);
-              }}
-              className="flex-1 py-4 rounded-2xl text-sm font-bold bg-red-50 text-red-500 border border-red-100 active:scale-95 transition-transform"
-            >
-              刪除
-            </button>
-          </div>
-        </div>
-      </div>
+      <PendingRecordForm
+        key={sync._dbId ?? selectedIdx}
+        sync={sync}
+        onBack={() => setSelectedIdx(null)}
+        onConfirm={(summary) => {
+          onConfirm(selectedIdx, summary);
+          setSelectedIdx(null);
+          showToast('已確認紀錄，並加入今日照顧摘要');
+        }}
+        onDelete={() => {
+          onDelete(selectedIdx);
+          setSelectedIdx(null);
+        }}
+      />
     );
   }
 
@@ -165,7 +284,7 @@ export function LineSyncView({ onBack, lineSyncs, onConfirm, onDelete }: LineSyn
                     </p>
                   </div>
                   <span className="text-[10px] bg-primary-100 text-primary-700 px-2 py-0.5 rounded-full font-bold">
-                    點擊確認或刪除
+                    點擊補充並確認
                   </span>
                 </div>
               </div>
