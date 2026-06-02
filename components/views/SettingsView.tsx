@@ -64,19 +64,6 @@ export function SettingsView() {
         </div>
       </div>
 
-      {/* 綁定狀態 */}
-      <div className="px-6">
-        <div className="bg-white border border-slate-100 rounded-2xl p-4 flex items-center gap-3 shadow-sm">
-          <div className="bg-slate-100 p-2 rounded-lg text-slate-400">
-            <MessageCircle size={20} />
-          </div>
-          <div>
-            <p className="text-sm font-bold text-slate-500">尚未綁定家庭群組</p>
-            <p className="text-[10px] text-slate-400 mt-0.5">加入 LINE 官方帳號後即可開始同步</p>
-          </div>
-        </div>
-      </div>
-
       {/* 安全與隱私 */}
       <div className="px-6">
         <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4">
