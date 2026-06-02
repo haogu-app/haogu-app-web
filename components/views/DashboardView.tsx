@@ -106,8 +106,8 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
 
       {/* Tagline */}
       <div className="px-6 -mt-2">
-        <p className="text-sm text-slate-500 text-center leading-relaxed tracking-wide">
-          LINE記錄 × AI整理 × 家人同步
+        <p className="text-sm text-slate-500 text-center leading-relaxed">
+          LINE 記錄長輩近況，AI 整理給家人看
         </p>
       </div>
 
