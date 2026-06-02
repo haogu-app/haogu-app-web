@@ -340,17 +340,14 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
                       </p>
                       <div className="space-y-1 ml-1">
                         {entries.map((entry, i) => (
-                          <div key={i} className="bg-white/10 rounded-lg px-2.5 py-1.5">
-                            <div className="flex items-baseline gap-2">
-                              <span className="text-[10px] text-primary-100/80 font-mono tabular-nums shrink-0">
-                                {entry.time}
-                              </span>
-                              <span className="text-xs text-white/90 leading-relaxed">{entry.text}</span>
-                            </div>
+                          <div key={i} className="flex items-start justify-between gap-3 bg-white/10 rounded-lg px-2.5 py-2">
+                            <span className="text-sm font-bold text-white leading-snug flex-1 min-w-0">
+                              {entry.time} {entry.text}
+                            </span>
                             {entry.regTime !== entry.time && (
-                              <p className="text-[9px] text-primary-100/40 mt-0.5 tabular-nums">
-                                登記：{entry.regTime}
-                              </p>
+                              <span className="text-[9px] text-primary-100/50 tabular-nums whitespace-nowrap shrink-0 pt-0.5">
+                                登記 {entry.regTime}
+                              </span>
                             )}
                           </div>
                         ))}

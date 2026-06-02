@@ -130,13 +130,15 @@ export function extractEventTime(text: string): string | null {
 export function cleanSummaryText(text: string, subject: string): string {
   let t = text;
   if (subject !== '家人') t = t.replaceAll(subject, '');
-  // Remove time patterns like 晚上17點, 早上8點, 下午3:30
+  // Remove Chinese period + hour patterns (晚上17點, 早上8點, 下午3點半 …)
   t = t.replace(/(?:早上|下午|晚上|凌晨|上午)\s*\d+\s*(?:點|時)(?:\d+分?)?/g, '');
   t = t.replace(/\d+\s*(?:點|時)(?:\d+分?)?/g, '');
+  // Remove HH:MM colon format (19:00, 14:30 …) — prevents duplicate time in display
+  t = t.replace(/\b\d{1,2}:\d{2}\b/g, '');
   // Remove common leading action verbs before medicine/food names
   t = t.replace(/^(?:服用|吃了|喝了|吃|喝)\s*/g, '');
-  // Clean stray punctuation
-  t = t.replace(/^\s*[，。、：:]/g, '').trim();
+  // Clean stray punctuation and whitespace
+  t = t.replace(/^\s*[，。、：:\s]+/, '').trim();
   return t.length >= 2 ? t : text;
 }
 
