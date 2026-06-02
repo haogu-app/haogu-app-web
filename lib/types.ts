@@ -4,7 +4,7 @@ export interface CareTask {
   id: string;
   time: string;
   title: string;
-  type: '用藥' | '回診' | '血壓' | '飲食';
+  type: '用藥' | '飲食' | '血壓' | '其他';
   completed: boolean;
 }
 

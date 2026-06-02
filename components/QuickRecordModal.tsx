@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Pill, HeartPulse, Stethoscope, Utensils } from 'lucide-react';
 import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import type { CareTask } from '@/lib/types';
@@ -12,29 +11,30 @@ interface QuickRecordModalProps {
   onSubmit: (t: Omit<CareTask, 'id'>) => void;
 }
 
+const TYPES: { label: string; emoji: string; value: CareTask['type'] }[] = [
+  { label: '用藥', emoji: '💊', value: '用藥' },
+  { label: '飲食', emoji: '🍽️', value: '飲食' },
+  { label: '血壓', emoji: '🩺', value: '血壓' },
+  { label: '其他', emoji: '📝', value: '其他' },
+];
+
+const PLACEHOLDERS: Record<CareTask['type'], string> = {
+  用藥: '胃藥、降血壓藥、止痛藥',
+  飲食: '午餐吃半碗粥、喝水',
+  血壓: '142/88',
+  其他: '回診、跌倒、復健、抽血',
+};
+
 export function QuickRecordModal({ isOpen, onClose, onSubmit }: QuickRecordModalProps) {
   const [type, setType] = useState<CareTask['type']>('用藥');
   const [time, setTime] = useState('08:00');
   const [detail, setDetail] = useState('');
 
-  const types = [
-    { label: '量血壓', value: '血壓' as const, icon: HeartPulse, color: 'text-red-500' },
-    { label: '回診', value: '回診' as const, icon: Stethoscope, color: 'text-blue-500' },
-    { label: '用藥記錄', value: '用藥' as const, icon: Pill, color: 'text-green-500' },
-    { label: '飲食紀錄', value: '飲食' as const, icon: Utensils, color: 'text-orange-500' },
-  ];
-
   if (!isOpen) return null;
 
   const handleSubmit = () => {
-    const title =
-      type === '血壓'
-        ? `測量血壓 ${detail}`
-        : type === '回診'
-          ? `陪同回診 ${detail}`
-          : type === '用藥'
-            ? `用藥記錄 ${detail}`
-            : `飲食紀錄 ${detail}`;
+    const prefix = type === '血壓' ? '量血壓' : type === '其他' ? '' : type;
+    const title = [prefix, detail].filter(Boolean).join(' ') || type;
     onSubmit({ time, title, type, completed: true });
     onClose();
   };
@@ -55,14 +55,14 @@ export function QuickRecordModal({ isOpen, onClose, onSubmit }: QuickRecordModal
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
         className="relative w-full max-w-md bg-white rounded-t-[32px] p-8 shadow-2xl"
       >
-        <div className="w-12 h-1.5 bg-slate-100 rounded-full mx-auto mb-6"></div>
+        <div className="w-12 h-1.5 bg-slate-100 rounded-full mx-auto mb-6" />
         <h3 className="text-xl font-bold text-slate-800 mb-6">快速記錄照顧事項</h3>
 
         <div className="space-y-6">
           <div>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">選擇類型</p>
             <div className="grid grid-cols-4 gap-3">
-              {types.map((t) => (
+              {TYPES.map((t) => (
                 <button
                   key={t.value}
                   onClick={() => setType(t.value)}
@@ -73,7 +73,7 @@ export function QuickRecordModal({ isOpen, onClose, onSubmit }: QuickRecordModal
                       : 'bg-white border-slate-100'
                   )}
                 >
-                  <t.icon size={20} className={t.color} />
+                  <span className="text-xl leading-none">{t.emoji}</span>
                   <span className="text-[10px] font-bold text-slate-600">{t.label}</span>
                 </button>
               ))}
@@ -91,10 +91,10 @@ export function QuickRecordModal({ isOpen, onClose, onSubmit }: QuickRecordModal
               />
             </div>
             <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">備註細節</p>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">備註內容</p>
               <input
                 type="text"
-                placeholder="例如：142/88"
+                placeholder={PLACEHOLDERS[type]}
                 value={detail}
                 onChange={(e) => setDetail(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
