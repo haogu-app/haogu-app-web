@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CheckCircle2, MessageCircle, Share2, TrendingUp, ChevronRight, Copy, Check } from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer, Cell } from 'recharts';
 import { Header } from '@/components/Header';
@@ -17,6 +17,13 @@ interface DashboardViewProps {
 
 export function DashboardView({ setView, lineSyncs, confirmedRecords }: DashboardViewProps) {
   const [copied, setCopied] = useState(false);
+  const [onboardingDone, setOnboardingDone] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem('onboarding_completed') === 'true') {
+      setOnboardingDone(true);
+    }
+  }, []);
 
   const now = new Date();
   const todayRecords = confirmedRecords
@@ -29,6 +36,13 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
       );
     })
     .sort((a, b) => (a.receivedAt || '').localeCompare(b.receivedAt || ''));
+
+  const showOnboarding = !onboardingDone && confirmedRecords.length === 0;
+
+  const handleDismissOnboarding = () => {
+    localStorage.setItem('onboarding_completed', 'true');
+    setOnboardingDone(true);
+  };
 
   const handleCopyTemplate = async () => {
     try {
@@ -103,41 +117,49 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
       </div>
 
       {/* Onboarding Card */}
-      <div className="px-6">
-        <div className="bg-primary-50 border border-primary-100 rounded-2xl p-4 space-y-3">
-          <h3 className="font-bold text-primary-700 text-sm">開始使用好顧</h3>
-          <ol className="space-y-2.5">
-            <li className="flex items-start gap-2 text-sm text-slate-600">
-              <span className="text-primary-500 font-bold shrink-0">1.</span>
-              <span>
-                在 LINE 傳送：
-                <span className="inline-block bg-white border border-primary-200 text-primary-700 font-mono text-xs px-2 py-0.5 rounded-lg ml-1 whitespace-nowrap">
-                  #好顧 阿嬤晚上9點吃胃藥
+      {showOnboarding && (
+        <div className="px-6">
+          <div className="bg-primary-50 border border-primary-100 rounded-2xl p-4 space-y-3">
+            <h3 className="font-bold text-primary-700 text-sm">開始使用好顧</h3>
+            <ol className="space-y-2.5">
+              <li className="flex items-start gap-2 text-sm text-slate-600">
+                <span className="text-primary-500 font-bold shrink-0">1.</span>
+                <span>
+                  在 LINE 傳送：
+                  <span className="inline-block bg-white border border-primary-200 text-primary-700 font-mono text-xs px-2 py-0.5 rounded-lg ml-1 whitespace-nowrap">
+                    #好顧 阿嬤晚上9點吃胃藥
+                  </span>
                 </span>
-              </span>
-            </li>
-            <li className="flex items-start gap-2 text-sm text-slate-600">
-              <span className="text-primary-500 font-bold shrink-0">2.</span>
-              <span>好顧會自動整理成照顧紀錄</span>
-            </li>
-            <li className="flex items-start gap-2 text-sm text-slate-600">
-              <span className="text-primary-500 font-bold shrink-0">3.</span>
-              <span>確認後可一鍵分享給家人</span>
-            </li>
-          </ol>
-          <button
-            onClick={handleCopyTemplate}
-            className={`w-full py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 active:scale-95 transition-all ${
-              copied
-                ? 'bg-green-500 text-white'
-                : 'bg-primary-500 text-white hover:bg-primary-600'
-            }`}
-          >
-            {copied ? <Check size={16} /> : <Copy size={16} />}
-            {copied ? '已複製，可貼到 LINE 使用' : '複製記錄格式'}
-          </button>
+              </li>
+              <li className="flex items-start gap-2 text-sm text-slate-600">
+                <span className="text-primary-500 font-bold shrink-0">2.</span>
+                <span>好顧會自動整理成照顧紀錄</span>
+              </li>
+              <li className="flex items-start gap-2 text-sm text-slate-600">
+                <span className="text-primary-500 font-bold shrink-0">3.</span>
+                <span>確認後可一鍵分享給家人</span>
+              </li>
+            </ol>
+            <button
+              onClick={handleCopyTemplate}
+              className={`w-full py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 active:scale-95 transition-all ${
+                copied
+                  ? 'bg-green-500 text-white'
+                  : 'bg-primary-500 text-white hover:bg-primary-600'
+              }`}
+            >
+              {copied ? <Check size={16} /> : <Copy size={16} />}
+              {copied ? '已複製，可貼到 LINE 使用' : '複製記錄格式'}
+            </button>
+            <button
+              onClick={handleDismissOnboarding}
+              className="w-full pt-1 text-xs text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              我知道了，不再顯示
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* LINE Sync */}
       <div className="px-6">
