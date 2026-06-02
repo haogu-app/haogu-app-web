@@ -12,7 +12,7 @@ interface HeaderProps {
 
 export function Header({ title, showLogo, showBack, onBack }: HeaderProps) {
   return (
-    <div className={`sticky top-0 bg-neutral-50/80 backdrop-blur-md z-40 px-6 flex items-center justify-between ${showLogo ? 'py-3' : 'py-4'}`}>
+    <div className={`sticky top-0 bg-neutral-50/80 backdrop-blur-md z-40 px-6 flex items-center justify-between ${showLogo ? 'py-2' : 'py-4'}`}>
       <div className="flex items-center gap-3 flex-1 min-w-0">
         {showBack && (
           <button onClick={onBack} className="p-1 -ml-2 text-slate-600 shrink-0">
@@ -20,12 +20,12 @@ export function Header({ title, showLogo, showBack, onBack }: HeaderProps) {
           </button>
         )}
         {showLogo ? (
-          <div className="w-full flex justify-center py-4">
+          <div className="w-full flex justify-center">
             <Image
               src="/haogu-icon.png"
               alt="好顧"
               width={420}
-              height={100}
+              height={90}
               priority
             />
           </div>
