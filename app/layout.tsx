@@ -5,8 +5,8 @@ export const metadata: Metadata = {
   title: '好顧 - 家庭照顧同步助手',
   description: '讓照顧者快速整理長輩照顧現況，並一鍵同步給家人了解',
   icons: {
-    icon: '/haogu-icon.png',
-    apple: '/haogu-icon.png',
+    icon: '/haogu-icon-192.png',
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
   },
   appleWebApp: {
     capable: true,

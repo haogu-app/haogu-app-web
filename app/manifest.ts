@@ -10,8 +10,8 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: '#faf9f6',
     theme_color: '#2F8F83',
     icons: [
-      { src: '/haogu-icon.png', sizes: '192x192', type: 'image/png' },
-      { src: '/haogu-icon.png', sizes: '512x512', type: 'image/png' },
+      { src: '/haogu-icon-192.png', sizes: '192x192', type: 'image/png' },
+      { src: '/haogu-icon-512.png', sizes: '512x512', type: 'image/png' },
     ],
   };
 }
