@@ -1,14 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MessageCircle, Share2, TrendingUp, ChevronRight, Copy, Check } from 'lucide-react';
+import { MessageCircle, Share2, TrendingUp, ChevronRight, Check, Plus } from 'lucide-react';
 import { BarChart, Bar, ResponsiveContainer, Cell } from 'recharts';
 import { Header } from '@/components/Header';
 import { formatTime, cleanDisplayMessage, detectSubject, detectCategory, cleanSummaryText, extractEventTime } from '@/lib/utils';
 import { LINE_OA_URL } from '@/lib/constants';
 import type { RawLineSync, View } from '@/lib/types';
-
-const TEMPLATE = '#好顧 阿嬤晚上9點吃胃藥';
 
 const SUBJECT_EMOJI: Record<string, string> = {
   阿嬤: '👵', 阿公: '👴', 爸爸: '👨', 媽媽: '👩', 奶奶: '👵', 爺爺: '👴', 家人: '👤',
@@ -21,10 +19,10 @@ interface DashboardViewProps {
   setView: (v: View) => void;
   lineSyncs: RawLineSync[];
   confirmedRecords: RawLineSync[];
+  onQuickRecord: () => void;
 }
 
-export function DashboardView({ setView, lineSyncs, confirmedRecords }: DashboardViewProps) {
-  const [copied, setCopied] = useState(false);
+export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRecord }: DashboardViewProps) {
   const [shareCopied, setShareCopied] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [onboardingDone, setOnboardingDone] = useState(false);
@@ -75,21 +73,6 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
   const handleDismissOnboarding = () => {
     localStorage.setItem('onboarding_completed', 'true');
     setOnboardingDone(true);
-  };
-
-  const handleCopyTemplate = async () => {
-    try {
-      await navigator.clipboard.writeText(TEMPLATE);
-    } catch {
-      const el = document.createElement('textarea');
-      el.value = TEMPLATE;
-      document.body.appendChild(el);
-      el.select();
-      document.execCommand('copy');
-      document.body.removeChild(el);
-    }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
   };
 
   const buildShareText = (): string => {
@@ -172,23 +155,19 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
                 <span>確認後可一鍵分享給家人</span>
               </li>
             </ol>
-            <a
-              href={LINE_OA_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 bg-green-500 text-white hover:bg-green-600 active:scale-95 transition-all"
-            >
-              還沒加入 LINE？加入好顧 LINE
-            </a>
             <button
-              onClick={handleCopyTemplate}
-              className={`w-full py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 active:scale-95 transition-all ${
-                copied ? 'bg-green-500 text-white' : 'bg-primary-100 text-primary-700 hover:bg-primary-200'
-              }`}
+              onClick={onQuickRecord}
+              className="w-full py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 bg-primary-500 text-white hover:bg-primary-600 active:scale-95 transition-all"
             >
-              {copied ? <Check size={16} /> : <Copy size={16} />}
-              {copied ? '已複製，可貼到 LINE 使用' : '複製記錄格式'}
+              <Plus size={16} />
+              快速記錄
             </button>
+            <p className="text-xs text-slate-400 text-center">
+              尚未加入 LINE？
+              <a href={LINE_OA_URL} target="_blank" rel="noopener noreferrer" className="text-primary-500 underline ml-1">
+                加入好顧 LINE
+              </a>
+            </p>
             <button
               onClick={handleDismissOnboarding}
               className="w-full pt-1 text-xs text-slate-400 hover:text-slate-600 transition-colors"
@@ -245,27 +224,13 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
               <div className="text-center py-3 space-y-1">
                 <p className="text-xs text-slate-500 font-medium">尚無待確認紀錄</p>
                 <p className="text-[11px] text-slate-400">
-                  請到 LINE 傳送：
-                  <span className="font-mono text-primary-500 ml-1">#好顧 阿嬤晚上9點吃胃藥</span>
+                  你可以點下方「快速記錄」新增一筆照顧紀錄
                 </p>
               </div>
             )}
           </div>
         </button>
 
-        {lineSyncs.length === 0 && (
-          <div className="mt-3">
-            <button
-              onClick={handleCopyTemplate}
-              className={`w-full py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all ${
-                copied ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              {copied ? <Check size={14} /> : <Copy size={14} />}
-              {copied ? '已複製！' : '複製記錄格式'}
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Today Summary */}
