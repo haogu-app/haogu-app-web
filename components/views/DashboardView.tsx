@@ -64,7 +64,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
   };
 
   const handleShareConfirmed = async () => {
-    const familyUrl = 'https://haogu-app-web.vercel.app/share/family';
+    const familyUrl = 'https://haogu-app-web.vercel.app';
     let text: string;
     if (todayRecords.length === 0) {
       text = `今日尚無已確認照顧紀錄。\n\n查看家人近況頁：\n${familyUrl}`;
