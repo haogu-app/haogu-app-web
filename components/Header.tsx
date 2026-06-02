@@ -13,12 +13,12 @@ interface HeaderProps {
 export function Header({ title, showLogo, showBack, onBack }: HeaderProps) {
   if (showLogo) {
     return (
-      <div className="sticky top-0 bg-neutral-50/80 backdrop-blur-md z-40 py-2 flex justify-center">
+      <div className="sticky top-0 bg-neutral-50/80 backdrop-blur-md z-40 py-3 flex justify-center">
         <Image
           src="/haogu-icon.png"
           alt="好顧"
-          width={420}
-          height={90}
+          width={200}
+          height={43}
           priority
         />
       </div>
