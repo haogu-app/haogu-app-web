@@ -27,9 +27,10 @@ export function DashboardView({ setView, tasks, lineSyncs, confirmedRecords }: D
       })
       .sort((a, b) => (a.receivedAt || '').localeCompare(b.receivedAt || ''));
 
+    const familyUrl = 'https://haogu-app-web.vercel.app/share/family';
     let text: string;
     if (todayRecords.length === 0) {
-      text = '今日尚無已確認照顧紀錄。\n\n查看好顧：\nhttps://haogu-app-web.vercel.app';
+      text = `今日尚無已確認照顧紀錄。\n\n查看家人近況頁：\n${familyUrl}`;
     } else {
       const lines = todayRecords
         .map((r, i) => {
@@ -38,24 +39,10 @@ export function DashboardView({ setView, tasks, lineSyncs, confirmedRecords }: D
           return `${i + 1}. ${time} ${summary}`;
         })
         .join('\n');
-      text = `今日照顧摘要：\n${lines}\n\n查看完整照顧紀錄：\nhttps://haogu-app-web.vercel.app`;
+      text = `今日照顧摘要：\n${lines}\n\n查看完整照顧紀錄：\n${familyUrl}`;
     }
 
     window.open(`https://line.me/R/share?text=${encodeURIComponent(text)}`, '_blank');
-  };
-
-  const handleShare = () => {
-    const summaryText = tasks
-      .map((t) => `- ${t.time} ${t.title}${t.completed ? ' (已完成)' : ''}`)
-      .join('\n');
-    const todayStr = new Date().toLocaleDateString('zh-TW', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    });
-    const summary = `【好顧】今日照顧摘要 (${todayStr})\n\n照顧進度重點：\n${summaryText || '（暫無紀錄）'}\n\n更多詳細紀錄請點：https://haogu-app-web.vercel.app`;
-    const encoded = encodeURIComponent(summary);
-    window.open(`https://line.me/R/msg/text/?${encoded}`, '_blank');
   };
 
   const dynamicStats = [
@@ -87,7 +74,7 @@ export function DashboardView({ setView, tasks, lineSyncs, confirmedRecords }: D
   });
 
   return (
-    <div className="space-y-6 pb-32">
+    <div className="space-y-6 pb-20">
       <Header title="好顧" showLogo />
 
       {/* LINE Sync Notification */}
@@ -236,18 +223,6 @@ export function DashboardView({ setView, tasks, lineSyncs, confirmedRecords }: D
         </div>
       </div>
 
-      {/* Share Buttons */}
-      <div className="px-6">
-        <button
-          onClick={handleShare}
-          className="w-full bg-accent-50 border border-accent-100 p-4 rounded-2xl flex items-center justify-center gap-3 hover:bg-accent-100 active:scale-95 transition-all group shadow-sm"
-        >
-          <div className="bg-accent-500 text-white p-2 rounded-lg group-hover:scale-110 transition-transform">
-            <Share2 size={20} />
-          </div>
-          <span className="text-sm font-bold text-accent-600">一鍵分享近況給家人</span>
-        </button>
-      </div>
     </div>
   );
 }
