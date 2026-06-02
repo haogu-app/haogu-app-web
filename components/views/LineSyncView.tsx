@@ -15,6 +15,12 @@ interface LineSyncViewProps {
 
 export function LineSyncView({ onBack, lineSyncs, onConfirm, onDelete }: LineSyncViewProps) {
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+  const [toast, setToast] = useState('');
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 2500);
+  };
 
   if (selectedIdx !== null) {
     const sync = lineSyncs[selectedIdx];
@@ -70,6 +76,7 @@ export function LineSyncView({ onBack, lineSyncs, onConfirm, onDelete }: LineSyn
               onClick={() => {
                 onConfirm(selectedIdx);
                 setSelectedIdx(null);
+                showToast('已確認紀錄，並加入今日照顧摘要');
               }}
               className="flex-1 py-4 rounded-2xl text-sm font-bold bg-primary-500 text-white shadow-md shadow-primary-100 active:scale-95 transition-transform"
             >
@@ -92,7 +99,15 @@ export function LineSyncView({ onBack, lineSyncs, onConfirm, onDelete }: LineSyn
 
   return (
     <div className="space-y-6 pb-24">
-      <Header title="LINE 同步紀錄" showBack onBack={onBack} />
+      <Header title="待確認紀錄" showBack onBack={onBack} />
+
+      {toast && (
+        <div className="px-6">
+          <div className="bg-green-500 text-white text-sm font-bold px-4 py-3 rounded-2xl text-center shadow-md shadow-green-200/60">
+            ✓ {toast}
+          </div>
+        </div>
+      )}
 
       <div className="px-6">
         <div className="bg-green-50 border border-green-100 rounded-2xl p-4 flex items-center justify-between">

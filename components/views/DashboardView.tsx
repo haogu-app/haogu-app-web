@@ -5,6 +5,7 @@ import { CheckCircle2, MessageCircle, Share2, TrendingUp, ChevronRight, Copy, Ch
 import { BarChart, Bar, ResponsiveContainer, Cell } from 'recharts';
 import { Header } from '@/components/Header';
 import { formatTime, cleanDisplayMessage } from '@/lib/utils';
+import { LINE_OA_URL } from '@/lib/constants';
 import type { RawLineSync, View } from '@/lib/types';
 
 const TEMPLATE = '#好顧 阿嬤晚上9點吃胃藥';
@@ -140,12 +141,20 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
                 <span>確認後可一鍵分享給家人</span>
               </li>
             </ol>
+            <a
+              href={LINE_OA_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 bg-green-500 text-white hover:bg-green-600 active:scale-95 transition-all"
+            >
+              前往 LINE 記錄
+            </a>
             <button
               onClick={handleCopyTemplate}
               className={`w-full py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 active:scale-95 transition-all ${
                 copied
                   ? 'bg-green-500 text-white'
-                  : 'bg-primary-500 text-white hover:bg-primary-600'
+                  : 'bg-primary-100 text-primary-700 hover:bg-primary-200'
               }`}
             >
               {copied ? <Check size={16} /> : <Copy size={16} />}
@@ -167,6 +176,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
           onClick={() => setView('lineSync')}
           className="w-full bg-white border border-primary-100 rounded-2xl p-4 flex flex-col gap-3 text-left shadow-sm hover:border-primary-300 transition-colors"
         >
+
           <div className="flex items-center gap-4 w-full">
             <div className="bg-green-100 p-3 rounded-xl text-green-600">
               <MessageCircle size={24} />
@@ -210,13 +220,35 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords }: Dashboar
               <div className="text-center py-3 space-y-1">
                 <p className="text-xs text-slate-500 font-medium">尚無待確認紀錄</p>
                 <p className="text-[11px] text-slate-400">
-                  請先在 LINE 傳送：
+                  請到 LINE 傳送：
                   <span className="font-mono text-primary-500 ml-1">#好顧 阿嬤晚上9點吃胃藥</span>
                 </p>
               </div>
             )}
           </div>
         </button>
+
+        {lineSyncs.length === 0 && (
+          <div className="flex gap-2 mt-3">
+            <a
+              href={LINE_OA_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 py-2.5 rounded-xl text-sm font-bold text-center bg-green-500 text-white hover:bg-green-600 active:scale-95 transition-all"
+            >
+              前往 LINE 記錄
+            </a>
+            <button
+              onClick={handleCopyTemplate}
+              className={`flex-1 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all ${
+                copied ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              {copied ? <Check size={14} /> : <Copy size={14} />}
+              {copied ? '已複製！' : '複製記錄格式'}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Today Summary */}
