@@ -199,7 +199,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
               <div className="py-4 space-y-3 text-center">
                 <p className="text-xl font-semibold text-slate-700">尚無待確認紀錄</p>
                 <p className="text-base text-slate-600 leading-relaxed">
-                  少了時間、對象或內容的紀錄會出現在這裡
+                  資料不完整的紀錄會出現在這裡
                 </p>
                 <a
                   href="https://lin.ee/N4yUobv"
