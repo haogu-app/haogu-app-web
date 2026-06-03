@@ -196,11 +196,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
               );
             })}
             {lineSyncs.length === 0 && (
-              <div className="py-4 space-y-3 text-center">
-                <p className="text-xl font-semibold text-slate-700">還沒有需要補充的紀錄</p>
-                <p className="text-base text-slate-600 leading-relaxed">
-                  當 LINE 傳來的紀錄少了時間或內容，會出現在這裡讓你補齊。
-                </p>
+              <div className="py-2">
                 <a
                   href="https://lin.ee/N4yUobv"
                   target="_blank"
