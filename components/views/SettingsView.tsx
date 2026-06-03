@@ -1,96 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { MessageCircle, ShieldCheck, Pencil } from 'lucide-react';
+import { MessageCircle, ShieldCheck } from 'lucide-react';
 import { Header } from '@/components/Header';
-import { AnimatePresence, motion } from 'motion/react';
 
-interface SettingsViewProps {
-  careTargetName: string;
-  onUpdateCareTarget: (name: string) => Promise<void>;
-}
-
-function EditCareTargetModal({
-  current,
-  onSave,
-  onClose,
-}: {
-  current: string;
-  onSave: (name: string) => Promise<void>;
-  onClose: () => void;
-}) {
-  const [value, setValue] = useState(current);
-  const [loading, setLoading] = useState(false);
-
-  const handleSave = async () => {
-    if (!value.trim()) return;
-    setLoading(true);
-    await onSave(value.trim());
-    setLoading(false);
-    onClose();
-  };
-
-  return (
-    <div className="fixed inset-0 z-[100] flex items-end justify-center">
-      <motion.div
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        onClick={onClose}
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
-      />
-      <motion.div
-        initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="relative w-full max-w-md bg-white rounded-t-[32px] p-8 shadow-2xl"
-      >
-        <div className="w-12 h-1.5 bg-slate-100 rounded-full mx-auto mb-6" />
-        <h3 className="text-xl font-bold text-slate-800 mb-6">修改照顧對象</h3>
-
-        <div className="space-y-5">
-          <input
-            type="text"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSave()}
-            autoFocus
-            className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
-          />
-
-          <button
-            onClick={handleSave}
-            disabled={!value.trim() || loading}
-            className="w-full bg-primary-500 text-white rounded-2xl py-4 font-bold shadow-lg shadow-primary-200 active:scale-[0.98] transition-transform disabled:opacity-60"
-          >
-            {loading ? '儲存中...' : '儲存'}
-          </button>
-        </div>
-      </motion.div>
-    </div>
-  );
-}
-
-export function SettingsView({ careTargetName, onUpdateCareTarget }: SettingsViewProps) {
-  const [showEdit, setShowEdit] = useState(false);
-
+export function SettingsView() {
   return (
     <div className="space-y-6 pb-24">
       <Header title="設定" />
-
-      {/* 照顧對象 */}
-      <div className="px-6">
-        <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
-          <h3 className="font-bold text-slate-700 mb-4">照顧對象</h3>
-          <div className="flex items-center justify-between">
-            <p className="text-2xl font-bold text-slate-800">{careTargetName}</p>
-            <button
-              onClick={() => setShowEdit(true)}
-              className="flex items-center gap-1.5 text-xs font-bold text-primary-500 bg-primary-50 px-3 py-2 rounded-xl active:scale-95 transition-transform"
-            >
-              <Pencil size={13} />
-              修改
-            </button>
-          </div>
-        </div>
-      </div>
 
       {/* LINE 同步設定 */}
       <div className="px-6">
@@ -162,16 +78,6 @@ export function SettingsView({ careTargetName, onUpdateCareTarget }: SettingsVie
           </ul>
         </div>
       </div>
-
-      <AnimatePresence>
-        {showEdit && (
-          <EditCareTargetModal
-            current={careTargetName}
-            onSave={onUpdateCareTarget}
-            onClose={() => setShowEdit(false)}
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 }
