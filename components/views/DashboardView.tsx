@@ -196,9 +196,9 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
               );
             })}
             {lineSyncs.length === 0 && (
-              <div className="py-3 space-y-2 text-center">
-                <p className="text-xs text-slate-500 font-medium">尚無待確認紀錄</p>
-                <p className="text-[11px] text-slate-400 leading-relaxed">
+              <div className="py-4 space-y-3 text-center">
+                <p className="text-xl font-semibold text-slate-700">尚無待確認紀錄</p>
+                <p className="text-base text-slate-600 leading-relaxed">
                   少了時間、對象或內容的紀錄會出現在這裡
                 </p>
                 <a
@@ -206,9 +206,9 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  className="inline-flex items-center gap-1 text-[11px] text-green-600 font-bold underline underline-offset-2"
+                  className="inline-flex items-center justify-center gap-2 w-full bg-green-500 text-white text-lg font-semibold py-3 rounded-2xl active:scale-[0.98] transition-transform"
                 >
-                  <MessageCircle size={11} />
+                  <MessageCircle size={20} />
                   加入好顧 LINE
                 </a>
               </div>
