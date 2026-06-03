@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MessageCircle, Share2, ChevronRight, Check, Plus, ExternalLink } from 'lucide-react';
+import { MessageCircle, Share2, ChevronRight, Check, Plus } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import { EditRecordModal } from '@/components/EditRecordModal';
 import { Header } from '@/components/Header';
@@ -15,12 +15,6 @@ function categoryIcon(raw: string): string {
   if (cat === '飲食') return '🍽️';
   return '📝';
 }
-
-const EXAMPLE_ITEMS = [
-  { time: '21:00', text: '胃藥', icon: '💊' },
-  { time: '18:30', text: '晚餐吃半碗', icon: '🍽️' },
-  { time: '14:30', text: '血壓 142/88', icon: '🩺' },
-];
 
 interface DashboardViewProps {
   setView: (v: View) => void;
@@ -115,44 +109,6 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
         </p>
       </div>
 
-      {/* Onboarding */}
-      <div className="px-6">
-        <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-5">
-          <h3 className="font-bold text-slate-700">開始使用好顧</h3>
-
-          <ol className="space-y-3">
-            {[
-              { n: 1, text: '加入好顧 LINE 官方帳號' },
-              { n: 2, text: '傳送照顧紀錄，例如：#好顧 阿嬤晚上9點吃胃藥' },
-              { n: 3, text: '回到 APP 查看 AI 整理後的今日照顧摘要' },
-            ].map(({ n, text }) => (
-              <li key={n} className="flex items-start gap-3">
-                <span className="bg-primary-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
-                  {n}
-                </span>
-                <p className="text-sm text-slate-600 leading-relaxed">{text}</p>
-              </li>
-            ))}
-          </ol>
-
-          <a
-            href="https://lin.ee/N4yUobv"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full bg-green-500 text-white rounded-2xl py-3 text-sm font-bold shadow-sm active:scale-[0.98] transition-transform"
-          >
-            <MessageCircle size={16} />
-            加入好顧 LINE
-            <ExternalLink size={13} className="opacity-70" />
-          </a>
-          <p className="text-[10px] text-slate-400 text-center -mt-1">LINE ID：@418xupmk</p>
-
-          <p className="text-[10px] text-slate-400 leading-relaxed pt-1 border-t border-slate-50">
-            好顧只整理你主動傳送的照顧紀錄，不會讀取 LINE 歷史對話。
-          </p>
-        </div>
-      </div>
-
       {/* LINE sync card */}
       <div className="px-6">
         <button
@@ -196,9 +152,21 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
               );
             })}
             {lineSyncs.length === 0 && (
-              <div className="text-center py-3 space-y-0.5">
-                <p className="text-xs text-slate-400">尚無待確認紀錄</p>
-                <p className="text-[10px] text-slate-300">LINE 傳來但資料不完整的紀錄會出現在這裡</p>
+              <div className="py-3 space-y-2 text-center">
+                <p className="text-xs text-slate-500 font-medium">尚無待確認紀錄</p>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  LINE 傳來但資料不完整的紀錄會出現在這裡。
+                </p>
+                <a
+                  href="https://lin.ee/N4yUobv"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="inline-flex items-center gap-1 text-[11px] text-green-600 font-bold underline underline-offset-2"
+                >
+                  <MessageCircle size={11} />
+                  加入好顧 LINE
+                </a>
               </div>
             )}
           </div>
@@ -215,7 +183,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
           快速記錄
         </button>
         <p className="text-[11px] text-slate-400 text-center">
-          臨時補記可用快速紀錄，日常建議用 LINE 傳送
+          臨時補記可用快速紀錄，日常建議用 LINE 傳送。
         </p>
       </div>
 
@@ -234,23 +202,11 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
 
           <div className="space-y-1.5 max-h-[280px] overflow-y-auto no-scrollbar">
             {allItems.length === 0 ? (
-              <div className="space-y-3">
-                <div className="text-center py-2 space-y-1">
-                  <p className="text-sm text-primary-100/80 font-medium">尚無今日照顧紀錄</p>
-                  <p className="text-[11px] text-primary-100/50 leading-relaxed">
-                    你可以用 LINE 或下方「快速紀錄」新增第一筆照顧紀錄
-                  </p>
-                </div>
-                <div className="border-t border-white/10 pt-3 space-y-1.5">
-                  <p className="text-[10px] text-white/40 mb-2">範例</p>
-                  {EXAMPLE_ITEMS.map((item, i) => (
-                    <div key={i} className="flex items-center gap-3 bg-white/10 rounded-xl px-3 py-2 opacity-60">
-                      <span className="text-sm font-mono tabular-nums text-primary-100/80 shrink-0 w-12">{item.time}</span>
-                      <span className="text-sm font-bold text-white flex-1">{item.text}</span>
-                      <span className="text-base shrink-0">{item.icon}</span>
-                    </div>
-                  ))}
-                </div>
+              <div className="text-center py-4 space-y-1.5">
+                <p className="text-sm text-primary-100/80 font-medium">尚無今日照顧紀錄</p>
+                <p className="text-[11px] text-primary-100/50 leading-relaxed">
+                  你可以用 LINE 或「快速紀錄」新增第一筆紀錄。
+                </p>
               </div>
             ) : (
               allItems.map((item, i) => (
