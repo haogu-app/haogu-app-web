@@ -83,7 +83,7 @@ export default function App() {
 
     switch (view) {
       case 'dashboard':
-        return <DashboardView setView={setView} lineSyncs={lineSyncs} confirmedRecords={confirmedRecords} onQuickRecord={() => setIsQuickRecordOpen(true)} onRecordDeleted={handleRecordDeleted} onRecordSaved={handleRecordSaved} careTargetName="阿嬤" />;
+        return <DashboardView setView={setView} lineSyncs={lineSyncs} confirmedRecords={confirmedRecords} onQuickRecord={() => setIsQuickRecordOpen(true)} onRecordDeleted={handleRecordDeleted} onRecordSaved={handleRecordSaved} careTargetName="阿嬤" isLoading={apiStatus === 'LOADING'} />;
       case 'lineSync':
         return (
           <LineSyncView

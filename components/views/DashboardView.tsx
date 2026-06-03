@@ -24,9 +24,10 @@ interface DashboardViewProps {
   onRecordDeleted: (dbId: string) => void;
   onRecordSaved: (dbId: string, summary: string) => void;
   careTargetName: string;
+  isLoading: boolean;
 }
 
-export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRecord, onRecordDeleted, onRecordSaved, careTargetName }: DashboardViewProps) {
+export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRecord, onRecordDeleted, onRecordSaved, careTargetName, isLoading }: DashboardViewProps) {
   const [shareCopied, setShareCopied] = useState(false);
   const [shareToast, setShareToast] = useState('');
   const [isMobile, setIsMobile] = useState(false);
@@ -115,8 +116,8 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
         </p>
       </div>
 
-      {/* First-time guide — hidden once today has any confirmed records */}
-      {allItems.length === 0 && (
+      {/* First-time guide — hidden while loading and once today has confirmed records */}
+      {!isLoading && allItems.length === 0 && (
         <div className="px-6">
           <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-4">
             <div>
