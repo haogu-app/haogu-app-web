@@ -103,7 +103,7 @@ export default function App() {
   };
 
   return (
-    <div className="relative min-h-screen bg-neutral-50 max-w-md mx-auto overflow-hidden shadow-2xl flex flex-col">
+    <div className="relative min-h-screen bg-neutral-50 w-full max-w-[480px] mx-auto overflow-hidden shadow-2xl flex flex-col">
       <div className="flex-1 overflow-y-auto no-scrollbar pb-16">
         <AnimatePresence mode="wait">
           <motion.div
