@@ -68,6 +68,7 @@ export default function App() {
     };
     setConfirmedRecords((prev) => [updatedItem, ...prev]);
     confirmRecord(item._dbId, summary);
+    setTimeout(() => setIsLineSyncOpen(false), 800);
   };
 
   const deleteLineSync = (idx: number) => {
