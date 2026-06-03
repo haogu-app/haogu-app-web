@@ -18,13 +18,6 @@ export default function App() {
   const [isQuickRecordOpen, setIsQuickRecordOpen] = useState(false);
   const [isLineSyncOpen, setIsLineSyncOpen] = useState(false);
 
-  // Auto-close sheet when all pending records are gone (e.g. after confirming the last one)
-  useEffect(() => {
-    if (isLineSyncOpen && lineSyncs.length === 0) {
-      setIsLineSyncOpen(false);
-    }
-  }, [isLineSyncOpen, lineSyncs.length]);
-
   const {
     lineSyncs,
     setLineSyncs,
@@ -37,6 +30,13 @@ export default function App() {
     confirmRecord,
     deleteRecord,
   } = useLineSync();
+
+  // Auto-close sheet when all pending records are gone (e.g. after confirming the last one)
+  useEffect(() => {
+    if (isLineSyncOpen && lineSyncs.length === 0) {
+      setIsLineSyncOpen(false);
+    }
+  }, [isLineSyncOpen, lineSyncs.length]);
 
   const handleRecordDeleted = (dbId: string) => {
     setConfirmedRecords((prev) => prev.filter((r) => r._dbId !== dbId));
