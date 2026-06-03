@@ -86,7 +86,7 @@ export default function App() {
 
     switch (view) {
       case 'dashboard':
-        return <DashboardView setView={setView} lineSyncs={lineSyncs} confirmedRecords={confirmedRecords} onQuickRecord={() => setIsQuickRecordOpen(true)} onRecordDeleted={handleRecordDeleted} onRecordSaved={handleRecordSaved} careTargetName={careTargetName} />;
+        return <DashboardView setView={setView} lineSyncs={lineSyncs} confirmedRecords={confirmedRecords} onQuickRecord={() => setIsQuickRecordOpen(true)} onRecordDeleted={handleRecordDeleted} onRecordSaved={handleRecordSaved} careTargetName={careTargetName ?? ''} />;
       case 'lineSync':
         return (
           <LineSyncView
@@ -101,7 +101,7 @@ export default function App() {
       case 'tasks':
         return <TasksView lineSyncs={lineSyncs} />;
       case 'settings':
-        return <SettingsView careTargetName={careTargetName} onUpdateCareTarget={updateCareTargetName} />;
+        return <SettingsView careTargetName={careTargetName ?? ''} onUpdateCareTarget={updateCareTargetName} />;
     }
   };
 
