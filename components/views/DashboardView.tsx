@@ -31,6 +31,7 @@ interface DashboardViewProps {
 export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRecord, onRecordDeleted, onRecordSaved, careTargetName, isLoading, onOpenLineSync }: DashboardViewProps) {
   const [shareCopied, setShareCopied] = useState(false);
   const [shareToast, setShareToast] = useState('');
+  const [pendingToast, setPendingToast] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [editRecord, setEditRecord] = useState<RawLineSync | null>(null);
 
@@ -157,7 +158,14 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
       {/* LINE sync card */}
       <div className="px-6">
         <button
-          onClick={() => { if (lineSyncs.length > 0) onOpenLineSync(); }}
+          onClick={() => {
+            if (lineSyncs.length > 0) {
+              onOpenLineSync();
+            } else {
+              setPendingToast(true);
+              setTimeout(() => setPendingToast(false), 2000);
+            }
+          }}
           className="w-full bg-white border border-primary-100 rounded-2xl p-4 flex flex-col gap-3 text-left shadow-sm hover:border-primary-300 transition-colors"
         >
           <div className="flex items-center gap-4 w-full">
@@ -179,6 +187,9 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
           </div>
 
           <div className="border-t border-slate-50 pt-2 w-full space-y-2">
+            {pendingToast && (
+              <p className="text-xs text-slate-400 text-center py-1">目前沒有需要補充的紀錄</p>
+            )}
             {lineSyncs.slice(0, 3).map((sync, index) => {
               const displayTxt =
                 sync.displayMessage || cleanDisplayMessage(sync.originalMessage || sync['原始訊息']);

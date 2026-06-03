@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { XCircle } from 'lucide-react';
 import { NavBar } from '@/components/NavBar';
@@ -17,6 +17,13 @@ export default function App() {
   const [view, setView] = useState<View>('dashboard');
   const [isQuickRecordOpen, setIsQuickRecordOpen] = useState(false);
   const [isLineSyncOpen, setIsLineSyncOpen] = useState(false);
+
+  // Auto-close sheet when all pending records are gone (e.g. after confirming the last one)
+  useEffect(() => {
+    if (isLineSyncOpen && lineSyncs.length === 0) {
+      setIsLineSyncOpen(false);
+    }
+  }, [isLineSyncOpen, lineSyncs.length]);
 
   const {
     lineSyncs,
