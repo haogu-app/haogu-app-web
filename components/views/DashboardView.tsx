@@ -161,7 +161,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
           onClick={() => {
             if (lineSyncs.length > 0) {
               onOpenLineSync();
-            } else {
+            } else if (!isLoading) {
               setPendingToast(true);
               setTimeout(() => setPendingToast(false), 2000);
             }
@@ -207,7 +207,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
                 </div>
               );
             })}
-            {lineSyncs.length === 0 && (
+            {!isLoading && lineSyncs.length === 0 && (
               <div className="py-2">
                 <a
                   href="https://lin.ee/N4yUobv"
