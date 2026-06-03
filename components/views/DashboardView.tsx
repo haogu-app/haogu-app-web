@@ -161,7 +161,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
               <div className="py-3 space-y-2 text-center">
                 <p className="text-xs text-slate-500 font-medium">尚無待確認紀錄</p>
                 <p className="text-[11px] text-slate-400 leading-relaxed">
-                  LINE 傳來但資料不完整的紀錄會出現在這裡，點進去即可補齊。
+                  資料不完整的 LINE 紀錄會出現在這裡
                 </p>
                 <a
                   href="https://lin.ee/N4yUobv"
