@@ -217,7 +217,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
       </div>
 
       {/* Quick Record CTA */}
-      <div className="px-6 space-y-2">
+      <div className="px-6">
         <button
           onClick={onQuickRecord}
           className="w-full h-12 rounded-2xl bg-primary-500 text-white text-sm font-bold flex items-center justify-center gap-2 shadow-md shadow-primary-200 hover:bg-primary-600 active:scale-95 transition-all"
@@ -225,9 +225,6 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
           <Plus size={18} />
           快速記錄
         </button>
-        <p className="text-[11px] text-slate-400 text-center">
-          臨時補記用快速紀錄，日常建議用 LINE。
-        </p>
       </div>
 
       {/* Today Summary */}
@@ -236,7 +233,6 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
           <div className="flex justify-between items-start mb-4">
             <div>
               <h2 className="text-2xl font-bold">今天照顧摘要</h2>
-              <p className="text-xs text-white/60 mt-1">{careTargetName}的照顧紀錄</p>
             </div>
             <div className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px]">
               {todayDateStr}
