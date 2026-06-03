@@ -4,13 +4,13 @@ import { useState } from 'react';
 import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
-import { FAMILY_ID } from '@/lib/constants';
 import type { CareTask } from '@/lib/types';
 
 interface QuickRecordModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (t: Omit<CareTask, 'id'>) => void;
+  familyId: string;
 }
 
 const TYPES: { label: string; emoji: string; value: CareTask['type'] }[] = [
@@ -27,7 +27,7 @@ const PLACEHOLDERS: Record<CareTask['type'], string> = {
   其他: '回診、跌倒、復健、抽血',
 };
 
-export function QuickRecordModal({ isOpen, onClose, onSubmit }: QuickRecordModalProps) {
+export function QuickRecordModal({ isOpen, onClose, onSubmit, familyId }: QuickRecordModalProps) {
   const [subject, setSubject] = useState('阿嬤');
   const [type, setType] = useState<CareTask['type']>('用藥');
   const [time, setTime] = useState('08:00');
@@ -48,7 +48,7 @@ export function QuickRecordModal({ isOpen, onClose, onSubmit }: QuickRecordModal
 
     // Insert directly into care_records (confirmed=true so it appears in today's summary)
     const { error: dbError } = await supabase.from('care_records').insert({
-      family_id: FAMILY_ID,
+      family_id: familyId,
       received_at: new Date().toISOString(),
       original_message: summary,
       display_message: summary,

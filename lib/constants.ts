@@ -5,9 +5,16 @@ export const FAMILY_MEMBERS = [
   { name: '姑姑', role: '家屬', status: '已讀', lastSeen: '3小時前' },
 ];
 
-/** Hardcoded until auth is implemented (Phase 3). Must match supabase/seed.sql. */
+/** Default family — matches supabase/seed.sql and NEXT_PUBLIC_FAMILY_ID. */
 export const FAMILY_ID =
   process.env.NEXT_PUBLIC_FAMILY_ID ?? '00000000-0000-0000-0000-000000000001';
+
+/** URL ?family= slug → fixed UUID mapping for multi-tester isolation. */
+export const FAMILY_MAP: Record<string, string> = {
+  'test-a': '00000000-0000-0000-0000-0000000000a1',
+  'test-b': '00000000-0000-0000-0000-0000000000b1',
+  'test-c': '00000000-0000-0000-0000-0000000000c1',
+};
 
 /** LINE Official Account link — update here when OA changes. */
 export const LINE_OA_URL = 'https://lin.ee/ZQwOK4e';

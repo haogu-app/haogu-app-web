@@ -11,12 +11,20 @@ import { RecordsView } from '@/components/views/RecordsView';
 import { TasksView } from '@/components/views/TasksView';
 import { SettingsView } from '@/components/views/SettingsView';
 import { useLineSync } from '@/hooks/useLineSync';
+import { FAMILY_ID, FAMILY_MAP } from '@/lib/constants';
 import type { CareTask, RawLineSync, View } from '@/lib/types';
 
 export default function App() {
   const [view, setView] = useState<View>('dashboard');
   const [isQuickRecordOpen, setIsQuickRecordOpen] = useState(false);
   const [isLineSyncOpen, setIsLineSyncOpen] = useState(false);
+
+  // Resolve family_id from ?family= query param once on mount
+  const [familyId] = useState<string>(() => {
+    if (typeof window === 'undefined') return FAMILY_ID;
+    const slug = new URLSearchParams(window.location.search).get('family') ?? '';
+    return FAMILY_MAP[slug] ?? FAMILY_ID;
+  });
 
   const {
     lineSyncs,
@@ -29,7 +37,7 @@ export default function App() {
     apiErrorDetails,
     confirmRecord,
     deleteRecord,
-  } = useLineSync();
+  } = useLineSync(familyId);
 
   // Auto-close sheet when all pending records are gone (e.g. after confirming the last one)
   useEffect(() => {
@@ -135,6 +143,7 @@ export default function App() {
             isOpen={isQuickRecordOpen}
             onClose={() => setIsQuickRecordOpen(false)}
             onSubmit={addTask}
+            familyId={familyId}
           />
         )}
       </AnimatePresence>

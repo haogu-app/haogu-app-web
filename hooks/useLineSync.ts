@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import type { CareTask, RawLineSync, CareRecordRow, TaskRow } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
-import { FAMILY_ID } from '@/lib/constants';
 import { isCompleteRecord } from '@/lib/utils';
 
 type ApiStatus = 'LOADING' | 'SUCCESS' | 'ERROR';
@@ -47,7 +46,7 @@ function rowToCareTask(row: TaskRow): CareTask {
   };
 }
 
-export function useLineSync() {
+export function useLineSync(familyId: string) {
   const [lineSyncs, setLineSyncsInternal] = useState<RawLineSync[]>([]);
   const [confirmedRecords, setConfirmedRecordsInternal] = useState<RawLineSync[]>([]);
   const [tasks, setTasksInternal] = useState<CareTask[]>([]);
@@ -60,19 +59,19 @@ export function useLineSync() {
         supabase
           .from('care_records')
           .select('*')
-          .eq('family_id', FAMILY_ID)
+          .eq('family_id', familyId)
           .eq('confirmed', false)
           .order('received_at', { ascending: false }),
         supabase
           .from('care_records')
           .select('*')
-          .eq('family_id', FAMILY_ID)
+          .eq('family_id', familyId)
           .eq('confirmed', true)
           .order('received_at', { ascending: false }),
         supabase
           .from('tasks')
           .select('*')
-          .eq('family_id', FAMILY_ID)
+          .eq('family_id', familyId)
           .order('time'),
       ]);
 
@@ -112,21 +111,21 @@ export function useLineSync() {
         responseText: 'Check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local',
       });
     }
-  }, []);
+  }, [familyId]);
 
   useEffect(() => {
     loadData();
 
     const channel = supabase
-      .channel('haogu-data')
+      .channel(`haogu-data-${familyId}`)
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'care_records', filter: `family_id=eq.${FAMILY_ID}` },
+        { event: '*', schema: 'public', table: 'care_records', filter: `family_id=eq.${familyId}` },
         loadData,
       )
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'tasks', filter: `family_id=eq.${FAMILY_ID}` },
+        { event: '*', schema: 'public', table: 'tasks', filter: `family_id=eq.${familyId}` },
         loadData,
       )
       .subscribe();
@@ -177,7 +176,7 @@ export function useLineSync() {
         supabase
           .from('tasks')
           .insert({
-            family_id: FAMILY_ID,
+            family_id: familyId,
             time: task.time,
             title: task.title,
             type: task.type,
