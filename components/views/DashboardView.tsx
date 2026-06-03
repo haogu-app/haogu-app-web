@@ -115,6 +115,43 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
         </p>
       </div>
 
+      {/* First-time guide — hidden once today has any confirmed records */}
+      {allItems.length === 0 && (
+        <div className="px-6">
+          <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-4">
+            <div>
+              <p className="font-bold text-slate-700 text-sm">第一次使用好顧？</p>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                先加入 LINE，傳送一筆照顧紀錄，AI 會整理成今天照顧摘要。
+              </p>
+            </div>
+            <ol className="space-y-2">
+              {[
+                '加入好顧 LINE',
+                '傳送：#好顧 阿嬤晚上9點吃胃藥',
+                '回到 APP 查看今天照顧摘要',
+              ].map((step, i) => (
+                <li key={i} className="flex items-start gap-2.5">
+                  <span className="bg-primary-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
+                    {i + 1}
+                  </span>
+                  <p className="text-xs text-slate-600 leading-relaxed">{step}</p>
+                </li>
+              ))}
+            </ol>
+            <a
+              href="https://lin.ee/N4yUobv"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full bg-green-500 text-white rounded-xl py-3 text-sm font-bold active:scale-[0.98] transition-transform"
+            >
+              <MessageCircle size={16} />
+              加入好顧 LINE
+            </a>
+          </div>
+        </div>
+      )}
+
       {/* LINE sync card */}
       <div className="px-6">
         <button
@@ -161,7 +198,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
               <div className="py-3 space-y-2 text-center">
                 <p className="text-xs text-slate-500 font-medium">尚無待確認紀錄</p>
                 <p className="text-[11px] text-slate-400 leading-relaxed">
-                  資料不完整的 LINE 紀錄會出現在這裡
+                  少了時間、對象或內容的紀錄會出現在這裡
                 </p>
                 <a
                   href="https://lin.ee/N4yUobv"
@@ -189,7 +226,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
           快速記錄
         </button>
         <p className="text-[11px] text-slate-400 text-center">
-          臨時補記可用快速紀錄，日常建議用 LINE 傳送。
+          臨時補記用快速紀錄，日常建議用 LINE。
         </p>
       </div>
 
@@ -211,7 +248,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
               <div className="text-center py-4 space-y-1.5">
                 <p className="text-sm text-primary-100/80 font-medium">尚無今日照顧紀錄</p>
                 <p className="text-[11px] text-primary-100/50 leading-relaxed">
-                  你可以用 LINE 或「快速紀錄」新增第一筆紀錄。
+                  加入 LINE 或點「快速紀錄」新增第一筆紀錄
                 </p>
               </div>
             ) : (
