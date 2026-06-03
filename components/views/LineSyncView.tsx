@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { MessageCircle, ShieldCheck, ArrowRight, ChevronRight } from 'lucide-react';
+import { MessageCircle, ArrowRight, ChevronRight } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { cleanDisplayMessage, formatTime, cn, detectSubject, detectCategory, cleanSummaryText, extractEventTime } from '@/lib/utils';
 import type { RawLineSync, CareTask } from '@/lib/types';
@@ -228,21 +228,6 @@ export function LineSyncView({ onBack, lineSyncs, onConfirm, onDelete }: LineSyn
         </div>
       )}
 
-      <div className="px-6">
-        <div className="bg-green-50 border border-green-100 rounded-2xl p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="bg-green-100 p-2 rounded-lg text-green-600">
-              <ShieldCheck size={20} />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-green-800">已連接家庭群組</p>
-              <p className="text-xs text-green-600">Supabase Realtime 即時同步中</p>
-            </div>
-          </div>
-          <div className="bg-green-500 w-2 h-2 rounded-full animate-pulse"></div>
-        </div>
-      </div>
-
       <div className="px-6 space-y-4">
         <h3 className="text-xs font-bold text-slate-400 tracking-wider uppercase">
           待確認的同步訊息 ({lineSyncs.length} 筆)
@@ -294,8 +279,7 @@ export function LineSyncView({ onBack, lineSyncs, onConfirm, onDelete }: LineSyn
 
         {lineSyncs.length === 0 && (
           <div className="text-center py-12 bg-white rounded-3xl border border-slate-100/50">
-            <p className="text-slate-400 text-sm font-semibold">目前無待確認的 LINE 同步訊息 ✨</p>
-            <p className="text-slate-300 text-xs mt-1">Supabase Realtime 持續監聽中</p>
+            <p className="text-slate-500 text-sm font-semibold">目前沒有需要補充的紀錄</p>
           </div>
         )}
       </div>

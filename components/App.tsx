@@ -16,6 +16,7 @@ import type { CareTask, RawLineSync, View } from '@/lib/types';
 export default function App() {
   const [view, setView] = useState<View>('dashboard');
   const [isQuickRecordOpen, setIsQuickRecordOpen] = useState(false);
+  const [isLineSyncOpen, setIsLineSyncOpen] = useState(false);
 
   const {
     lineSyncs,
@@ -83,7 +84,7 @@ export default function App() {
 
     switch (view) {
       case 'dashboard':
-        return <DashboardView setView={setView} lineSyncs={lineSyncs} confirmedRecords={confirmedRecords} onQuickRecord={() => setIsQuickRecordOpen(true)} onRecordDeleted={handleRecordDeleted} onRecordSaved={handleRecordSaved} careTargetName="阿嬤" isLoading={apiStatus === 'LOADING'} />;
+        return <DashboardView setView={setView} lineSyncs={lineSyncs} confirmedRecords={confirmedRecords} onQuickRecord={() => setIsQuickRecordOpen(true)} onRecordDeleted={handleRecordDeleted} onRecordSaved={handleRecordSaved} careTargetName="阿嬤" isLoading={apiStatus === 'LOADING'} onOpenLineSync={() => setIsLineSyncOpen(true)} />;
       case 'lineSync':
         return (
           <LineSyncView
@@ -127,6 +128,30 @@ export default function App() {
             onClose={() => setIsQuickRecordOpen(false)}
             onSubmit={addTask}
           />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isLineSyncOpen && (
+          <div className="fixed inset-0 z-[80] flex flex-col justify-end">
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-900/30"
+            />
+            <motion.div
+              initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="relative w-full max-w-[480px] mx-auto bg-neutral-50 rounded-t-3xl overflow-y-auto"
+              style={{ maxHeight: '92dvh' }}
+            >
+              <LineSyncView
+                onBack={() => setIsLineSyncOpen(false)}
+                lineSyncs={lineSyncs}
+                onConfirm={confirmLineSync}
+                onDelete={deleteLineSync}
+              />
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 

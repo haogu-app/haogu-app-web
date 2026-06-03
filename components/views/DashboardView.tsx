@@ -25,9 +25,10 @@ interface DashboardViewProps {
   onRecordSaved: (dbId: string, summary: string) => void;
   careTargetName: string;
   isLoading: boolean;
+  onOpenLineSync: () => void;
 }
 
-export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRecord, onRecordDeleted, onRecordSaved, careTargetName, isLoading }: DashboardViewProps) {
+export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRecord, onRecordDeleted, onRecordSaved, careTargetName, isLoading, onOpenLineSync }: DashboardViewProps) {
   const [shareCopied, setShareCopied] = useState(false);
   const [shareToast, setShareToast] = useState('');
   const [isMobile, setIsMobile] = useState(false);
@@ -156,7 +157,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
       {/* LINE sync card */}
       <div className="px-6">
         <button
-          onClick={() => setView('lineSync')}
+          onClick={() => { if (lineSyncs.length > 0) onOpenLineSync(); }}
           className="w-full bg-white border border-primary-100 rounded-2xl p-4 flex flex-col gap-3 text-left shadow-sm hover:border-primary-300 transition-colors"
         >
           <div className="flex items-center gap-4 w-full">
