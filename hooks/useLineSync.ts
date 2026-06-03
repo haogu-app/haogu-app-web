@@ -139,7 +139,7 @@ export function useLineSync() {
   /** Mark a pending care_record as confirmed, optionally updating its summary fields */
   const confirmRecord = useCallback(async (dbId: string, summary?: string) => {
     setLineSyncsInternal((prev) => prev.filter((p) => p._dbId !== dbId));
-    const patch: Record<string, unknown> = { confirmed: true };
+    const patch: Record<string, unknown> = { confirmed: true, status: 'complete' };
     if (summary) {
       patch.original_message = summary;
       patch.display_message = summary;

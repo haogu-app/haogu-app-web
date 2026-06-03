@@ -28,6 +28,7 @@ interface DashboardViewProps {
 
 export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRecord, onRecordDeleted, onRecordSaved, careTargetName }: DashboardViewProps) {
   const [shareCopied, setShareCopied] = useState(false);
+  const [shareToast, setShareToast] = useState('');
   const [isMobile, setIsMobile] = useState(false);
   const [editRecord, setEditRecord] = useState<RawLineSync | null>(null);
 
@@ -77,6 +78,11 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
   };
 
   const handleShareConfirmed = async () => {
+    if (allItems.length === 0) {
+      setShareToast('目前尚無今日照顧紀錄');
+      setTimeout(() => setShareToast(''), 2500);
+      return;
+    }
     const text = buildShareText();
     if (isMobile) {
       window.open(`https://line.me/R/share?text=${encodeURIComponent(text)}`, '_blank');
@@ -155,7 +161,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
               <div className="py-3 space-y-2 text-center">
                 <p className="text-xs text-slate-500 font-medium">尚無待確認紀錄</p>
                 <p className="text-[11px] text-slate-400 leading-relaxed">
-                  LINE 傳來但資料不完整的紀錄會出現在這裡。
+                  LINE 傳來但資料不完整的紀錄會出現在這裡，點進去即可補齊。
                 </p>
                 <a
                   href="https://lin.ee/N4yUobv"
@@ -225,16 +231,22 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
             )}
           </div>
 
-          <button
-            onClick={handleShareConfirmed}
-            className="w-full mt-4 bg-white/20 backdrop-blur-sm border border-white/30 py-2.5 rounded-xl flex items-center justify-center gap-2 text-white text-sm font-bold hover:bg-white/30 active:scale-95 transition-all"
-          >
-            {shareCopied ? (
-              <><Check size={16} />已複製照顧摘要，請貼到 LINE 傳給家人</>
-            ) : (
-              <><Share2 size={16} />一鍵分享到 LINE</>
-            )}
-          </button>
+          {shareToast ? (
+            <div className="mt-4 py-2.5 rounded-xl text-center text-sm font-medium text-white/70 bg-white/10 border border-white/20">
+              {shareToast}
+            </div>
+          ) : (
+            <button
+              onClick={handleShareConfirmed}
+              className="w-full mt-4 bg-white/20 backdrop-blur-sm border border-white/30 py-2.5 rounded-xl flex items-center justify-center gap-2 text-white text-sm font-bold hover:bg-white/30 active:scale-95 transition-all"
+            >
+              {shareCopied ? (
+                <><Check size={16} />已複製照顧摘要，請貼到 LINE 傳給家人</>
+              ) : (
+                <><Share2 size={16} />一鍵分享到 LINE</>
+              )}
+            </button>
+          )}
         </div>
       </div>
 
