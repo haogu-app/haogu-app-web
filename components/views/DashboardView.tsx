@@ -179,6 +179,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
                 )}
               </div>
               <p className="text-xs text-slate-400 font-medium">如果 LINE 傳來的內容不夠完整，會出現在這裡讓你補齊。</p>
+              <p className="text-[10px] text-slate-300 mt-0.5">範例：#好顧 媽媽晚上9點吃胃藥</p>
             </div>
             {lineSyncs.length > 0 && <ChevronRight className="text-slate-300" size={20} />}
           </div>
