@@ -31,7 +31,6 @@ interface DashboardViewProps {
 export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRecord, onRecordDeleted, onRecordSaved, careTargetName, isLoading, onOpenLineSync }: DashboardViewProps) {
   const [shareCopied, setShareCopied] = useState(false);
   const [shareToast, setShareToast] = useState('');
-  const [pendingToast, setPendingToast] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [editRecord, setEditRecord] = useState<RawLineSync | null>(null);
 
@@ -118,30 +117,16 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
         </p>
       </div>
 
-      {/* First-time guide — hidden while loading and once today has confirmed records */}
-      {!isLoading && allItems.length === 0 && (
+      {/* First-step onboarding — show only when no today records and no pending syncs */}
+      {!isLoading && allItems.length === 0 && lineSyncs.length === 0 && (
         <div className="px-6">
-          <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="bg-white border border-green-100 rounded-2xl p-5 shadow-sm space-y-3">
             <div>
-              <p className="font-bold text-slate-700 text-sm">第一次使用好顧？</p>
+              <p className="font-bold text-slate-700 text-sm">第一步：加入好顧 LINE</p>
               <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                先加入 LINE，傳送一筆照顧紀錄，AI 會整理成今天照顧摘要。
+                用 LINE 傳送長輩近況，好顧會整理成今天照顧摘要。
               </p>
             </div>
-            <ol className="space-y-2">
-              {[
-                '加入好顧 LINE',
-                '傳送：#好顧 阿嬤晚上9點吃胃藥',
-                '回到 APP 查看今天照顧摘要',
-              ].map((step, i) => (
-                <li key={i} className="flex items-start gap-2.5">
-                  <span className="bg-primary-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
-                    {i + 1}
-                  </span>
-                  <p className="text-xs text-slate-600 leading-relaxed">{step}</p>
-                </li>
-              ))}
-            </ol>
             <a
               href="https://lin.ee/N4yUobv"
               target="_blank"
@@ -161,9 +146,6 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
           onClick={() => {
             if (lineSyncs.length > 0) {
               onOpenLineSync();
-            } else if (!isLoading) {
-              setPendingToast(true);
-              setTimeout(() => setPendingToast(false), 2000);
             }
           }}
           className="w-full bg-white border border-primary-100 rounded-2xl p-4 flex flex-col gap-3 text-left shadow-sm hover:border-primary-300 transition-colors"
@@ -174,21 +156,21 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between">
-                <h3 className="font-bold text-slate-700">待確認紀錄</h3>
+                <h3 className="font-bold text-slate-700">需要你確認的紀錄</h3>
                 {lineSyncs.length > 0 && (
                   <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
                     {lineSyncs.length} 筆待確認
                   </span>
                 )}
               </div>
-              <p className="text-xs text-slate-400 font-medium">從 LINE 收到的新紀錄會出現在這裡</p>
+              <p className="text-xs text-slate-400 font-medium">確認後會加入今天照顧摘要</p>
             </div>
-            <ChevronRight className="text-slate-300" size={20} />
+            {lineSyncs.length > 0 && <ChevronRight className="text-slate-300" size={20} />}
           </div>
 
           <div className="border-t border-slate-50 pt-2 w-full space-y-2">
-            {pendingToast && (
-              <p className="text-xs text-slate-400 text-center py-1">目前沒有需要補充的紀錄</p>
+            {!isLoading && lineSyncs.length === 0 && (
+              <p className="text-xs text-slate-400 text-center py-1">目前沒有需要確認的紀錄</p>
             )}
             {lineSyncs.slice(0, 3).map((sync, index) => {
               const displayTxt =
@@ -207,26 +189,12 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
                 </div>
               );
             })}
-            {!isLoading && lineSyncs.length === 0 && (
-              <div className="py-2">
-                <a
-                  href="https://lin.ee/N4yUobv"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="inline-flex items-center justify-center gap-2 w-full bg-green-500 text-white text-lg font-semibold py-3 rounded-2xl active:scale-[0.98] transition-transform"
-                >
-                  <MessageCircle size={20} />
-                  加入好顧 LINE
-                </a>
-              </div>
-            )}
           </div>
         </button>
       </div>
 
       {/* Quick Record CTA */}
-      <div className="px-6">
+      <div className="px-6 space-y-1.5">
         <button
           onClick={onQuickRecord}
           className="w-full h-12 rounded-2xl bg-primary-500 text-white text-sm font-bold flex items-center justify-center gap-2 shadow-md shadow-primary-200 hover:bg-primary-600 active:scale-95 transition-all"
@@ -234,6 +202,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
           <Plus size={18} />
           快速記錄
         </button>
+        <p className="text-[11px] text-slate-400 text-center">臨時補記用，日常建議從 LINE 傳送</p>
       </div>
 
       {/* Today Summary */}
