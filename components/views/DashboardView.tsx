@@ -34,6 +34,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
   const [isMobile, setIsMobile] = useState(false);
   const [editRecord, setEditRecord] = useState<RawLineSync | null>(null);
   const [lineCardOpen, setLineCardOpen] = useState(false);
+  const [exampleCopied, setExampleCopied] = useState(false);
   // Gate all conditional content behind this flag.
   // It starts true and only flips false AFTER the render where isLoading becomes false,
   // guaranteeing data is populated before any empty-state or onboarding logic runs.
@@ -251,18 +252,49 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
 
           {/* Expandable body */}
           {lineCardOpen && lineSyncs.length === 0 && (
-            <div className="px-4 pb-4 space-y-3 border-t border-slate-50">
-              <p className="text-xs text-slate-500 font-mono pt-3">#好顧 媽媽晚上9點吃胃藥</p>
-              <a
-                href="https://lin.ee/N4yUobv"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="flex items-center justify-center gap-2 w-full bg-green-500 text-white rounded-xl py-2.5 text-sm font-bold active:scale-[0.98] transition-transform"
-              >
-                <MessageCircle size={15} />
-                加入好顧 LINE
-              </a>
+            <div className="px-4 pb-4 border-t border-slate-50">
+              <ol className="space-y-3 pt-3 mb-4">
+                {[
+                  '加入好顧 LINE 官方帳號',
+                  '傳送照顧紀錄時，在訊息前加上 #好顧',
+                  '例如：#好顧 媽媽晚上9點已吃胃藥，今天胃口正常',
+                  'AI 會自動整理成照顧紀錄，並同步到好顧 APP',
+                ].map((step, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-xs text-slate-600">
+                    <span className="bg-primary-100 text-primary-600 w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
+                      {i + 1}
+                    </span>
+                    <span className="leading-relaxed">{step}</span>
+                  </li>
+                ))}
+              </ol>
+              {exampleCopied ? (
+                <div className="w-full py-2.5 rounded-xl text-center text-xs font-medium text-green-700 bg-green-50 border border-green-100">
+                  已複製，可貼到 LINE 傳送
+                </div>
+              ) : (
+                <button
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    const text = '#好顧 媽媽晚上9點已吃胃藥，今天胃口正常';
+                    try {
+                      await navigator.clipboard.writeText(text);
+                    } catch {
+                      const el = document.createElement('textarea');
+                      el.value = text;
+                      document.body.appendChild(el);
+                      el.select();
+                      document.execCommand('copy');
+                      document.body.removeChild(el);
+                    }
+                    setExampleCopied(true);
+                    setTimeout(() => setExampleCopied(false), 2500);
+                  }}
+                  className="w-full py-2.5 rounded-xl text-center text-sm font-bold text-primary-600 bg-primary-50 border border-primary-100 active:scale-[0.98] transition-transform"
+                >
+                  複製範例
+                </button>
+              )}
             </div>
           )}
 
