@@ -125,8 +125,8 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
         </p>
       </div>
 
-      {/* First-step onboarding — show only when no today records and no pending syncs */}
-      {!isHomeDataLoading && allItems.length === 0 && lineSyncs.length === 0 && (
+      {/* First-step onboarding — show until the family has at least two confirmed records */}
+      {!isHomeDataLoading && confirmedRecords.length < 2 && (
         <div className="px-6">
           <div className="bg-white border border-green-100 rounded-2xl p-5 shadow-sm space-y-3">
             <p className="font-bold text-slate-700 text-sm">開始使用好顧</p>
