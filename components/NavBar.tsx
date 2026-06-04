@@ -54,7 +54,7 @@ export function NavBar({ currentView, setView, onQuickRecord }: NavBarProps) {
         )}
       >
         <SettingsIcon size={22} />
-        <span className="text-[10px] font-medium">設定</span>
+        <span className="text-[10px] font-medium">更多</span>
         {currentView === 'settings' && (
           <motion.div layoutId="nav-dot" className="w-1 h-1 rounded-full bg-primary-500 mt-0.5" />
         )}
