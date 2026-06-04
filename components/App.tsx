@@ -160,13 +160,13 @@ export default function App() {
 
       <NavBar currentView={view} setView={setView} onQuickRecord={() => setIsQuickRecordOpen(true)} />
 
-      {/* Desktop FAB — visible only on md+ where NavBar is hidden */}
+      {/* Desktop FAB — absolute inside the app container, visible only on md+ where NavBar is hidden */}
       <button
         onClick={() => setIsQuickRecordOpen(true)}
-        className="hidden md:flex fixed bottom-8 right-8 bg-primary-500 text-white w-16 h-16 rounded-full shadow-xl shadow-primary-200 items-center justify-center hover:scale-110 active:scale-95 transition-transform z-50 border-4 border-white"
+        className="hidden md:flex absolute bottom-6 right-4 bg-primary-500 text-white w-14 h-14 rounded-full shadow-lg shadow-primary-200 items-center justify-center hover:scale-110 active:scale-95 transition-transform z-50 border-4 border-white"
         aria-label="快速紀錄"
       >
-        <Plus size={30} />
+        <Plus size={28} />
       </button>
 
       <AnimatePresence>
