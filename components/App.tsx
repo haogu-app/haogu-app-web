@@ -38,6 +38,7 @@ export default function App() {
     setTasks,
     apiStatus,
     apiErrorDetails,
+    isDataReady,
     confirmRecord,
     deleteRecord,
   } = useLineSync(familyId);
@@ -122,7 +123,7 @@ export default function App() {
 
     switch (view) {
       case 'dashboard':
-        return <DashboardView setView={setView} lineSyncs={lineSyncs} confirmedRecords={confirmedRecords} onQuickRecord={() => setIsQuickRecordOpen(true)} onRecordDeleted={handleRecordDeleted} onRecordSaved={handleRecordSaved} careTargetName="阿嬤" isLoading={apiStatus === 'LOADING'} onOpenLineSync={() => setIsLineSyncOpen(true)} />;
+        return <DashboardView setView={setView} lineSyncs={lineSyncs} confirmedRecords={confirmedRecords} onQuickRecord={() => setIsQuickRecordOpen(true)} onRecordDeleted={handleRecordDeleted} onRecordSaved={handleRecordSaved} careTargetName="阿嬤" isLoading={!isDataReady} onOpenLineSync={() => setIsLineSyncOpen(true)} />;
       case 'lineSync':
         return (
           <LineSyncView

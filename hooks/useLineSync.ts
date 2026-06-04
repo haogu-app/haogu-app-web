@@ -52,6 +52,9 @@ export function useLineSync(familyId: string) {
   const [tasks, setTasksInternal] = useState<CareTask[]>([]);
   const [apiStatus, setApiStatus] = useState<ApiStatus>('LOADING');
   const [apiErrorDetails, setApiErrorDetails] = useState<ApiErrorDetails | null>(null);
+  // One-way latch: flips to true after the first successful load and never reverts.
+  // This prevents any flash where empty state is shown before data arrives.
+  const [isDataReady, setIsDataReady] = useState(false);
 
   const loadData = useCallback(async () => {
     try {
@@ -102,6 +105,7 @@ export function useLineSync(familyId: string) {
       setTasksInternal((tasksRes.data as TaskRow[]).map(rowToCareTask));
       setApiStatus('SUCCESS');
       setApiErrorDetails(null);
+      setIsDataReady(true);
     } catch (err: unknown) {
       const e = err as Error;
       setApiStatus('ERROR');
@@ -197,6 +201,7 @@ export function useLineSync(familyId: string) {
     setTasks,
     apiStatus,
     apiErrorDetails,
+    isDataReady,
     confirmRecord,
     deleteRecord,
   };
