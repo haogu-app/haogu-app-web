@@ -181,7 +181,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
             {lineSyncs.length > 0 && <ChevronRight className="text-slate-300" size={20} />}
           </div>
 
-          <div className="border-t border-slate-50 pt-2 w-full space-y-2">
+          {lineSyncs.length > 0 && <div className="border-t border-slate-50 pt-2 w-full space-y-2">
             {lineSyncs.slice(0, 3).map((sync, index) => {
               const displayTxt =
                 sync.displayMessage || cleanDisplayMessage(sync.originalMessage || sync['原始訊息']);
@@ -199,7 +199,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
                 </div>
               );
             })}
-          </div>
+          </div>}
         </button>
       </div>
 
@@ -227,10 +227,6 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
             </div>
           </div>
 
-          <p className="text-[11px] text-white/60 mb-3 leading-relaxed">
-            這裡會整理今天已完成的照顧紀錄，方便分享給家人。
-          </p>
-
           <div className="space-y-1.5 max-h-[280px] overflow-y-auto no-scrollbar">
             {allItems.length === 0 ? (
               <div className="text-center py-4">
@@ -253,7 +249,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
             )}
           </div>
 
-          {shareToast ? (
+          {allItems.length > 0 && (shareToast ? (
             <div className="mt-4 py-2.5 rounded-xl text-center text-sm font-medium text-white/70 bg-white/10 border border-white/20">
               {shareToast}
             </div>
@@ -268,7 +264,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
                 <><Share2 size={16} />分享今天摘要給家人</>
               )}
             </button>
-          )}
+          ))}
         </div>
       </div>
 
