@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { XCircle } from 'lucide-react';
+import { XCircle, Plus } from 'lucide-react';
 import { NavBar } from '@/components/NavBar';
 import { QuickRecordModal } from '@/components/QuickRecordModal';
 import { DashboardView } from '@/components/views/DashboardView';
@@ -159,6 +159,15 @@ export default function App() {
       </div>
 
       <NavBar currentView={view} setView={setView} onQuickRecord={() => setIsQuickRecordOpen(true)} />
+
+      {/* Desktop FAB — visible only on md+ where NavBar is hidden */}
+      <button
+        onClick={() => setIsQuickRecordOpen(true)}
+        className="hidden md:flex fixed bottom-8 right-8 bg-primary-500 text-white w-16 h-16 rounded-full shadow-xl shadow-primary-200 items-center justify-center hover:scale-110 active:scale-95 transition-transform z-50 border-4 border-white"
+        aria-label="快速紀錄"
+      >
+        <Plus size={30} />
+      </button>
 
       <AnimatePresence>
         {isQuickRecordOpen && (

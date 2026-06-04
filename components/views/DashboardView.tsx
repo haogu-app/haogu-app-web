@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MessageCircle, Share2, ChevronRight, Check, Plus, ChevronDown } from 'lucide-react';
+import { MessageCircle, Share2, ChevronRight, Check, ChevronDown } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import { EditRecordModal } from '@/components/EditRecordModal';
 import { Header } from '@/components/Header';
@@ -290,21 +290,6 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
             </div>
           )}
         </div>
-      </div>
-
-      {/* Quick Record CTA */}
-      <div className="px-6 space-y-1.5">
-        <button
-          onClick={onQuickRecord}
-          className="w-full h-12 rounded-2xl text-white text-sm font-bold flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all"
-          style={{ background: '#F3A24D', boxShadow: '0 4px 6px -1px #F3A24D40' }}
-          onMouseEnter={e => (e.currentTarget.style.background = '#E8923D')}
-          onMouseLeave={e => (e.currentTarget.style.background = '#F3A24D')}
-        >
-          <Plus size={18} />
-          手動新增
-        </button>
-        <p className="text-xs text-slate-400 text-center">沒用 LINE 時，可在這裡補記</p>
       </div>
 
       <AnimatePresence>
