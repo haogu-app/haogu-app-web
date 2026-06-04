@@ -33,10 +33,18 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
   const [shareToast, setShareToast] = useState('');
   const [isMobile, setIsMobile] = useState(false);
   const [editRecord, setEditRecord] = useState<RawLineSync | null>(null);
+  // Gate all conditional content behind this flag.
+  // It starts true and only flips false AFTER the render where isLoading becomes false,
+  // guaranteeing data is populated before any empty-state or onboarding logic runs.
+  const [isHomeDataLoading, setIsHomeDataLoading] = useState(true);
 
   useEffect(() => {
     setIsMobile(/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent));
   }, []);
+
+  useEffect(() => {
+    if (!isLoading) setIsHomeDataLoading(false);
+  }, [isLoading]);
 
   const now = new Date();
 
@@ -118,7 +126,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
       </div>
 
       {/* First-step onboarding — show only when no today records and no pending syncs */}
-      {!isLoading && allItems.length === 0 && lineSyncs.length === 0 && (
+      {!isHomeDataLoading && allItems.length === 0 && lineSyncs.length === 0 && (
         <div className="px-6">
           <div className="bg-white border border-green-100 rounded-2xl p-5 shadow-sm space-y-3">
             <p className="font-bold text-slate-700 text-sm">開始使用好顧</p>
@@ -174,7 +182,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
           </div>
 
           <div className="border-t border-slate-50 pt-2 w-full space-y-2">
-            {!isLoading && lineSyncs.length === 0 && (
+            {!isHomeDataLoading && lineSyncs.length === 0 && (
               <p className="text-xs text-slate-400 text-center py-1">目前沒有需要補充的紀錄</p>
             )}
             {lineSyncs.slice(0, 3).map((sync, index) => {
@@ -227,7 +235,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
           </p>
 
           <div className="space-y-1.5 max-h-[280px] overflow-y-auto no-scrollbar">
-            {allItems.length === 0 ? (
+            {!isHomeDataLoading && allItems.length === 0 ? (
               <div className="text-center py-4">
                 <p className="text-sm text-primary-100/80 font-medium">還沒有今日紀錄</p>
               </div>
