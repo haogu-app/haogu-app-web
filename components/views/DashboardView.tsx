@@ -212,9 +212,9 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
           className="w-full h-12 rounded-2xl bg-primary-500 text-white text-sm font-bold flex items-center justify-center gap-2 shadow-md shadow-primary-200 hover:bg-primary-600 active:scale-95 transition-all"
         >
           <Plus size={18} />
-          手動新增一筆紀錄
+          手動新增
         </button>
-        <p className="text-[11px] text-slate-400 text-center">沒用 LINE 時，可以直接在這裡補記。</p>
+        <p className="text-xs text-slate-400 text-center">沒用 LINE 時，可在這裡補記</p>
       </div>
 
       {/* Today Summary */}
