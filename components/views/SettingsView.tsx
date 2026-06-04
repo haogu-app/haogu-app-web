@@ -134,13 +134,9 @@ export function SettingsView() {
         </div>
       </div>
 
-      {/* 有更多想法 */}
+      {/* 聯絡區塊 */}
       <div className="px-6">
-        <div className="bg-white border border-slate-100 rounded-3xl shadow-sm p-5 space-y-4 text-center">
-          <p className="text-sm font-bold text-slate-700">有更多想法？</p>
-          <p className="text-xs text-slate-400 leading-relaxed">
-            有功能建議或想法？<br />歡迎透過 LINE 官方帳號與我們聯絡
-          </p>
+        <div className="bg-white border border-slate-100 rounded-3xl shadow-sm p-5 text-center">
           <a
             href="https://lin.ee/N4yUobv"
             target="_blank"
@@ -148,7 +144,7 @@ export function SettingsView() {
             className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-green-500 text-white text-sm font-bold active:scale-[0.98] transition-transform"
           >
             <MessageCircle size={16} />
-            聯絡好顧團隊
+            快來跟我們聯絡！
           </a>
         </div>
       </div>
