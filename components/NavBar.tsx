@@ -32,16 +32,17 @@ export function NavBar({ currentView, setView, onQuickRecord }: NavBarProps) {
         )}
       </button>
 
-      <div className="relative -top-6">
+      <div className="relative flex flex-col items-center gap-1 min-w-[60px]">
+        {/* Button elevated above nav via absolute — doesn't affect text position */}
         <button
           onClick={onQuickRecord}
-          className="bg-primary-500 text-white w-14 h-14 rounded-full shadow-lg shadow-primary-200 flex items-center justify-center hover:scale-110 active:scale-95 transition-transform border-4 border-white"
+          className="absolute -top-8 bg-primary-500 text-white w-14 h-14 rounded-full shadow-lg shadow-primary-200 flex items-center justify-center hover:scale-110 active:scale-95 transition-transform border-4 border-white"
         >
           <Plus size={28} />
         </button>
-        <span className="absolute bottom-[-20px] left-1/2 -translate-x-1/2 text-[10px] font-medium text-primary-500 whitespace-nowrap">
-          快速紀錄
-        </span>
+        {/* Invisible spacer matching icon height of side items so text aligns */}
+        <div className="h-[22px] w-6" aria-hidden />
+        <span className="text-[10px] font-medium text-primary-500">快速紀錄</span>
       </div>
 
       <button
