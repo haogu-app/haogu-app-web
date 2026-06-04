@@ -8,6 +8,7 @@ import type { RawLineSync } from '@/lib/types';
 
 interface RecordsViewProps {
   records: RawLineSync[];
+  lineSyncs: RawLineSync[];
 }
 
 type RecordType = '用藥' | '回診' | '生理數據' | '飲食';
@@ -33,7 +34,7 @@ const TAG_MAP = {
   生理數據: 'bg-red-50 text-red-600',
 } as const;
 
-export function RecordsView({ records }: RecordsViewProps) {
+export function RecordsView({ records, lineSyncs }: RecordsViewProps) {
   const [activeTab, setActiveTab] = useState('全部');
   const [searchQuery, setSearchQuery] = useState('');
   const tabs = ['全部', '用藥', '回診', '生理數據', '飲食'];
@@ -92,6 +93,16 @@ export function RecordsView({ records }: RecordsViewProps) {
       </div>
 
       <div className="px-6 space-y-6 pt-4">
+        {/* Pending badge */}
+        {lineSyncs.length > 0 && (
+          <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+            <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0">
+              {lineSyncs.length} 筆待補充
+            </span>
+            <p className="text-xs text-red-600 font-medium">有 LINE 紀錄尚未補齊，請前往首頁處理</p>
+          </div>
+        )}
+
         {/* Search */}
         <div className="flex gap-2">
           <div className="flex-1 bg-white border border-slate-100 rounded-xl px-4 py-3 flex items-center gap-2 shadow-sm">

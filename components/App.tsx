@@ -134,7 +134,7 @@ export default function App() {
           />
         );
       case 'records':
-        return <RecordsView records={confirmedRecords} />;
+        return <RecordsView records={confirmedRecords} lineSyncs={lineSyncs} />;
       case 'tasks':
         return <TasksView lineSyncs={lineSyncs} />;
       case 'settings':
