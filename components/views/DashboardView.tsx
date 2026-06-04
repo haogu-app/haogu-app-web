@@ -245,7 +245,11 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
                   sync.displayMessage || cleanDisplayMessage(sync.originalMessage || sync['原始訊息']);
                 const missing = getMissingLabels(sync);
                 return (
-                  <div key={index} className="flex items-center gap-2 bg-slate-50 rounded-xl px-3 py-2.5 min-h-[48px]">
+                  <button
+                    key={index}
+                    onClick={onOpenLineSync}
+                    className="w-full flex items-center gap-2 bg-slate-50 rounded-xl px-3 py-2.5 min-h-[48px] cursor-pointer text-left hover:bg-slate-100 active:scale-[0.99] transition-all"
+                  >
                     <p className="text-xs text-slate-600 flex-1 truncate">{displayTxt}</p>
                     <div className="flex items-center gap-1 shrink-0">
                       {missing.slice(0, 2).map((m) => (
@@ -254,13 +258,10 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
                         </span>
                       ))}
                     </div>
-                    <button
-                      onClick={onOpenLineSync}
-                      className="shrink-0 px-2.5 py-1.5 rounded-lg bg-primary-500 text-white text-[10px] font-bold active:scale-[0.98] transition-transform"
-                    >
+                    <span className="shrink-0 px-2.5 py-1.5 rounded-lg bg-primary-500 text-white text-[10px] font-bold">
                       補充
-                    </button>
-                  </div>
+                    </span>
+                  </button>
                 );
               })}
               {lineSyncs.length > 5 && (
