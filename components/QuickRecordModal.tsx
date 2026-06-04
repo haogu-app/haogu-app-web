@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
@@ -34,6 +34,7 @@ export function QuickRecordModal({ isOpen, onClose, onSubmit, familyId }: QuickR
   const [detail, setDetail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const timeRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
 
@@ -110,10 +111,12 @@ export function QuickRecordModal({ isOpen, onClose, onSubmit, familyId }: QuickR
             <div>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">執行時間</p>
               <input
+                ref={timeRef}
                 type="time"
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                onClick={() => { try { timeRef.current?.showPicker(); } catch {} }}
+                className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 cursor-pointer"
               />
             </div>
           </div>
