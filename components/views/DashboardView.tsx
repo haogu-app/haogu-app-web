@@ -182,9 +182,6 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
           </div>
 
           <div className="border-t border-slate-50 pt-2 w-full space-y-2">
-            {!isHomeDataLoading && lineSyncs.length === 0 && (
-              <p className="text-xs text-slate-400 text-center py-1">目前沒有需要補充的紀錄</p>
-            )}
             {lineSyncs.slice(0, 3).map((sync, index) => {
               const displayTxt =
                 sync.displayMessage || cleanDisplayMessage(sync.originalMessage || sync['原始訊息']);
