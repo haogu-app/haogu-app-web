@@ -136,7 +136,7 @@ export function SettingsView() {
       <div className="px-6">
         <div className="bg-white border border-slate-100 rounded-3xl shadow-sm p-5 text-center space-y-3">
           <p className="text-base font-bold text-slate-700">有更多想法？</p>
-          <
+          <a
             href="https://lin.ee/N4yUobv"
             target="_blank"
             rel="noopener noreferrer"
