@@ -129,10 +129,9 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
       <Header title="好顧" showLogo />
 
       {/* Tagline */}
-      <div className="px-6 -mt-2">
-        <p className="text-sm text-slate-500 text-center leading-relaxed">
-          LINE 記錄長輩近況，AI 整理給家人看
-        </p>
+      <div className="px-6 -mt-2 text-center space-y-0.5">
+        <p className="text-sm font-semibold text-slate-600">開頭輸入 #好顧</p>
+        <p className="text-xs text-slate-400">LINE 幫你整理照顧紀錄</p>
       </div>
 
       {/* Today Summary */}
