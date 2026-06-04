@@ -20,12 +20,10 @@ const INSTALL_STEPS = {
   ],
 };
 
-const COMING_SOON = [
-  { emoji: '🎤', title: '語音紀錄', desc: '直接說話，AI 自動整理成照顧紀錄' },
-  { emoji: '📷', title: '拍照判讀', desc: '拍攝藥袋、回診單、檢查報告，自動擷取重點' },
-  { emoji: '👨‍👩‍👧‍👦', title: '工作分配', desc: '建立待協助事項，家人可認領任務' },
-  { emoji: '⏱️', title: '照顧時數統計', desc: '自動統計照顧投入時間' },
-  { emoji: '🔔', title: '任務提醒', desc: '回診、吃藥、待辦事項提醒' },
+const COMING_SOON_ROWS = [
+  '🎤 語音紀錄 · 📷 拍照判讀',
+  '👨‍👩‍👧‍👦 工作分配 · ⏱️ 照顧時數統計',
+  '🔔 任務提醒',
 ];
 
 export function SettingsView() {
@@ -118,15 +116,9 @@ export function SettingsView() {
       <div className="px-6">
         <div className="bg-white border border-slate-100 rounded-3xl shadow-sm p-5 space-y-4">
           <p className="text-sm font-bold text-slate-700">即將推出功能</p>
-          <div className="space-y-3">
-            {COMING_SOON.map(({ emoji, title, desc }) => (
-              <div key={title} className="flex items-start gap-3 bg-slate-50 rounded-2xl px-4 py-3">
-                <span className="text-xl shrink-0 mt-0.5">{emoji}</span>
-                <div>
-                  <p className="text-xs font-bold text-slate-700">{title}</p>
-                  <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">{desc}</p>
-                </div>
-              </div>
+          <div className="space-y-2">
+            {COMING_SOON_ROWS.map((row) => (
+              <p key={row} className="text-sm text-slate-500 leading-relaxed">{row}</p>
             ))}
           </div>
         </div>
