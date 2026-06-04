@@ -239,36 +239,36 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
               </div>
             </div>
 
-            <div className="border-t border-slate-50 px-4 pb-4 pt-3 space-y-3">
-              {lineSyncs.slice(0, 3).map((sync, index) => {
+            <div className="border-t border-slate-50 px-4 pb-3 pt-2 space-y-1.5">
+              {lineSyncs.slice(0, 5).map((sync, index) => {
                 const displayTxt =
                   sync.displayMessage || cleanDisplayMessage(sync.originalMessage || sync['原始訊息']);
                 const missing = getMissingLabels(sync);
                 return (
-                  <div key={index} className="bg-slate-50 rounded-xl p-3 space-y-2">
-                    <p className="text-xs text-slate-600 leading-relaxed">{displayTxt}</p>
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {missing.map((m) => (
-                        <span key={m} className="text-[10px] bg-amber-50 text-amber-600 border border-amber-100 px-1.5 py-0.5 rounded-full font-medium">
+                  <div key={index} className="flex items-center gap-2 bg-slate-50 rounded-xl px-3 py-2.5 min-h-[48px]">
+                    <p className="text-xs text-slate-600 flex-1 truncate">{displayTxt}</p>
+                    <div className="flex items-center gap-1 shrink-0">
+                      {missing.slice(0, 2).map((m) => (
+                        <span key={m} className="text-[9px] bg-amber-50 text-amber-600 border border-amber-100 px-1.5 py-0.5 rounded-full font-medium whitespace-nowrap">
                           {m}
                         </span>
                       ))}
                     </div>
                     <button
                       onClick={onOpenLineSync}
-                      className="w-full py-2 rounded-lg bg-primary-500 text-white text-xs font-bold active:scale-[0.98] transition-transform"
+                      className="shrink-0 px-2.5 py-1.5 rounded-lg bg-primary-500 text-white text-[10px] font-bold active:scale-[0.98] transition-transform"
                     >
-                      補充資料
+                      補充
                     </button>
                   </div>
                 );
               })}
-              {lineSyncs.length > 3 && (
+              {lineSyncs.length > 5 && (
                 <button
                   onClick={onOpenLineSync}
-                  className="w-full py-2 text-xs text-slate-400 text-center hover:text-slate-600 transition-colors"
+                  className="w-full py-1.5 text-xs text-slate-400 text-center hover:text-slate-600 transition-colors"
                 >
-                  還有 {lineSyncs.length - 3} 筆… 點此查看全部
+                  還有 {lineSyncs.length - 5} 筆… 點此查看全部
                 </button>
               )}
             </div>
