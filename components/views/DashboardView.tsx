@@ -164,14 +164,17 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
           className="w-full bg-white border border-primary-100 rounded-2xl p-4 flex flex-col gap-3 text-left shadow-sm hover:border-primary-300 transition-colors"
         >
           <div className="flex items-center gap-4 w-full">
-            <div className="bg-green-100 p-3 rounded-xl flex items-center justify-center">
-              <svg width={24} height={24} viewBox="0 0 24 24" fill="#16a34a" aria-label="LINE">
+            <div className="p-3 rounded-xl flex items-center justify-center" style={{ background: '#DDF3DE' }}>
+              <svg width={24} height={24} viewBox="0 0 24 24" fill="#4F8E87" aria-label="LINE">
                 <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
               </svg>
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between">
-                <h3 className="font-bold text-slate-700">如何用 LINE 記錄？</h3>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0" style={{ background: '#F3A24D' }}>新手必看</span>
+                  <h3 className="font-bold text-slate-700">如何用 LINE 記錄？</h3>
+                </div>
                 {lineSyncs.length > 0 && (
                   <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
                     {lineSyncs.length} 筆待補充
@@ -219,12 +222,12 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
 
       {/* Today Summary */}
       <div className="px-6">
-        <div className="bg-gradient-to-br from-primary-400 to-primary-600 rounded-3xl p-6 text-white shadow-lg shadow-primary-200">
+        <div className="rounded-3xl p-6 text-white shadow-lg shadow-primary-200" style={{ background: '#4F8E87' }}>
           <div className="flex justify-between items-start mb-2">
             <div>
               <h2 className="text-2xl font-bold">今天照顧摘要</h2>
             </div>
-            <div className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px]">
+            <div className="px-3 py-1 rounded-full text-[10px] font-medium" style={{ background: '#D7E7DF', color: '#4F8E87' }}>
               {todayDateStr}
             </div>
           </div>
@@ -232,7 +235,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
           <div className="space-y-1.5 max-h-[280px] overflow-y-auto no-scrollbar">
             {allItems.length === 0 ? (
               <div className="text-center py-4">
-                <p className="text-sm text-primary-100/80 font-medium">還沒有今日紀錄</p>
+                <p className="text-sm text-white/70 font-medium">還沒有今日紀錄</p>
               </div>
             ) : (
               allItems.map((item, i) => (
@@ -241,7 +244,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
                   onClick={() => setEditRecord(item.record)}
                   className="w-full flex items-center gap-3 bg-white/10 rounded-xl px-3 py-2 text-left hover:bg-white/20 active:scale-[0.99] transition-all"
                 >
-                  <span className="text-sm font-mono tabular-nums text-primary-100/80 shrink-0 w-12">
+                  <span className="text-sm font-mono tabular-nums text-white/70 shrink-0 w-12">
                     {item.time}
                   </span>
                   <span className="text-sm font-bold text-white flex-1">{item.text}</span>
