@@ -15,7 +15,7 @@ export function NavBar({ currentView, setView, onQuickRecord }: NavBarProps) {
   return (
     <div
       id="bottom-nav"
-      className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 pb-6 pt-2 grid grid-cols-3 place-items-center z-50"
+      className="bg-white border-t border-slate-100 pb-6 pt-2 grid grid-cols-3 place-items-center shrink-0"
     >
       <button
         id="nav-dashboard"
