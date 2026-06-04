@@ -235,7 +235,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
           </p>
 
           <div className="space-y-1.5 max-h-[280px] overflow-y-auto no-scrollbar">
-            {!isHomeDataLoading && allItems.length === 0 ? (
+            {allItems.length === 0 ? (
               <div className="text-center py-4">
                 <p className="text-sm text-primary-100/80 font-medium">還沒有今日紀錄</p>
               </div>
