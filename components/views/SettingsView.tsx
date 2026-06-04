@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Smartphone, Copy, Check, MessageCircle } from 'lucide-react';
-import { Header } from '@/components/Header';
 
 const HAOGU_URL = 'https://haogu-app-web.vercel.app';
 
@@ -49,8 +48,7 @@ export function SettingsView() {
   };
 
   return (
-    <div className="space-y-6 pb-24">
-      <Header title="更多" />
+    <div className="space-y-6 pt-6 pb-24">
 
       {/* 加入主畫面教學 */}
       <div className="px-6">
