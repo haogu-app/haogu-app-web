@@ -171,15 +171,14 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between">
-                <h3 className="font-bold text-slate-700">待補充的 LINE 紀錄</h3>
+                <h3 className="font-bold text-slate-700">如何用 LINE 記錄？</h3>
                 {lineSyncs.length > 0 && (
                   <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
                     {lineSyncs.length} 筆待補充
                   </span>
                 )}
               </div>
-              <p className="text-xs text-slate-400 font-medium">如果 LINE 傳來的內容不夠完整，會出現在這裡讓你補齊。</p>
-              <p className="text-[10px] text-slate-300 mt-0.5">範例：#好顧 媽媽晚上9點吃胃藥</p>
+              <p className="text-xs text-slate-500 font-mono mt-0.5">#好顧 媽媽晚上9點吃胃藥</p>
             </div>
             {lineSyncs.length > 0 && <ChevronRight className="text-slate-300" size={20} />}
           </div>
