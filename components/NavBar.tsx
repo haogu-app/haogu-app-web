@@ -1,6 +1,7 @@
 'use client';
 
-import { Home, Settings as SettingsIcon, Plus } from 'lucide-react';
+import Image from 'next/image';
+import { Home, Plus } from 'lucide-react';
 import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import type { View } from '@/lib/types';
@@ -48,13 +49,22 @@ export function NavBar({ currentView, setView, onQuickRecord }: NavBarProps) {
       <button
         id="nav-settings"
         onClick={() => setView('settings')}
-        className={cn(
-          'flex flex-col items-center gap-1 min-w-[60px] transition-colors',
-          currentView === 'settings' ? 'text-primary-500' : 'text-slate-400',
-        )}
+        className="flex flex-col items-center gap-1 min-w-[60px] transition-opacity"
       >
-        <SettingsIcon size={22} />
-        <span className="text-[10px] font-medium">更多</span>
+        <Image
+          src="/haogu-logo.png"
+          alt="更多"
+          width={22}
+          height={22}
+          className={cn(
+            'transition-opacity',
+            currentView === 'settings' ? 'opacity-100' : 'opacity-35',
+          )}
+        />
+        <span className={cn(
+          'text-[10px] font-medium transition-colors',
+          currentView === 'settings' ? 'text-primary-500' : 'text-slate-400',
+        )}>更多</span>
         {currentView === 'settings' && (
           <motion.div layoutId="nav-dot" className="w-1 h-1 rounded-full bg-primary-500 mt-0.5" />
         )}
