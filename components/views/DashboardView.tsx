@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MessageCircle, Share2, ChevronRight, Check, ChevronDown } from 'lucide-react';
+import { MessageCircle, Share2, Check, ChevronDown, AlertCircle } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import { EditRecordModal } from '@/components/EditRecordModal';
 import { Header } from '@/components/Header';
@@ -14,6 +14,15 @@ function categoryIcon(raw: string): string {
   if (cat === '量測') return '🩺';
   if (cat === '飲食') return '🍽️';
   return '📝';
+}
+
+function getMissingLabels(sync: RawLineSync): string[] {
+  const src = sync.originalMessage || sync['原始訊息'] || sync.displayMessage || '';
+  const missing: string[] = [];
+  if (!extractEventTime(src)) missing.push('缺時間');
+  if (detectSubject(src) === '家人') missing.push('缺對象');
+  if (detectCategory(src) === '其他') missing.push('類別不明');
+  return missing.length > 0 ? missing : ['資訊不完整'];
 }
 
 interface DashboardViewProps {
@@ -33,8 +42,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
   const [shareToast, setShareToast] = useState('');
   const [isMobile, setIsMobile] = useState(false);
   const [editRecord, setEditRecord] = useState<RawLineSync | null>(null);
-  const [lineCardOpen, setLineCardOpen] = useState(false);
-  const [exampleCopied, setExampleCopied] = useState(false);
+  const [pendingCardOpen, setPendingCardOpen] = useState(true);
   // Gate all conditional content behind this flag.
   // It starts true and only flips false AFTER the render where isLoading becomes false,
   // guaranteeing data is populated before any empty-state or onboarding logic runs.
@@ -121,19 +129,17 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
       <Header title="好顧" showLogo />
 
       {/* Tagline */}
-      <div className="px-6 -mt-1">
+      <div className="px-6 -mt-2">
         <p className="text-sm text-slate-500 text-center leading-relaxed">
           LINE 記錄長輩近況，AI 整理給家人看
         </p>
       </div>
 
-      {/* Today Summary — first visible block */}
+      {/* Today Summary */}
       <div className="px-6">
         <div className="bg-gradient-to-br from-primary-400 to-primary-600 rounded-3xl p-6 text-white shadow-lg shadow-primary-200">
           <div className="flex justify-between items-start mb-2">
-            <div>
-              <h2 className="text-2xl font-bold">今天照顧摘要</h2>
-            </div>
+            <h2 className="text-2xl font-bold">今天照顧摘要</h2>
             <div className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px]">
               {todayDateStr}
             </div>
@@ -180,7 +186,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
         </div>
       </div>
 
-      {/* First-step onboarding — show until the family has at least two confirmed records */}
+      {/* Onboarding — show until the family has at least two confirmed records */}
       {!isHomeDataLoading && confirmedRecords.length < 2 && (
         <div className="px-6">
           <div className="bg-white border border-green-100 rounded-2xl p-5 shadow-sm space-y-3">
@@ -208,121 +214,70 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
         </div>
       )}
 
-      {/* LINE sync card — collapsible */}
-      <div className="px-6">
-        <div className="bg-white border border-primary-100 rounded-2xl shadow-sm overflow-hidden">
-          {/* Header row — always visible, tapping toggles expand */}
-          <button
-            onClick={() => {
-              if (lineSyncs.length > 0) {
-                onOpenLineSync();
-              } else {
-                setLineCardOpen((o) => !o);
-              }
-            }}
-            className="w-full p-4 flex items-center gap-4 text-left hover:bg-slate-50/60 transition-colors"
-          >
-            <div className="bg-green-100 p-3 rounded-xl flex items-center justify-center shrink-0">
-              <svg width={24} height={24} viewBox="0 0 24 24" fill="#16a34a" aria-label="LINE">
-                <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
-              </svg>
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <h3 className="font-bold text-slate-700">如何用 LINE 記錄？</h3>
-                {lineSyncs.length > 0 && (
-                  <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold shrink-0">
-                    {lineSyncs.length} 筆待補充
-                  </span>
-                )}
+      {/* Pending items card — only shown when there are lineSyncs to handle */}
+      {!isHomeDataLoading && lineSyncs.length > 0 && (
+        <div className="px-6">
+          <div className="bg-white border border-amber-100 rounded-2xl shadow-sm overflow-hidden">
+            <button
+              onClick={() => setPendingCardOpen((o) => !o)}
+              className="w-full p-4 flex items-center gap-4 text-left hover:bg-slate-50/60 transition-colors"
+            >
+              <div className="bg-amber-50 p-3 rounded-xl flex items-center justify-center shrink-0">
+                <AlertCircle size={24} className="text-amber-500" />
               </div>
-              {!lineCardOpen && lineSyncs.length === 0 && (
-                <p className="text-xs text-slate-400 mt-0.5">點開查看傳送格式</p>
-              )}
-            </div>
-            {lineSyncs.length > 0 ? (
-              <ChevronRight className="text-slate-300 shrink-0" size={20} />
-            ) : (
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-bold text-slate-700">待處理事項</h3>
+                  <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold shrink-0">
+                    {lineSyncs.length} 筆需補充
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 mt-0.5">補充 LINE 紀錄缺少的資訊</p>
+              </div>
               <ChevronDown
-                className={`text-slate-300 shrink-0 transition-transform duration-200 ${lineCardOpen ? 'rotate-180' : ''}`}
+                className={`text-slate-300 shrink-0 transition-transform duration-200 ${pendingCardOpen ? 'rotate-180' : ''}`}
                 size={20}
               />
-            )}
-          </button>
+            </button>
 
-          {/* Expandable body */}
-          {lineCardOpen && lineSyncs.length === 0 && (
-            <div className="px-4 pb-4 border-t border-slate-50">
-              <ol className="space-y-3 pt-3 mb-4">
-                {[
-                  '加入好顧 LINE 官方帳號',
-                  '傳送照顧紀錄時，在訊息前加上 #好顧',
-                  '例如：#好顧 媽媽晚上9點已吃胃藥，今天胃口正常',
-                  'AI 會自動整理成照顧紀錄，並同步到好顧 APP',
-                ].map((step, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-xs text-slate-600">
-                    <span className="bg-primary-100 text-primary-600 w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
-                      {i + 1}
-                    </span>
-                    <span className="leading-relaxed">{step}</span>
-                  </li>
-                ))}
-              </ol>
-              {exampleCopied ? (
-                <div className="w-full py-2.5 rounded-xl text-center text-xs font-medium text-green-700 bg-green-50 border border-green-100">
-                  已複製，可貼到 LINE 傳送
-                </div>
-              ) : (
-                <button
-                  onClick={async (e) => {
-                    e.stopPropagation();
-                    const text = '#好顧 媽媽晚上9點已吃胃藥，今天胃口正常';
-                    try {
-                      await navigator.clipboard.writeText(text);
-                    } catch {
-                      const el = document.createElement('textarea');
-                      el.value = text;
-                      document.body.appendChild(el);
-                      el.select();
-                      document.execCommand('copy');
-                      document.body.removeChild(el);
-                    }
-                    setExampleCopied(true);
-                    setTimeout(() => setExampleCopied(false), 2500);
-                  }}
-                  className="w-full py-2.5 rounded-xl text-center text-sm font-bold text-primary-600 bg-primary-50 border border-primary-100 active:scale-[0.98] transition-transform"
-                >
-                  複製範例
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* Pending records list when syncs exist */}
-          {lineSyncs.length > 0 && (
-            <div className="border-t border-slate-50 px-4 pb-4 pt-2 space-y-2">
-              <p className="text-xs text-slate-500 font-mono">#好顧 媽媽晚上9點吃胃藥</p>
-              {lineSyncs.slice(0, 3).map((sync, index) => {
-                const displayTxt =
-                  sync.displayMessage || cleanDisplayMessage(sync.originalMessage || sync['原始訊息']);
-                return (
-                  <div
-                    key={index}
-                    className="flex justify-between items-start text-xs bg-slate-50/60 p-2.5 rounded-xl border border-slate-100/50"
+            {pendingCardOpen && (
+              <div className="border-t border-slate-50 px-4 pb-4 pt-3 space-y-3">
+                {lineSyncs.slice(0, 3).map((sync, index) => {
+                  const displayTxt =
+                    sync.displayMessage || cleanDisplayMessage(sync.originalMessage || sync['原始訊息']);
+                  const missing = getMissingLabels(sync);
+                  return (
+                    <div key={index} className="bg-slate-50 rounded-xl p-3 space-y-2">
+                      <p className="text-xs text-slate-600 leading-relaxed">{displayTxt}</p>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {missing.map((m) => (
+                          <span key={m} className="text-[10px] bg-amber-50 text-amber-600 border border-amber-100 px-1.5 py-0.5 rounded-full font-medium">
+                            {m}
+                          </span>
+                        ))}
+                      </div>
+                      <button
+                        onClick={onOpenLineSync}
+                        className="w-full py-2 rounded-lg bg-primary-500 text-white text-xs font-bold active:scale-[0.98] transition-transform"
+                      >
+                        補充資料
+                      </button>
+                    </div>
+                  );
+                })}
+                {lineSyncs.length > 3 && (
+                  <button
+                    onClick={onOpenLineSync}
+                    className="w-full py-2 text-xs text-slate-400 text-center hover:text-slate-600 transition-colors"
                   >
-                    <p className="text-slate-600 font-medium leading-relaxed truncate max-w-[220px] pr-2" title={displayTxt}>
-                      {displayTxt}
-                    </p>
-                    <span className="text-[10px] text-slate-400 font-semibold whitespace-nowrap bg-white px-1.5 py-0.5 rounded border border-slate-100 shadow-xs">
-                      {formatTime(sync.receivedAt || sync['收到時間'])}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                    還有 {lineSyncs.length - 3} 筆… 點此查看全部
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       <AnimatePresence>
         {editRecord && (
