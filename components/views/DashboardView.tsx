@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MessageCircle, Share2, ChevronRight, Check, Plus } from 'lucide-react';
+import { MessageCircle, Share2, ChevronRight, Check, Plus, ChevronDown } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import { EditRecordModal } from '@/components/EditRecordModal';
 import { Header } from '@/components/Header';
@@ -33,6 +33,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
   const [shareToast, setShareToast] = useState('');
   const [isMobile, setIsMobile] = useState(false);
   const [editRecord, setEditRecord] = useState<RawLineSync | null>(null);
+  const [lineCardOpen, setLineCardOpen] = useState(false);
   // Gate all conditional content behind this flag.
   // It starts true and only flips false AFTER the render where isLoading becomes false,
   // guaranteeing data is populated before any empty-state or onboarding logic runs.
@@ -115,112 +116,17 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
   const todayDateStr = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' });
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-4 pb-20">
       <Header title="好顧" showLogo />
 
       {/* Tagline */}
-      <div className="px-6 -mt-2">
+      <div className="px-6 -mt-1">
         <p className="text-sm text-slate-500 text-center leading-relaxed">
           LINE 記錄長輩近況，AI 整理給家人看
         </p>
       </div>
 
-      {/* First-step onboarding — show until the family has at least two confirmed records */}
-      {!isHomeDataLoading && confirmedRecords.length < 2 && (
-        <div className="px-6">
-          <div className="bg-white border border-green-100 rounded-2xl p-5 shadow-sm space-y-3">
-            <p className="font-bold text-slate-700 text-sm">開始使用好顧</p>
-            <ol className="space-y-1.5">
-              {['加入好顧 LINE', '傳送一筆照顧紀錄', '回來看今天摘要'].map((step, i) => (
-                <li key={i} className="flex items-center gap-2.5 text-xs text-slate-600">
-                  <span className="bg-green-500 text-white w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0">
-                    {i + 1}
-                  </span>
-                  {step}
-                </li>
-              ))}
-            </ol>
-            <a
-              href="https://lin.ee/N4yUobv"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full bg-green-500 text-white rounded-xl py-3 text-sm font-bold active:scale-[0.98] transition-transform"
-            >
-              <MessageCircle size={16} />
-              加入好顧 LINE
-            </a>
-          </div>
-        </div>
-      )}
-
-      {/* LINE sync card */}
-      <div className="px-6">
-        <button
-          onClick={() => {
-            if (lineSyncs.length > 0) {
-              onOpenLineSync();
-            }
-          }}
-          className="w-full bg-white border border-primary-100 rounded-2xl p-4 flex flex-col gap-3 text-left shadow-sm hover:border-primary-300 transition-colors"
-        >
-          <div className="flex items-center gap-4 w-full">
-            <div className="bg-green-100 p-3 rounded-xl flex items-center justify-center">
-              <svg width={24} height={24} viewBox="0 0 24 24" fill="#16a34a" aria-label="LINE">
-                <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
-              </svg>
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center justify-between">
-                <h3 className="font-bold text-slate-700">如何用 LINE 記錄？</h3>
-                {lineSyncs.length > 0 && (
-                  <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
-                    {lineSyncs.length} 筆待補充
-                  </span>
-                )}
-              </div>
-              <p className="text-xs text-slate-500 font-mono mt-0.5">#好顧 媽媽晚上9點吃胃藥</p>
-            </div>
-            {lineSyncs.length > 0 && <ChevronRight className="text-slate-300" size={20} />}
-          </div>
-
-          {lineSyncs.length > 0 && <div className="border-t border-slate-50 pt-2 w-full space-y-2">
-            {lineSyncs.slice(0, 3).map((sync, index) => {
-              const displayTxt =
-                sync.displayMessage || cleanDisplayMessage(sync.originalMessage || sync['原始訊息']);
-              return (
-                <div
-                  key={index}
-                  className="flex justify-between items-start text-xs bg-slate-50/60 p-2.5 rounded-xl border border-slate-100/50"
-                >
-                  <p className="text-slate-600 font-medium leading-relaxed truncate max-w-[220px] pr-2" title={displayTxt}>
-                    {displayTxt}
-                  </p>
-                  <span className="text-[10px] text-slate-400 font-semibold whitespace-nowrap bg-white px-1.5 py-0.5 rounded border border-slate-100 shadow-xs">
-                    {formatTime(sync.receivedAt || sync['收到時間'])}
-                  </span>
-                </div>
-              );
-            })}
-          </div>}
-        </button>
-      </div>
-
-      {/* Quick Record CTA */}
-      <div className="px-6 space-y-1.5">
-        <button
-          onClick={onQuickRecord}
-          className="w-full h-12 rounded-2xl text-white text-sm font-bold flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all"
-          style={{ background: '#F3A24D', boxShadow: '0 4px 6px -1px #F3A24D40' }}
-          onMouseEnter={e => (e.currentTarget.style.background = '#E8923D')}
-          onMouseLeave={e => (e.currentTarget.style.background = '#F3A24D')}
-        >
-          <Plus size={18} />
-          手動新增
-        </button>
-        <p className="text-xs text-slate-400 text-center">沒用 LINE 時，可在這裡補記</p>
-      </div>
-
-      {/* Today Summary */}
+      {/* Today Summary — first visible block */}
       <div className="px-6">
         <div className="bg-gradient-to-br from-primary-400 to-primary-600 rounded-3xl p-6 text-white shadow-lg shadow-primary-200">
           <div className="flex justify-between items-start mb-2">
@@ -271,6 +177,134 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
             </button>
           ))}
         </div>
+      </div>
+
+      {/* First-step onboarding — show until the family has at least two confirmed records */}
+      {!isHomeDataLoading && confirmedRecords.length < 2 && (
+        <div className="px-6">
+          <div className="bg-white border border-green-100 rounded-2xl p-5 shadow-sm space-y-3">
+            <p className="font-bold text-slate-700 text-sm">開始使用好顧</p>
+            <ol className="space-y-1.5">
+              {['加入好顧 LINE', '傳送一筆照顧紀錄', '回來看今天摘要'].map((step, i) => (
+                <li key={i} className="flex items-center gap-2.5 text-xs text-slate-600">
+                  <span className="bg-green-500 text-white w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0">
+                    {i + 1}
+                  </span>
+                  {step}
+                </li>
+              ))}
+            </ol>
+            <a
+              href="https://lin.ee/N4yUobv"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full bg-green-500 text-white rounded-xl py-3 text-sm font-bold active:scale-[0.98] transition-transform"
+            >
+              <MessageCircle size={16} />
+              加入好顧 LINE
+            </a>
+          </div>
+        </div>
+      )}
+
+      {/* LINE sync card — collapsible */}
+      <div className="px-6">
+        <div className="bg-white border border-primary-100 rounded-2xl shadow-sm overflow-hidden">
+          {/* Header row — always visible, tapping toggles expand */}
+          <button
+            onClick={() => {
+              if (lineSyncs.length > 0) {
+                onOpenLineSync();
+              } else {
+                setLineCardOpen((o) => !o);
+              }
+            }}
+            className="w-full p-4 flex items-center gap-4 text-left hover:bg-slate-50/60 transition-colors"
+          >
+            <div className="bg-green-100 p-3 rounded-xl flex items-center justify-center shrink-0">
+              <svg width={24} height={24} viewBox="0 0 24 24" fill="#16a34a" aria-label="LINE">
+                <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-slate-700">如何用 LINE 記錄？</h3>
+                {lineSyncs.length > 0 && (
+                  <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold shrink-0">
+                    {lineSyncs.length} 筆待補充
+                  </span>
+                )}
+              </div>
+              {!lineCardOpen && lineSyncs.length === 0 && (
+                <p className="text-xs text-slate-400 mt-0.5">點開查看傳送格式</p>
+              )}
+            </div>
+            {lineSyncs.length > 0 ? (
+              <ChevronRight className="text-slate-300 shrink-0" size={20} />
+            ) : (
+              <ChevronDown
+                className={`text-slate-300 shrink-0 transition-transform duration-200 ${lineCardOpen ? 'rotate-180' : ''}`}
+                size={20}
+              />
+            )}
+          </button>
+
+          {/* Expandable body */}
+          {lineCardOpen && lineSyncs.length === 0 && (
+            <div className="px-4 pb-4 space-y-3 border-t border-slate-50">
+              <p className="text-xs text-slate-500 font-mono pt-3">#好顧 媽媽晚上9點吃胃藥</p>
+              <a
+                href="https://lin.ee/N4yUobv"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center justify-center gap-2 w-full bg-green-500 text-white rounded-xl py-2.5 text-sm font-bold active:scale-[0.98] transition-transform"
+              >
+                <MessageCircle size={15} />
+                加入好顧 LINE
+              </a>
+            </div>
+          )}
+
+          {/* Pending records list when syncs exist */}
+          {lineSyncs.length > 0 && (
+            <div className="border-t border-slate-50 px-4 pb-4 pt-2 space-y-2">
+              <p className="text-xs text-slate-500 font-mono">#好顧 媽媽晚上9點吃胃藥</p>
+              {lineSyncs.slice(0, 3).map((sync, index) => {
+                const displayTxt =
+                  sync.displayMessage || cleanDisplayMessage(sync.originalMessage || sync['原始訊息']);
+                return (
+                  <div
+                    key={index}
+                    className="flex justify-between items-start text-xs bg-slate-50/60 p-2.5 rounded-xl border border-slate-100/50"
+                  >
+                    <p className="text-slate-600 font-medium leading-relaxed truncate max-w-[220px] pr-2" title={displayTxt}>
+                      {displayTxt}
+                    </p>
+                    <span className="text-[10px] text-slate-400 font-semibold whitespace-nowrap bg-white px-1.5 py-0.5 rounded border border-slate-100 shadow-xs">
+                      {formatTime(sync.receivedAt || sync['收到時間'])}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Quick Record CTA */}
+      <div className="px-6 space-y-1.5">
+        <button
+          onClick={onQuickRecord}
+          className="w-full h-12 rounded-2xl text-white text-sm font-bold flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all"
+          style={{ background: '#F3A24D', boxShadow: '0 4px 6px -1px #F3A24D40' }}
+          onMouseEnter={e => (e.currentTarget.style.background = '#E8923D')}
+          onMouseLeave={e => (e.currentTarget.style.background = '#F3A24D')}
+        >
+          <Plus size={18} />
+          手動新增
+        </button>
+        <p className="text-xs text-slate-400 text-center">沒用 LINE 時，可在這裡補記</p>
       </div>
 
       <AnimatePresence>
