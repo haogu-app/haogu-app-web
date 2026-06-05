@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { MessageCircle, ChevronRight } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { MessageCircle, ChevronRight, Clock } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { cleanDisplayMessage, formatTime, cn, detectSubject, detectCategory, cleanSummaryText, extractEventTime } from '@/lib/utils';
 import type { RawLineSync, CareTask } from '@/lib/types';
@@ -39,7 +39,7 @@ function PendingRecordForm({ sync, onBack, onConfirm, onDelete }: PendingRecordF
   const [time, setTime] = useState(detectedTime);
   const [type, setType] = useState<CareTask['type']>(toCareType(detectCategory(raw)));
   const [detail, setDetail] = useState(cleanSummaryText(raw, detectedSubject));
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  const timeRef = useRef<HTMLInputElement>(null);
 
   const displayTxt = sync.displayMessage || cleanDisplayMessage(sync.originalMessage || sync['原始訊息']);
 
@@ -48,31 +48,6 @@ function PendingRecordForm({ sync, onBack, onConfirm, onDelete }: PendingRecordF
   if (!subject.trim()) missing.push('照顧對象');
 
   const buildSummary = () => `${subject} ${time} ${detail || type}`.trim();
-
-  if (confirmDelete) {
-    return (
-      <div className="space-y-6 pb-24">
-        <Header title="確認刪除" showBack onBack={() => setConfirmDelete(false)} />
-        <div className="px-6 space-y-4">
-          <p className="text-sm text-slate-600 text-center py-6">確定要刪除這筆待確認紀錄嗎？</p>
-          <div className="flex gap-3">
-            <button
-              onClick={() => setConfirmDelete(false)}
-              className="flex-1 py-3 rounded-2xl border border-slate-200 text-sm font-bold text-slate-600"
-            >
-              取消
-            </button>
-            <button
-              onClick={onDelete}
-              className="flex-1 py-3 rounded-2xl bg-red-500 text-white text-sm font-bold"
-            >
-              確認刪除
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6 pb-24">
@@ -102,15 +77,26 @@ function PendingRecordForm({ sync, onBack, onConfirm, onDelete }: PendingRecordF
           </div>
           <div>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">執行時間</p>
-            <input
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
+            {/* Entire row clickable to open time picker */}
+            <div
+              onClick={() => { try { timeRef.current?.showPicker(); } catch { timeRef.current?.focus(); } }}
               className={cn(
-                'w-full bg-slate-50 border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2',
-                !time ? 'border-red-200 focus:ring-red-500/20' : 'border-slate-100 focus:ring-primary-500/20',
+                'w-full bg-slate-50 border rounded-xl px-4 py-3 flex items-center gap-2 cursor-pointer',
+                !time ? 'border-red-200' : 'border-slate-100',
               )}
-            />
+            >
+              <input
+                ref={timeRef}
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                className={cn(
+                  'flex-1 bg-transparent text-sm focus:outline-none min-w-0 cursor-pointer',
+                  !time ? 'text-slate-400' : 'text-slate-800',
+                )}
+              />
+              <Clock size={15} className="text-slate-400 shrink-0 pointer-events-none" />
+            </div>
           </div>
         </div>
 
@@ -162,10 +148,10 @@ function PendingRecordForm({ sync, onBack, onConfirm, onDelete }: PendingRecordF
             儲存並確認
           </button>
           <button
-            onClick={() => setConfirmDelete(true)}
+            onClick={onDelete}
             className="py-4 px-5 rounded-2xl text-sm font-bold bg-red-50 text-red-500 border border-red-100 active:scale-95 transition-transform"
           >
-            刪除
+            刪除紀錄
           </button>
         </div>
       </div>
@@ -237,44 +223,55 @@ export function LineSyncView({ onBack, lineSyncs, onConfirm, onDelete }: LineSyn
           const displayTxt =
             sync.displayMessage || cleanDisplayMessage(sync.originalMessage || sync['原始訊息']);
           return (
-            <button
+            <div
               key={sync._dbId ?? index}
-              onClick={() => setSelectedIdx(index)}
-              className="w-full text-left bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden active:scale-[0.99] transition-transform"
+              className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden"
             >
-              <div className="p-5 space-y-4">
-                {/* 原始訊息 */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2 text-primary-500">
-                      <MessageCircle size={18} />
-                      <span className="text-[16px] font-semibold">原始訊息</span>
-                    </div>
-                    <ChevronRight size={18} className="text-slate-300" />
+              {/* 原始訊息 — 點擊進入編輯 */}
+              <button
+                onClick={() => setSelectedIdx(index)}
+                className="w-full text-left px-5 pt-5 pb-3 active:bg-slate-50 transition-colors"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2 text-primary-500">
+                    <MessageCircle size={18} />
+                    <span className="text-[16px] font-semibold">原始訊息</span>
                   </div>
-                  <p className="text-[18px] text-slate-700 leading-relaxed font-medium">{displayTxt}</p>
+                  <ChevronRight size={18} className="text-slate-300" />
                 </div>
+                <p className="text-[18px] text-slate-700 leading-relaxed font-medium">{displayTxt}</p>
+              </button>
 
-                {/* 取得時間 + 補充按鈕 */}
-                <div className="flex items-center justify-between pt-1 border-t border-slate-50">
-                  <div>
-                    <p className="text-[15px] text-slate-400">取得時間</p>
-                    <p className="text-[17px] font-bold text-slate-700">
-                      {formatTime(sync.receivedAt || sync['收到時間'])}
-                    </p>
-                  </div>
-                  <span className="text-[16px] font-semibold bg-primary-100 text-primary-700 px-4 py-3 rounded-xl min-h-[48px] flex items-center">
-                    點擊補充並確認
-                  </span>
+              {/* LINE 紀錄時間 + 操作按鈕 */}
+              <div className="flex items-center justify-between px-5 pb-5 pt-3 border-t border-slate-50">
+                <div>
+                  <p className="text-[15px] text-slate-400">LINE 紀錄時間</p>
+                  <p className="text-[17px] font-bold text-slate-700">
+                    {formatTime(sync.receivedAt || sync['收到時間'])}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => onDelete(index)}
+                    className="text-[15px] font-semibold bg-red-50 text-red-400 border border-red-100 px-4 py-3 rounded-xl min-h-[48px] flex items-center active:scale-95 transition-transform"
+                  >
+                    刪除
+                  </button>
+                  <button
+                    onClick={() => setSelectedIdx(index)}
+                    className="text-[16px] font-semibold bg-primary-100 text-primary-700 px-4 py-3 rounded-xl min-h-[48px] flex items-center active:scale-95 transition-transform"
+                  >
+                    編輯
+                  </button>
                 </div>
               </div>
-            </button>
+            </div>
           );
         })}
 
         {lineSyncs.length === 0 && (
           <div className="text-center py-12 bg-white rounded-3xl border border-slate-100/50">
-            <p className="text-slate-500 text-sm font-semibold">目前沒有需要補充的紀錄</p>
+            <p className="text-[16px] text-slate-500 font-semibold">目前沒有需要補充的紀錄</p>
           </div>
         )}
       </div>
