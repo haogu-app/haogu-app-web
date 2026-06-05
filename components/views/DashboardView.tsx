@@ -19,7 +19,7 @@ function categoryIcon(raw: string): string {
 function getMissingLabels(sync: RawLineSync): string[] {
   const src = sync.originalMessage || sync['原始訊息'] || sync.displayMessage || '';
   const missing: string[] = [];
-  if (!extractEventTime(src)) missing.push('缺時間');
+  if (!extractEventTime(src)) missing.push('缺少時間');
   if (detectSubject(src) === '家人') missing.push('缺對象');
   if (detectCategory(src) === '其他') missing.push('類別不明');
   return missing.length > 0 ? missing : ['資訊不完整'];
@@ -270,7 +270,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
                       ))}
                     </div>
                     <span className="shrink-0 px-3 py-2 rounded-lg bg-primary-500 text-white text-[15px] font-bold">
-                      補充
+                      編輯
                     </span>
                   </button>
                 );
