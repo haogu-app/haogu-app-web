@@ -155,28 +155,25 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
               </div>
             ) : (
               allItems.map((item, i) => (
-                <div
+                <button
                   key={i}
-                  className={cn(i === 0 && 'rounded-xl border-2 border-accent-500 overflow-hidden')}
-                >
-                  {i === 0 && (
-                    <div className="bg-white/10 px-3 pt-1.5 pb-1">
-                      <span className="text-[11px] font-bold bg-accent-100 text-slate-700 px-2 py-0.5 rounded-full leading-none">
-                        最新
-                      </span>
-                    </div>
+                  onClick={() => setEditRecord(item.record)}
+                  className={cn(
+                    'w-full flex items-center gap-3 bg-white/10 rounded-xl px-3 py-2 text-left hover:bg-white/20 active:scale-[0.99] transition-all',
+                    i === 0 && 'border-2 border-accent-500',
                   )}
-                  <button
-                    onClick={() => setEditRecord(item.record)}
-                    className="w-full flex items-center gap-3 bg-white/10 rounded-xl px-3 py-2 text-left hover:bg-white/20 active:scale-[0.99] transition-all"
-                  >
-                    <span className="text-[14px] font-mono tabular-nums text-primary-100/80 shrink-0 w-12">
-                      {item.time}
+                >
+                  <span className="text-[14px] font-mono tabular-nums text-primary-100/80 shrink-0 w-12">
+                    {item.time}
+                  </span>
+                  <span className="text-[16px] font-bold text-white flex-1">{item.text}</span>
+                  {i === 0 && (
+                    <span className="text-[11px] font-bold bg-accent-100 text-slate-700 px-2 py-0.5 rounded-full leading-none shrink-0">
+                      最新
                     </span>
-                    <span className="text-[16px] font-bold text-white flex-1">{item.text}</span>
-                    <span className="text-base shrink-0">{item.icon}</span>
-                  </button>
-                </div>
+                  )}
+                  <span className="text-base shrink-0">{item.icon}</span>
+                </button>
               ))
             )}
           </div>
