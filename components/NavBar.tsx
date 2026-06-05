@@ -53,9 +53,9 @@ export function NavBar({ currentView, setView, onQuickRecord }: NavBarProps) {
       >
         <Image
           src="/haogu-logo.png"
-          alt="更多"
-          width={29}
-          height={29}
+          alt="關於好顧"
+          width={36}
+          height={36}
           className="opacity-100"
         />
         <span className={cn(
