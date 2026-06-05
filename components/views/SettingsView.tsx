@@ -21,9 +21,8 @@ const INSTALL_STEPS = {
 };
 
 const COMING_SOON_ROWS = [
-  '🎤 語音紀錄 · 📷 拍照判讀',
+  '🎤 語音紀錄 · 📷 拍照判讀 · 🔔 任務提醒',
   '👨‍👩‍👧‍👦 工作分配 · ⏱️ 照顧時數統計',
-  '🔔 任務提醒',
 ];
 
 export function SettingsView() {
@@ -47,6 +46,16 @@ export function SettingsView() {
 
   return (
     <div className="space-y-6 pt-6 pb-24">
+
+      {/* 好顧是什麼 */}
+      <div className="px-6">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/haogu-what.png"
+          alt="好顧是什麼"
+          className="w-full rounded-2xl object-contain"
+        />
+      </div>
 
       {/* 加入主畫面教學 */}
       <div className="px-6">
@@ -110,16 +119,6 @@ export function SettingsView() {
             </button>
           )}
         </div>
-      </div>
-
-      {/* 好顧是什麼 */}
-      <div className="px-6">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/haogu-what.png"
-          alt="好顧是什麼"
-          className="w-full rounded-2xl object-contain"
-        />
       </div>
 
       {/* 即將推出功能 */}
