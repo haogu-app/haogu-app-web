@@ -56,15 +56,12 @@ export function NavBar({ currentView, setView, onQuickRecord }: NavBarProps) {
           alt="更多"
           width={29}
           height={29}
-          className={cn(
-            'transition-opacity',
-            currentView === 'settings' ? 'opacity-100' : 'opacity-70',
-          )}
+          className="opacity-100"
         />
         <span className={cn(
           'text-[13px] font-medium transition-colors',
           currentView === 'settings' ? 'text-primary-500' : 'text-slate-400',
-        )}>更多</span>
+        )}>關於好顧</span>
         {currentView === 'settings' && (
           <motion.div layoutId="nav-dot" className="w-1 h-1 rounded-full bg-primary-500 mt-0.5" />
         )}
