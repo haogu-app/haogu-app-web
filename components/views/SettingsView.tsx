@@ -56,19 +56,19 @@ export function SettingsView() {
               <Smartphone size={20} />
             </div>
             <div>
-              <p className="text-sm font-bold text-slate-700">把好顧加入手機主畫面</p>
-              <p className="text-xs text-slate-400 mt-0.5">像 App 一樣快速打開好顧，不用每次找網址。</p>
+              <p className="text-[16px] font-bold text-slate-700">把好顧加入手機主畫面</p>
+              <p className="text-[14px] text-slate-400 mt-0.5">像 App 一樣快速打開好顧，不用每次找網址。</p>
             </div>
           </div>
 
           <div>
-            <p className="text-xs font-bold text-slate-500 mb-2.5 flex items-center gap-1.5">
+            <p className="text-[15px] font-bold text-slate-500 mb-2.5 flex items-center gap-1.5">
               <span className="text-base">🍎</span> iPhone / Safari
             </p>
-            <ol className="space-y-2">
+            <ol className="space-y-2.5">
               {INSTALL_STEPS.iphone.map((step, i) => (
-                <li key={i} className="flex items-start gap-2.5 text-xs text-slate-600">
-                  <span className="bg-slate-100 text-slate-500 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0 mt-0.5">
+                <li key={i} className="flex items-start gap-2.5 text-[15px] text-slate-600">
+                  <span className="bg-slate-100 text-slate-500 w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5">
                     {i + 1}
                   </span>
                   {step}
@@ -80,13 +80,13 @@ export function SettingsView() {
           <div className="border-t border-slate-50" />
 
           <div>
-            <p className="text-xs font-bold text-slate-500 mb-2.5 flex items-center gap-1.5">
+            <p className="text-[15px] font-bold text-slate-500 mb-2.5 flex items-center gap-1.5">
               <span className="text-base">🤖</span> Android / Chrome
             </p>
-            <ol className="space-y-2">
+            <ol className="space-y-2.5">
               {INSTALL_STEPS.android.map((step, i) => (
-                <li key={i} className="flex items-start gap-2.5 text-xs text-slate-600">
-                  <span className="bg-slate-100 text-slate-500 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0 mt-0.5">
+                <li key={i} className="flex items-start gap-2.5 text-[15px] text-slate-600">
+                  <span className="bg-slate-100 text-slate-500 w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5">
                     {i + 1}
                   </span>
                   {step}
@@ -96,14 +96,14 @@ export function SettingsView() {
           </div>
 
           {urlCopied ? (
-            <div className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-green-50 border border-green-100 text-sm font-medium text-green-700">
+            <div className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-green-50 border border-green-100 text-[16px] font-medium text-green-700">
               <Check size={15} />
               已複製好顧網址
             </div>
           ) : (
             <button
               onClick={handleCopyUrl}
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-primary-50 border border-primary-100 text-sm font-bold text-primary-600 active:scale-[0.98] transition-transform"
+              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-primary-50 border border-primary-100 text-[16px] font-bold text-primary-600 active:scale-[0.98] transition-transform"
             >
               <Copy size={15} />
               複製好顧網址
@@ -112,13 +112,23 @@ export function SettingsView() {
         </div>
       </div>
 
+      {/* 好顧是什麼 */}
+      <div className="px-6">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/haogu-what.png"
+          alt="好顧是什麼"
+          className="w-full rounded-2xl object-contain"
+        />
+      </div>
+
       {/* 即將推出功能 */}
       <div className="px-6">
         <div className="bg-white border border-slate-100 rounded-3xl shadow-sm p-5 space-y-4">
-          <p className="text-sm font-bold text-slate-700">即將推出功能</p>
-          <div className="space-y-2">
+          <p className="text-[16px] font-bold text-slate-700">即將推出功能</p>
+          <div className="space-y-2.5">
             {COMING_SOON_ROWS.map((row) => (
-              <p key={row} className="text-sm text-slate-500 leading-relaxed">{row}</p>
+              <p key={row} className="text-[16px] text-slate-500 leading-relaxed">{row}</p>
             ))}
           </div>
         </div>
@@ -132,7 +142,7 @@ export function SettingsView() {
             href="https://lin.ee/N4yUobv"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-green-500 text-white text-sm font-bold active:scale-[0.98] transition-transform"
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-green-500 text-white text-[16px] font-bold active:scale-[0.98] transition-transform"
           >
             <MessageCircle size={16} />
             快來跟我們聯絡！

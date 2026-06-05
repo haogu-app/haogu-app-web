@@ -94,34 +94,34 @@ export function QuickRecordModal({ isOpen, onClose, onSubmit, familyId }: QuickR
         className="relative w-full max-w-md bg-white rounded-t-[32px] p-8 shadow-2xl"
       >
         <div className="w-12 h-1.5 bg-slate-100 rounded-full mx-auto mb-6" />
-        <h3 className="text-xl font-bold text-slate-800 mb-6">快速記錄照顧事項</h3>
+        <h3 className="text-[22px] font-bold text-slate-800 mb-6">快速記錄照顧事項</h3>
 
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">照顧對象</p>
+              <p className="text-[15px] font-bold text-slate-400 uppercase tracking-wider mb-2">照顧對象</p>
               <input
                 type="text"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 placeholder="阿嬤"
-                className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+                className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-[17px] focus:outline-none focus:ring-2 focus:ring-primary-500/20"
               />
             </div>
             <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">執行時間</p>
+              <p className="text-[15px] font-bold text-slate-400 uppercase tracking-wider mb-2">執行時間</p>
               <input
                 ref={timeRef}
                 type="time"
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
                 onClick={() => { try { timeRef.current?.showPicker(); } catch {} }}
-                className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 cursor-pointer"
+                className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-[17px] focus:outline-none focus:ring-2 focus:ring-primary-500/20 cursor-pointer"
               />
             </div>
           </div>
           <div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">選擇類型</p>
+            <p className="text-[15px] font-bold text-slate-400 uppercase tracking-wider mb-3">選擇類型</p>
             <div className="grid grid-cols-4 gap-3">
               {TYPES.map((t) => (
                 <button
@@ -134,32 +134,32 @@ export function QuickRecordModal({ isOpen, onClose, onSubmit, familyId }: QuickR
                       : 'bg-white border-slate-100'
                   )}
                 >
-                  <span className="text-xl leading-none">{t.emoji}</span>
-                  <span className="text-[10px] font-bold text-slate-600">{t.label}</span>
+                  <span className="text-2xl leading-none">{t.emoji}</span>
+                  <span className="text-[13px] font-bold text-slate-600">{t.label}</span>
                 </button>
               ))}
             </div>
           </div>
 
           <div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">備註內容</p>
+            <p className="text-[15px] font-bold text-slate-400 uppercase tracking-wider mb-2">備註內容</p>
             <input
               type="text"
               placeholder={PLACEHOLDERS[type]}
               value={detail}
               onChange={(e) => setDetail(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+              className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-[17px] focus:outline-none focus:ring-2 focus:ring-primary-500/20"
             />
           </div>
 
           {error && (
-            <p className="text-xs text-red-500 text-center -mt-2">{error}</p>
+            <p className="text-[14px] text-red-500 text-center -mt-2">{error}</p>
           )}
 
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full bg-primary-500 text-white rounded-2xl py-4 font-bold shadow-lg shadow-primary-200 mt-4 active:scale-[0.98] transition-transform disabled:opacity-60"
+            className="w-full bg-primary-500 text-white rounded-2xl py-4 text-[18px] font-bold shadow-lg shadow-primary-200 mt-4 active:scale-[0.98] transition-transform disabled:opacity-60"
           >
             {loading ? '送出中...' : '送出紀錄'}
           </button>

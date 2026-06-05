@@ -133,7 +133,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
 
       {/* Tagline */}
       <div className="px-6 -mt-2 text-center">
-        <p className="text-sm text-slate-500">
+        <p className="text-[16px] text-slate-500 leading-relaxed">
           開頭輸入 <span className="font-bold text-slate-700">#好顧</span> LINE 幫你整理照顧紀錄
         </p>
       </div>
@@ -142,8 +142,8 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
       <div className="px-6">
         <div className="bg-gradient-to-br from-primary-400 to-primary-600 rounded-3xl p-6 text-white shadow-lg shadow-primary-200">
           <div className="flex justify-between items-start mb-2">
-            <h2 className="text-2xl font-bold">今天照顧摘要</h2>
-            <div className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px]">
+            <h2 className="text-[28px] font-bold leading-tight">今天照顧摘要</h2>
+            <div className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[14px]">
               {todayDateStr}
             </div>
           </div>
@@ -151,7 +151,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
           <div className="space-y-1.5 max-h-[280px] overflow-y-auto no-scrollbar">
             {allItems.length === 0 ? (
               <div className="text-center py-4">
-                <p className="text-sm text-primary-100/80 font-medium">還沒有今日紀錄</p>
+                <p className="text-[17px] text-primary-100/80 font-medium">還沒有今日紀錄</p>
               </div>
             ) : (
               allItems.map((item, i) => (
@@ -160,10 +160,10 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
                   onClick={() => setEditRecord(item.record)}
                   className="w-full flex items-center gap-3 bg-white/10 rounded-xl px-3 py-2 text-left hover:bg-white/20 active:scale-[0.99] transition-all"
                 >
-                  <span className="text-sm font-mono tabular-nums text-primary-100/80 shrink-0 w-12">
+                  <span className="text-[14px] font-mono tabular-nums text-primary-100/80 shrink-0 w-12">
                     {item.time}
                   </span>
-                  <span className="text-sm font-bold text-white flex-1">{item.text}</span>
+                  <span className="text-[16px] font-bold text-white flex-1">{item.text}</span>
                   <span className="text-base shrink-0">{item.icon}</span>
                 </button>
               ))
@@ -171,13 +171,13 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
           </div>
 
           {allItems.length > 0 && (shareToast ? (
-            <div className="mt-4 py-2.5 rounded-xl text-center text-sm font-medium text-white/70 bg-white/10 border border-white/20">
+            <div className="mt-4 py-3 rounded-xl text-center text-[16px] font-medium text-white/70 bg-white/10 border border-white/20">
               {shareToast}
             </div>
           ) : (
             <button
               onClick={handleShareConfirmed}
-              className="w-full mt-4 bg-white/20 backdrop-blur-sm border border-white/30 py-2.5 rounded-xl flex items-center justify-center gap-2 text-white text-sm font-bold hover:bg-white/30 active:scale-95 transition-all"
+              className="w-full mt-4 bg-white/20 backdrop-blur-sm border border-white/30 py-3 rounded-xl flex items-center justify-center gap-2 text-white text-[16px] font-bold hover:bg-white/30 active:scale-95 transition-all"
             >
               {shareCopied ? (
                 <><Check size={16} />已複製照顧摘要，請貼到 LINE 傳給家人</>
@@ -193,11 +193,11 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
       {!isHomeDataLoading && confirmedRecords.length < 2 && (
         <div className="px-6">
           <div className="bg-white border border-green-100 rounded-2xl p-5 shadow-sm space-y-3">
-            <p className="font-bold text-slate-700 text-sm">開始使用好顧</p>
-            <ol className="space-y-1.5">
+            <p className="font-bold text-slate-700 text-[16px]">開始使用好顧</p>
+            <ol className="space-y-2">
               {['加入好顧 LINE', '傳送一筆照顧紀錄', '回來看今天摘要'].map((step, i) => (
-                <li key={i} className="flex items-center gap-2.5 text-xs text-slate-600">
-                  <span className="bg-green-500 text-white w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0">
+                <li key={i} className="flex items-center gap-2.5 text-[14px] text-slate-600">
+                  <span className="bg-green-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0">
                     {i + 1}
                   </span>
                   {step}
@@ -208,7 +208,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
               href="https://lin.ee/N4yUobv"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full bg-green-500 text-white rounded-xl py-3 text-sm font-bold active:scale-[0.98] transition-transform"
+              className="flex items-center justify-center gap-2 w-full bg-green-500 text-white rounded-xl py-3 text-[16px] font-bold active:scale-[0.98] transition-transform"
             >
               <MessageCircle size={16} />
               加入好顧 LINE
@@ -230,12 +230,12 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-slate-700">待處理事項</h3>
-                  <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold shrink-0">
+                  <h3 className="font-bold text-slate-700 text-[20px]">待處理事項</h3>
+                  <span className="bg-red-500 text-white text-[12px] px-1.5 py-0.5 rounded-full font-bold shrink-0">
                     {lineSyncs.length} 筆需補充
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 mt-0.5">補充 LINE 紀錄缺少的資訊</p>
+                <p className="text-[15px] text-slate-400 mt-0.5">補充 LINE 紀錄缺少的資訊</p>
               </div>
             </div>
 
@@ -250,15 +250,15 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
                     onClick={onOpenLineSync}
                     className="w-full flex items-center gap-2 bg-slate-50 rounded-xl px-3 py-2.5 min-h-[48px] cursor-pointer text-left hover:bg-slate-100 active:scale-[0.99] transition-all"
                   >
-                    <p className="text-xs text-slate-600 flex-1 truncate">{displayTxt}</p>
+                    <p className="text-[15px] text-slate-600 flex-1 truncate">{displayTxt}</p>
                     <div className="flex items-center gap-1 shrink-0">
                       {missing.slice(0, 2).map((m) => (
-                        <span key={m} className="text-[9px] bg-amber-50 text-amber-600 border border-amber-100 px-1.5 py-0.5 rounded-full font-medium whitespace-nowrap">
+                        <span key={m} className="text-[13px] bg-amber-50 text-amber-600 border border-amber-100 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
                           {m}
                         </span>
                       ))}
                     </div>
-                    <span className="shrink-0 px-2.5 py-1.5 rounded-lg bg-primary-500 text-white text-[10px] font-bold">
+                    <span className="shrink-0 px-3 py-2 rounded-lg bg-primary-500 text-white text-[15px] font-bold">
                       補充
                     </span>
                   </button>
@@ -267,7 +267,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
               {lineSyncs.length > 5 && (
                 <button
                   onClick={onOpenLineSync}
-                  className="w-full py-1.5 text-xs text-slate-400 text-center hover:text-slate-600 transition-colors"
+                  className="w-full py-2 text-[14px] text-slate-400 text-center hover:text-slate-600 transition-colors"
                 >
                   還有 {lineSyncs.length - 5} 筆… 點此查看全部
                 </button>

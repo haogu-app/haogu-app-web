@@ -26,8 +26,8 @@ export function NavBar({ currentView, setView, onQuickRecord }: NavBarProps) {
           currentView === 'dashboard' ? 'text-primary-500' : 'text-slate-400',
         )}
       >
-        <Home size={22} />
-        <span className="text-[10px] font-medium">首頁</span>
+        <Home size={24} />
+        <span className="text-[13px] font-medium">首頁</span>
         {currentView === 'dashboard' && (
           <motion.div layoutId="nav-dot" className="w-1 h-1 rounded-full bg-primary-500 mt-0.5" />
         )}
@@ -42,8 +42,8 @@ export function NavBar({ currentView, setView, onQuickRecord }: NavBarProps) {
           <Plus size={28} />
         </button>
         {/* Invisible spacer matching icon height of side items so text aligns */}
-        <div className="h-[22px] w-6" aria-hidden />
-        <span className="text-[10px] font-medium text-primary-500">快速紀錄</span>
+        <div className="h-[24px] w-6" aria-hidden />
+        <span className="text-[13px] font-medium text-primary-500">快速紀錄</span>
       </div>
 
       <button
@@ -54,15 +54,15 @@ export function NavBar({ currentView, setView, onQuickRecord }: NavBarProps) {
         <Image
           src="/haogu-logo.png"
           alt="更多"
-          width={22}
-          height={22}
+          width={24}
+          height={24}
           className={cn(
             'transition-opacity',
             currentView === 'settings' ? 'opacity-100' : 'opacity-35',
           )}
         />
         <span className={cn(
-          'text-[10px] font-medium transition-colors',
+          'text-[13px] font-medium transition-colors',
           currentView === 'settings' ? 'text-primary-500' : 'text-slate-400',
         )}>更多</span>
         {currentView === 'settings' && (
