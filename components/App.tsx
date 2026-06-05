@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { XCircle } from 'lucide-react';
 import { NavBar } from '@/components/NavBar';
@@ -19,9 +19,6 @@ export default function App() {
   const [view, setView] = useState<View>('dashboard');
   const [isQuickRecordOpen, setIsQuickRecordOpen] = useState(false);
   const [isLineSyncOpen, setIsLineSyncOpen] = useState(false);
-  const [undoPending, setUndoPending] = useState<RawLineSync | null>(null);
-  const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   // Resolve family_id from ?family= query param once on mount
   const [familyId] = useState<string>(() => {
     if (typeof window === 'undefined') return FAMILY_ID;
@@ -51,26 +48,8 @@ export default function App() {
   }, [isLineSyncOpen, lineSyncs.length]);
 
   const handleRecordDeleted = (dbId: string) => {
-    const record = confirmedRecords.find((r) => r._dbId === dbId) ?? null;
     setConfirmedRecords((prev) => prev.filter((r) => r._dbId !== dbId));
-
-    // Cancel any previous pending undo timer
-    if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
-
-    setUndoPending(record);
-    undoTimerRef.current = setTimeout(() => {
-      supabase.from('care_records').delete().eq('id', dbId).then(() => {});
-      setUndoPending(null);
-      undoTimerRef.current = null;
-    }, 5000);
-  };
-
-  const handleUndoDelete = () => {
-    if (!undoPending || !undoTimerRef.current) return;
-    clearTimeout(undoTimerRef.current);
-    undoTimerRef.current = null;
-    setConfirmedRecords((prev) => [undoPending, ...prev]);
-    setUndoPending(null);
+    supabase.from('care_records').delete().eq('id', dbId).then(() => {});
   };
 
   const handleRecordSaved = (dbId: string, summary: string) => {
@@ -192,24 +171,6 @@ export default function App() {
               />
             </motion.div>
           </div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {undoPending && (
-          <motion.div
-            initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 40, opacity: 0 }}
-            transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-            className="fixed bottom-20 left-1/2 -translate-x-1/2 z-[200] w-[92%] max-w-[440px] bg-slate-800 text-white px-5 py-3.5 rounded-2xl flex items-center justify-between shadow-xl"
-          >
-            <span className="text-sm font-medium">已刪除紀錄</span>
-            <button
-              onClick={handleUndoDelete}
-              className="text-sm font-bold text-primary-300 ml-6 shrink-0 active:opacity-70"
-            >
-              復原
-            </button>
-          </motion.div>
         )}
       </AnimatePresence>
 
