@@ -32,7 +32,7 @@ export function Header({ title, showLogo, showBack, onBack }: HeaderProps) {
           <ChevronRight className="rotate-180" size={24} />
         </button>
       )}
-      <h1 className="text-xl font-bold text-slate-800">{title}</h1>
+      <h1 className="text-[24px] font-bold text-slate-800">{title}</h1>
     </div>
   );
 }

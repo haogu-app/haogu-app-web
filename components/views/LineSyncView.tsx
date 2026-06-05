@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { MessageCircle, ArrowRight, ChevronRight } from 'lucide-react';
+import { MessageCircle, ChevronRight } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { cleanDisplayMessage, formatTime, cn, detectSubject, detectCategory, cleanSummaryText, extractEventTime } from '@/lib/utils';
 import type { RawLineSync, CareTask } from '@/lib/types';
@@ -228,47 +228,42 @@ export function LineSyncView({ onBack, lineSyncs, onConfirm, onDelete }: LineSyn
         </div>
       )}
 
-      <div className="px-6 space-y-4">
-        <h3 className="text-xs font-bold text-slate-400 tracking-wider uppercase">
+      <div className="px-6 space-y-[18px]">
+        <h3 className="text-[15px] font-bold text-slate-400 tracking-wider uppercase">
           待確認的同步訊息 ({lineSyncs.length} 筆)
         </h3>
 
         {lineSyncs.map((sync, index) => {
           const displayTxt =
             sync.displayMessage || cleanDisplayMessage(sync.originalMessage || sync['原始訊息']);
-          const sumTxt =
-            sync.recordSummary ||
-            (sync['AI整理結果'] ? cleanDisplayMessage(sync['AI整理結果']) : '解析進行中...');
           return (
             <button
               key={sync._dbId ?? index}
               onClick={() => setSelectedIdx(index)}
               className="w-full text-left bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden active:scale-[0.99] transition-transform"
             >
-              <div className="p-4 border-b border-slate-50">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2 text-primary-500">
-                    <MessageCircle size={16} />
-                    <span className="text-[10px] font-bold tracking-tight">原始訊息</span>
+              <div className="p-5 space-y-4">
+                {/* 原始訊息 */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2 text-primary-500">
+                      <MessageCircle size={18} />
+                      <span className="text-[16px] font-semibold">原始訊息</span>
+                    </div>
+                    <ChevronRight size={18} className="text-slate-300" />
                   </div>
-                  <ChevronRight size={16} className="text-slate-300" />
+                  <p className="text-[18px] text-slate-700 leading-relaxed font-medium">{displayTxt}</p>
                 </div>
-                <p className="text-sm text-slate-600 leading-relaxed font-medium line-clamp-2">{displayTxt}</p>
-              </div>
-              <div className="p-4 bg-primary-50/30">
-                <div className="flex items-center gap-2 text-primary-600 mb-2">
-                  <ArrowRight size={16} />
-                  <span className="text-[10px] font-bold tracking-tight uppercase">自動整理結果</span>
-                </div>
-                <p className="text-xs font-bold text-slate-700 leading-relaxed line-clamp-2">{sumTxt}</p>
-                <div className="flex items-center justify-between mt-3">
+
+                {/* 取得時間 + 補充按鈕 */}
+                <div className="flex items-center justify-between pt-1 border-t border-slate-50">
                   <div>
-                    <p className="text-[10px] text-slate-400 mb-0.5">取得時間</p>
-                    <p className="text-xs font-bold text-slate-700">
+                    <p className="text-[15px] text-slate-400">取得時間</p>
+                    <p className="text-[17px] font-bold text-slate-700">
                       {formatTime(sync.receivedAt || sync['收到時間'])}
                     </p>
                   </div>
-                  <span className="text-[10px] bg-primary-100 text-primary-700 px-2 py-0.5 rounded-full font-bold">
+                  <span className="text-[16px] font-semibold bg-primary-100 text-primary-700 px-4 py-3 rounded-xl min-h-[48px] flex items-center">
                     點擊補充並確認
                   </span>
                 </div>
