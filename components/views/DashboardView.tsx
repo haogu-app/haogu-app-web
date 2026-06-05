@@ -91,6 +91,13 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
     })
     .filter((item) => item.text.length >= 2);
 
+  // Index of the most recently *created* record (by created_at, falling back to receivedAt)
+  const newestIdx = allItems.length === 0 ? -1 : allItems.reduce((best, item, idx) => {
+    const bestTs = allItems[best].record._createdAt ?? allItems[best].record.receivedAt ?? '';
+    const curTs  = item.record._createdAt ?? item.record.receivedAt ?? '';
+    return curTs > bestTs ? idx : best;
+  }, 0);
+
   const buildShareText = (): string => {
     const url = 'https://haogu-app-web.vercel.app';
     if (allItems.length === 0) return `今日尚無已確認照顧紀錄。\n\n查看好顧：\n${url}`;
@@ -160,14 +167,14 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
                   onClick={() => setEditRecord(item.record)}
                   className={cn(
                     'w-full flex items-center gap-3 bg-white/10 rounded-xl px-3 py-2 text-left hover:bg-white/20 active:scale-[0.99] transition-all',
-                    i === 0 && 'border-2 border-accent-500',
+                    i === newestIdx && 'border-2 border-accent-500',
                   )}
                 >
                   <span className="text-[14px] font-mono tabular-nums text-primary-100/80 shrink-0 w-12">
                     {item.time}
                   </span>
                   <span className="text-[16px] font-bold text-white flex-1">{item.text}</span>
-                  {i === 0 && (
+                  {i === newestIdx && (
                     <span className="text-[11px] font-bold bg-accent-100 text-slate-700 px-2 py-0.5 rounded-full leading-none shrink-0">
                       最新
                     </span>

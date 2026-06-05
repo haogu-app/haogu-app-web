@@ -32,6 +32,8 @@ export interface RawLineSync {
   'AI整理結果': string;
   /** Supabase care_records.id — used for DB delete operations */
   _dbId?: string;
+  /** Supabase care_records.created_at — used to determine the most recently added record */
+  _createdAt?: string;
 }
 
 // ─── Supabase row types ───────────────────────────────────────────────────────

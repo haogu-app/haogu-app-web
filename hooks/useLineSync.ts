@@ -33,6 +33,7 @@ function rowToLineSync(row: CareRecordRow): RawLineSync {
     '原始訊息': row.display_message,
     'AI整理結果': row.record_summary,
     _dbId: row.id,
+    _createdAt: row.created_at,
   };
 }
 
