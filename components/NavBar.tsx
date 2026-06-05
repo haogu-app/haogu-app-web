@@ -49,16 +49,16 @@ export function NavBar({ currentView, setView, onQuickRecord }: NavBarProps) {
       <button
         id="nav-settings"
         onClick={() => setView('settings')}
-        className="flex flex-col items-center gap-1 min-w-[60px] transition-opacity"
+        className="flex flex-col items-center gap-1 min-w-[60px]"
       >
         <Image
           src="/haogu-logo.png"
           alt="更多"
-          width={24}
-          height={24}
+          width={29}
+          height={29}
           className={cn(
             'transition-opacity',
-            currentView === 'settings' ? 'opacity-100' : 'opacity-35',
+            currentView === 'settings' ? 'opacity-100' : 'opacity-70',
           )}
         />
         <span className={cn(
