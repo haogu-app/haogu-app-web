@@ -139,9 +139,8 @@ export function extractEventTime(text: string): string | null {
 export function cleanSummaryText(text: string, subject: string): string {
   let t = text;
   if (subject !== '家人') t = t.replaceAll(subject, '');
-  // Remove Chinese period + hour patterns (晚上17點, 早上8點, 下午3點半 …)
-  t = t.replace(/(?:早上|下午|晚上|凌晨|上午)\s*\d+\s*(?:點|時)(?:\d+分?)?/g, '');
-  t = t.replace(/\d+\s*(?:點|時)(?:\d+分?)?/g, '');
+  // Remove Chinese time expressions (晚上九點, 早上八點, 下午三點半, 晚上17點 …)
+  t = t.replace(/(早上|上午|中午|下午|晚上|夜裡|清晨|凌晨)?\s*[一兩二三四五六七八九十百\d]+\s*點\s*(半|\d+分)?/g, '');
   // Remove HH:MM colon format (19:00, 14:30 …) — prevents duplicate time in display
   t = t.replace(/\b\d{1,2}:\d{2}\b/g, '');
   // Remove common leading action verbs before medicine/food names
