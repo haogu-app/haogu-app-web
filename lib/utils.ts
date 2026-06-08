@@ -94,6 +94,15 @@ export function detectCategory(text: string): string {
  *   "早上8點"         → "08:00"
  *   "14:30"           → "14:30"
  */
+const ZH_NUM: Record<string, number> = {
+  '一': 1, '二': 2, '兩': 2, '三': 3, '四': 4, '五': 5,
+  '六': 6, '七': 7, '八': 8, '九': 9, '十': 10,
+  '十一': 11, '十二': 12,
+};
+function parseHour(s: string): number {
+  return ZH_NUM[s] ?? parseInt(s, 10);
+}
+
 export function extractEventTime(text: string): string | null {
   if (!text) return null;
 
@@ -107,14 +116,14 @@ export function extractEventTime(text: string): string | null {
     }
   }
 
-  // 2. Chinese period + hour + optional minutes/半
+  // 2. Chinese period + hour (Arabic or Chinese numerals) + optional minutes/半
   const m = text.match(
-    /(早上|上午|清晨|凌晨|中午|下午|晚上|夜裡)?\s*(\d+)\s*[點時]\s*(半|\d+分?)?/,
+    /(早上|上午|清晨|凌晨|中午|下午|晚上|夜裡)?\s*(十[一二]|十|\d+|[一兩二三四五六七八九])\s*[點時]\s*(半|\d+分?)?/,
   );
   if (!m) return null;
 
   const [, period = '', hourStr, minPart = ''] = m;
-  let h = parseInt(hourStr, 10);
+  let h = parseHour(hourStr);
   const min = minPart === '半' ? 30 : minPart ? parseInt(minPart, 10) : 0;
 
   // Add 12 for PM periods — only when h < 12 to avoid 17 → 29
