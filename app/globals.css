@@ -21,9 +21,18 @@
 }
 
 @layer base {
+  html,
+  body {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+  }
+
   body {
     @apply bg-neutral-100 text-slate-800 font-sans leading-relaxed;
     -webkit-tap-highlight-color: transparent;
+    /* Prevent horizontal scroll caused by animation x-offset */
+    overflow-x: hidden;
   }
 }
 
@@ -33,4 +42,24 @@
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/*
+ * Emergency fallback for #bottom-nav.
+ * NavBar.tsx uses createPortal + inline styles as the primary mechanism;
+ * this rule is a second layer of defence in case any global CSS overrides
+ * the inline properties (should not happen, kept for safety).
+ */
+#bottom-nav {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 100% !important;
+  max-width: 480px !important;
+  z-index: 2147483647 !important;
+  background-color: #ffffff !important;
+  display: grid !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }

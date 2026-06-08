@@ -13,13 +13,14 @@ import { SettingsView } from '@/components/views/SettingsView';
 import { useLineSync } from '@/hooks/useLineSync';
 import { FAMILY_ID, FAMILY_MAP } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
+import { extractEventTime } from '@/lib/utils';
 import type { CareTask, RawLineSync, View } from '@/lib/types';
 
 export default function App() {
   const [view, setView] = useState<View>('dashboard');
   const [isQuickRecordOpen, setIsQuickRecordOpen] = useState(false);
   const [isLineSyncOpen, setIsLineSyncOpen] = useState(false);
-  // Resolve family_id from ?family= query param once on mount
+
   const [familyId] = useState<string>(() => {
     if (typeof window === 'undefined') return FAMILY_ID;
     const slug = new URLSearchParams(window.location.search).get('family') ?? '';
@@ -40,11 +41,8 @@ export default function App() {
     deleteRecord,
   } = useLineSync(familyId);
 
-  // Auto-close sheet when all pending records are gone (e.g. after confirming the last one)
   useEffect(() => {
-    if (isLineSyncOpen && lineSyncs.length === 0) {
-      setIsLineSyncOpen(false);
-    }
+    if (isLineSyncOpen && lineSyncs.length === 0) setIsLineSyncOpen(false);
   }, [isLineSyncOpen, lineSyncs.length]);
 
   const handleRecordDeleted = (dbId: string) => {
@@ -70,14 +68,26 @@ export default function App() {
   const confirmLineSync = (idx: number, summary: string) => {
     const item = lineSyncs[idx];
     if (!item?._dbId) return;
+
+    const careTime = extractEventTime(summary);
+    const now = new Date();
+    const newReceivedAt = careTime
+      ? (() => {
+          const [h, m] = careTime.split(':').map(Number);
+          return new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0).toISOString();
+        })()
+      : now.toISOString();
+
     const updatedItem: RawLineSync = {
       ...item,
       recordSummary: summary,
       displayMessage: summary,
       originalMessage: summary,
+      receivedAt: newReceivedAt,
+      _confirmedAt: now.toISOString(),
     };
     setConfirmedRecords((prev) => [updatedItem, ...prev]);
-    confirmRecord(item._dbId, summary);
+    confirmRecord(item._dbId, summary, newReceivedAt);
     setTimeout(() => setIsLineSyncOpen(false), 800);
   };
 
@@ -102,7 +112,19 @@ export default function App() {
 
     switch (view) {
       case 'dashboard':
-        return <DashboardView setView={setView} lineSyncs={lineSyncs} confirmedRecords={confirmedRecords} onQuickRecord={() => setIsQuickRecordOpen(true)} onRecordDeleted={handleRecordDeleted} onRecordSaved={handleRecordSaved} careTargetName="阿嬤" isLoading={!isDataReady} onOpenLineSync={() => setIsLineSyncOpen(true)} />;
+        return (
+          <DashboardView
+            setView={setView}
+            lineSyncs={lineSyncs}
+            confirmedRecords={confirmedRecords}
+            onQuickRecord={() => setIsQuickRecordOpen(true)}
+            onRecordDeleted={handleRecordDeleted}
+            onRecordSaved={handleRecordSaved}
+            careTargetName="阿嬤"
+            isLoading={!isDataReady}
+            onOpenLineSync={() => setIsLineSyncOpen(true)}
+          />
+        );
       case 'lineSync':
         return (
           <LineSyncView
@@ -122,8 +144,11 @@ export default function App() {
   };
 
   return (
-    <div className="relative min-h-screen bg-neutral-50 w-full max-w-[480px] mx-auto overflow-hidden shadow-2xl flex flex-col">
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-16">
+    <>
+    <div className="relative min-h-screen bg-neutral-50 w-full max-w-[480px] mx-auto shadow-2xl flex flex-col">
+
+      {/* Scrollable content — pb-16 reserves space above the fixed NavBar */}
+      <div className="flex-1 overflow-y-auto no-scrollbar pb-20">
         <AnimatePresence mode="wait">
           <motion.div
             key={view}
@@ -137,8 +162,7 @@ export default function App() {
         </AnimatePresence>
       </div>
 
-      <NavBar currentView={view} setView={setView} onQuickRecord={() => setIsQuickRecordOpen(true)} />
-
+      {/* Quick-record modal — z-100, above NavBar z-60 */}
       <AnimatePresence>
         {isQuickRecordOpen && (
           <QuickRecordModal
@@ -150,6 +174,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
+      {/* Pending-records bottom sheet — z-80, above NavBar z-60 */}
       <AnimatePresence>
         {isLineSyncOpen && (
           <div className="fixed inset-0 z-[80] flex flex-col justify-end">
@@ -174,7 +199,31 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <div className="fixed top-0 left-0 w-full h-32 bg-gradient-to-b from-white/40 to-transparent pointer-events-none -z-10"></div>
+      {/* ── Version marker — remove after confirming Vercel shows the new build ── */}
+      <div
+        aria-hidden
+        style={{
+          position: 'fixed',
+          bottom: 96,
+          right: 6,
+          fontSize: 9,
+          color: '#bbb',
+          fontFamily: 'monospace',
+          pointerEvents: 'none',
+          zIndex: 1,
+          userSelect: 'none',
+        }}
+      >
+        FIXED-NAV-V3
+      </div>
     </div>
+
+    {/* NavBar: fixed bottom-0 left-0 right-0 z-50 (set in NavBar.tsx) */}
+    <NavBar
+      currentView={view}
+      setView={setView}
+      onQuickRecord={() => setIsQuickRecordOpen(true)}
+    />
+    </>
   );
 }

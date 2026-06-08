@@ -34,6 +34,8 @@ export interface RawLineSync {
   _dbId?: string;
   /** Supabase care_records.created_at — used to determine the most recently added record */
   _createdAt?: string;
+  /** Client-side ISO timestamp set when this record is confirmed in the current session */
+  _confirmedAt?: string;
 }
 
 // ─── Supabase row types ───────────────────────────────────────────────────────

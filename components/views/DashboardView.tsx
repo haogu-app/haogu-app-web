@@ -91,11 +91,10 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
     })
     .filter((item) => item.text.length >= 2);
 
-  // Index of the most recently *created* record (by created_at, falling back to receivedAt)
+  // Index of the most recently *confirmed* record (by _confirmedAt, falling back to _createdAt)
   const newestIdx = allItems.length === 0 ? -1 : allItems.reduce((best, item, idx) => {
-    const bestTs = allItems[best].record._createdAt ?? allItems[best].record.receivedAt ?? '';
-    const curTs  = item.record._createdAt ?? item.record.receivedAt ?? '';
-    return curTs > bestTs ? idx : best;
+    const getTs = (r: RawLineSync) => r._confirmedAt ?? r._createdAt ?? r.receivedAt ?? '';
+    return getTs(item.record) > getTs(allItems[best].record) ? idx : best;
   }, 0);
 
   const buildShareText = (): string => {

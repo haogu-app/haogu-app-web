@@ -142,7 +142,7 @@ function PendingRecordForm({ sync, onBack, onConfirm, onDelete }: PendingRecordF
         {/* 操作按鈕 */}
         <div className="flex gap-3 pt-1">
           <button
-            onClick={() => onConfirm(buildSummary())}
+            onClick={() => { if (!time) return; onConfirm(buildSummary()); }}
             className="flex-1 py-4 rounded-2xl text-sm font-bold bg-primary-500 text-white shadow-md shadow-primary-100 active:scale-95 transition-transform"
           >
             儲存並確認
@@ -192,7 +192,7 @@ export function LineSyncView({ onBack, lineSyncs, onConfirm, onDelete }: LineSyn
         onConfirm={(summary) => {
           onConfirm(selectedIdx, summary);
           setSelectedIdx(null);
-          showToast('已確認紀錄，並加入今日照顧摘要');
+          showToast('已完成補充');
         }}
         onDelete={() => {
           onDelete(selectedIdx);

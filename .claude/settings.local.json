@@ -24,7 +24,23 @@
       "Bash(git restore *)",
       "Bash(python3 -c ' *)",
       "Bash(python -c ' *)",
-      "Bash(python3 *)"
+      "Bash(python3 *)",
+      "PowerShell(Get-ChildItem C:\\\\work\\\\haogu-app\\\\app -Recurse | Where-Object { !$_.PSIsContainer } | Select-Object FullName)",
+      "PowerShell(Get-ChildItem C:\\\\work\\\\haogu-app\\\\components -Recurse | Where-Object { !$_.PSIsContainer } | Select-Object FullName)",
+      "PowerShell(Get-ChildItem C:\\\\work\\\\haogu-app\\\\supabase -Recurse | Where-Object { !$_.PSIsContainer } | Select-Object FullName)",
+      "PowerShell($headers = @{ \"apikey\" = \"sb_publishable_Lh9788pVU9oQXXlUBCrqkw_CYIuf8it\"; \"Authorization\" = \"Bearer sb_publishable_Lh9788pVU9oQXXlUBCrqkw_CYIuf8it\" }; try { $r = Invoke-RestMethod -Uri \"https://mxlvrjbryuwomjwqkfes.supabase.co/rest/v1/families?select=id,name,care_target_name&limit=1\" -Headers $headers; $r | ConvertTo-Json } catch { $_.Exception.Response.StatusCode; $_ })",
+      "PowerShell($headers = @{ \"apikey\" = \"sb_publishable_Lh9788pVU9oQXXlUBCrqkw_CYIuf8it\"; \"Authorization\" = \"Bearer sb_publishable_Lh9788pVU9oQXXlUBCrqkw_CYIuf8it\" }; try { $r = Invoke-RestMethod -Uri \"https://mxlvrjbryuwomjwqkfes.supabase.co/rest/v1/families?select=id,name&limit=1\" -Headers $headers; $r | ConvertTo-Json } catch { \"Error: $\\($_.Exception.Message\\)\" })",
+      "PowerShell(npx supabase@2.104.0 db push --project-ref mxlvrjbryuwomjwqkfes 2>&1 | Select-Object -First 20)",
+      "PowerShell(if \\(Test-Path \"$env:APPDATA\\\\supabase\"\\) { Get-ChildItem \"$env:APPDATA\\\\supabase\" -Recurse | Select-Object FullName })",
+      "PowerShell(git *)",
+      "Bash(Get-ChildItem C:\\\\work\\\\haogu-app -Filter \"*.config.*\")",
+      "Bash(Select-Object Name)",
+      "Bash(git checkout *)",
+      "Bash(npx next *)",
+      "Bash(npx playwright *)",
+      "Bash(npm uninstall *)",
+      "Bash(npx vercel *)",
+      "Bash(grep -v \"^$\")"
     ]
   }
 }

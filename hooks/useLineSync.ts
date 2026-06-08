@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import type { CareTask, RawLineSync, CareRecordRow, TaskRow } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
@@ -17,7 +17,7 @@ interface ApiErrorDetails {
   timeoutHappened?: boolean;
 }
 
-function rowToLineSync(row: CareRecordRow): RawLineSync {
+function rowToLineSync(row: CareRecordRow, confirmedAt?: string): RawLineSync {
   return {
     receivedAt: row.received_at,
     originalMessage: row.original_message,
@@ -34,6 +34,7 @@ function rowToLineSync(row: CareRecordRow): RawLineSync {
     'AI整理結果': row.record_summary,
     _dbId: row.id,
     _createdAt: row.created_at,
+    _confirmedAt: confirmedAt,
   };
 }
 
@@ -56,6 +57,8 @@ export function useLineSync(familyId: string) {
   // One-way latch: flips to true after the first successful load and never reverts.
   // This prevents any flash where empty state is shown before data arrives.
   const [isDataReady, setIsDataReady] = useState(false);
+  // Tracks confirmation wall-clock time per record id; persists through realtime reloads
+  const confirmedAtRef = useRef<Map<string, string>>(new Map());
 
   const loadData = useCallback(async () => {
     try {
@@ -98,10 +101,10 @@ export function useLineSync(familyId: string) {
       }
 
       const autoIds = new Set(toAutoConfirm.map((r) => r.id));
-      setLineSyncsInternal(pending.filter((r) => !autoIds.has(r.id)).map(rowToLineSync));
+      setLineSyncsInternal(pending.filter((r) => !autoIds.has(r.id)).map((row) => rowToLineSync(row)));
       setConfirmedRecordsInternal([
-        ...toAutoConfirm.map(rowToLineSync),
-        ...(confirmedRes.data as CareRecordRow[]).map(rowToLineSync),
+        ...toAutoConfirm.map((row) => rowToLineSync(row, confirmedAtRef.current.get(row.id))),
+        ...(confirmedRes.data as CareRecordRow[]).map((row) => rowToLineSync(row, confirmedAtRef.current.get(row.id))),
       ]);
       setTasksInternal((tasksRes.data as TaskRow[]).map(rowToCareTask));
       setApiStatus('SUCCESS');
@@ -140,14 +143,18 @@ export function useLineSync(familyId: string) {
     };
   }, [loadData]);
 
-  /** Mark a pending care_record as confirmed, optionally updating its summary fields */
-  const confirmRecord = useCallback(async (dbId: string, summary?: string) => {
+  /** Mark a pending care_record as confirmed, optionally updating its summary fields and care time */
+  const confirmRecord = useCallback(async (dbId: string, summary?: string, newReceivedAt?: string) => {
+    confirmedAtRef.current.set(dbId, new Date().toISOString());
     setLineSyncsInternal((prev) => prev.filter((p) => p._dbId !== dbId));
     const patch: Record<string, unknown> = { confirmed: true, status: 'complete' };
     if (summary) {
       patch.original_message = summary;
       patch.display_message = summary;
       patch.record_summary = summary;
+    }
+    if (newReceivedAt) {
+      patch.received_at = newReceivedAt;
     }
     await supabase.from('care_records').update(patch).eq('id', dbId);
   }, []);
