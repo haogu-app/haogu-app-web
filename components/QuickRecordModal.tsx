@@ -78,7 +78,7 @@ export function QuickRecordModal({ isOpen, onClose, onSubmit, familyId }: QuickR
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end justify-center">
+    <div className="fixed inset-0 z-[100] flex items-end justify-center pb-20">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -91,12 +91,14 @@ export function QuickRecordModal({ isOpen, onClose, onSubmit, familyId }: QuickR
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="relative w-full max-w-md bg-white rounded-t-[32px] p-8 shadow-2xl"
+        className="relative w-full max-w-md bg-white rounded-t-[32px] shadow-2xl flex flex-col max-h-[calc(90dvh-80px)]"
       >
-        <div className="w-12 h-1.5 bg-slate-100 rounded-full mx-auto mb-6" />
-        <h3 className="text-[22px] font-bold text-slate-800 mb-6">快速記錄照顧事項</h3>
+        <div className="px-8 pt-8 pb-2 shrink-0">
+          <div className="w-12 h-1.5 bg-slate-100 rounded-full mx-auto mb-6" />
+          <h3 className="text-[22px] font-bold text-slate-800">快速記錄照顧事項</h3>
+        </div>
 
-        <div className="space-y-6">
+        <div className="overflow-y-auto px-8 py-4 space-y-6 flex-1">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-[15px] font-bold text-slate-400 uppercase tracking-wider mb-2">照顧對象</p>
@@ -153,13 +155,15 @@ export function QuickRecordModal({ isOpen, onClose, onSubmit, familyId }: QuickR
           </div>
 
           {error && (
-            <p className="text-[14px] text-red-500 text-center -mt-2">{error}</p>
+            <p className="text-[14px] text-red-500 text-center">{error}</p>
           )}
+        </div>
 
+        <div className="px-8 pb-8 pt-4 shrink-0 border-t border-slate-50">
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full bg-primary-500 text-white rounded-2xl py-4 text-[18px] font-bold shadow-lg shadow-primary-200 mt-4 active:scale-[0.98] transition-transform disabled:opacity-60"
+            className="w-full bg-primary-500 text-white rounded-2xl py-4 text-[18px] font-bold shadow-lg shadow-primary-200 active:scale-[0.98] transition-transform disabled:opacity-60"
           >
             {loading ? '送出中...' : '送出紀錄'}
           </button>
