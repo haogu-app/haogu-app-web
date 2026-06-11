@@ -140,7 +140,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
       {/* Tagline */}
       <div className="px-6 -mt-2 text-center">
         <p className="text-[16px] text-slate-500 leading-relaxed">
-          開頭輸入 <span className="font-bold text-slate-700">#好顧</span> LINE 幫你整理照顧紀錄
+          開頭輸入 <span className="font-bold text-slate-700">好顧</span> LINE 幫你整理照顧紀錄
         </p>
       </div>
 
