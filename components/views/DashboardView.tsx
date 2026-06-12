@@ -59,11 +59,19 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
   // Shift both sides to UTC+8 so date boundaries match Taiwan calendar.
   const twNow = new Date(now.getTime() + 8 * 60 * 60 * 1000);
 
+  // Make sometimes sends received_at as a Unix timestamp that lands in 1970.
+  // Fall back to created_at (_createdAt) when received_at year < 2020.
+  function effectiveAt(r: RawLineSync): string {
+    const t = r.receivedAt || r['收到時間'] || '';
+    if (t && new Date(t).getFullYear() >= 2020) return t;
+    return r._createdAt || t;
+  }
+
   const todayRecords = confirmedRecords
     .filter((r) => {
-      const raw = r.receivedAt || r['收到時間'] || '';
-      if (!raw) return false;
-      const twD = new Date(new Date(raw).getTime() + 8 * 60 * 60 * 1000);
+      const t = effectiveAt(r);
+      if (!t) return false;
+      const twD = new Date(new Date(t).getTime() + 8 * 60 * 60 * 1000);
       return (
         twD.getUTCFullYear() === twNow.getUTCFullYear() &&
         twD.getUTCMonth() === twNow.getUTCMonth() &&
@@ -71,7 +79,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
       );
     })
     .sort((a, b) => {
-      const key = (r: RawLineSync) => formatTime(r.receivedAt || r['收到時間'] || '', true);
+      const key = (r: RawLineSync) => formatTime(effectiveAt(r), true);
       return key(b).localeCompare(key(a));
     });
 
@@ -85,7 +93,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
       const raw = r.recordSummary || r['AI整理結果'] || r.displayMessage || '';
       const subject = detectSubject(raw);
       const text = stripCategoryPrefix(cleanSummaryText(raw, subject));
-      const time = formatTime(r.receivedAt || r['收到時間'] || '', true);
+      const time = formatTime(effectiveAt(r), true);
       const icon = categoryIcon(raw);
       return { time, text, icon, record: r };
     })
