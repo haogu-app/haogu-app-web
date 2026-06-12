@@ -32,7 +32,7 @@ interface PendingRecordFormProps {
 function PendingRecordForm({ sync, onBack, onConfirm, onDelete }: PendingRecordFormProps) {
   const raw = sync.recordSummary || sync['AI整理結果'] || sync.displayMessage || '';
   const detectedSubject = detectSubject(raw);
-  const timeSource = sync.originalMessage || sync['原始訊息'] || sync.displayMessage || raw;
+  const timeSource = sync.originalMessage || sync['原始訊息'] || sync.displayMessage || '';
   const detectedTime = extractEventTime(timeSource) ?? utcToTaiwanHHMM(sync.receivedAt || sync['收到時間']);
 
   const [subject, setSubject] = useState(detectedSubject === '家人' ? '' : detectedSubject);
