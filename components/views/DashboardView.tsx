@@ -83,7 +83,10 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
       );
     })
     .sort((a, b) => {
-      const key = (r: RawLineSync) => formatTime(effectiveAt(r), true);
+      const key = (r: RawLineSync) => {
+        const src = r.originalMessage || r['原始訊息'] || r.displayMessage || r.recordSummary || '';
+        return extractEventTime(src) ?? formatTime(effectiveAt(r), true);
+      };
       return key(b).localeCompare(key(a));
     });
 
@@ -97,7 +100,8 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
       const raw = r.recordSummary || r['AI整理結果'] || r.displayMessage || '';
       const subject = detectSubject(raw);
       const text = stripCategoryPrefix(cleanSummaryText(raw, subject));
-      const time = formatTime(effectiveAt(r), true);
+      const eventSrc = r.originalMessage || r['原始訊息'] || r.displayMessage || r.recordSummary || '';
+      const time = extractEventTime(eventSrc) ?? formatTime(effectiveAt(r), true);
       const icon = categoryIcon(raw);
       return { time, text, icon, record: r };
     })
