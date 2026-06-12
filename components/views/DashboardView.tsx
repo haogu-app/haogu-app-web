@@ -71,10 +71,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
       );
     })
     .sort((a, b) => {
-      const key = (r: RawLineSync) => {
-        const src = r.originalMessage || r['原始訊息'] || r.displayMessage || '';
-        return extractEventTime(src) ?? formatTime(r.receivedAt || r['收到時間'] || '', true);
-      };
+      const key = (r: RawLineSync) => formatTime(r.receivedAt || r['收到時間'] || '', true);
       return key(b).localeCompare(key(a));
     });
 
@@ -88,8 +85,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
       const raw = r.recordSummary || r['AI整理結果'] || r.displayMessage || '';
       const subject = detectSubject(raw);
       const text = stripCategoryPrefix(cleanSummaryText(raw, subject));
-      const timeSource = r.originalMessage || r['原始訊息'] || r.displayMessage || '';
-      const time = extractEventTime(timeSource) ?? formatTime(r.receivedAt || r['收到時間'] || '', true);
+      const time = formatTime(r.receivedAt || r['收到時間'] || '', true);
       const icon = categoryIcon(raw);
       return { time, text, icon, record: r };
     })

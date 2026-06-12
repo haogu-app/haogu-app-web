@@ -68,12 +68,13 @@ export function useLineSync(familyId: string) {
           .select('*')
           .eq('family_id', familyId)
           .eq('confirmed', false)
+          .or('status.is.null,status.neq.complete')
           .order('received_at', { ascending: false }),
         supabase
           .from('care_records')
           .select('*')
           .eq('family_id', familyId)
-          .eq('confirmed', true)
+          .or('confirmed.eq.true,status.eq.complete')
           .order('received_at', { ascending: false }),
         supabase
           .from('tasks')
