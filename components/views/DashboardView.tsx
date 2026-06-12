@@ -59,11 +59,15 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
   // Shift both sides to UTC+8 so date boundaries match Taiwan calendar.
   const twNow = new Date(now.getTime() + 8 * 60 * 60 * 1000);
 
-  // Make sometimes sends received_at as a Unix timestamp that lands in 1970.
-  // Fall back to created_at (_createdAt) when received_at year < 2020.
+  // Make sends received_at as a raw Unix timestamp that PostgreSQL misinterprets,
+  // landing in 1970 (too old) or year 58415 (too far future). Fall back to
+  // created_at when received_at is outside the plausible range 2020–2100.
   function effectiveAt(r: RawLineSync): string {
     const t = r.receivedAt || r['收到時間'] || '';
-    if (t && new Date(t).getFullYear() >= 2020) return t;
+    if (t) {
+      const y = new Date(t).getFullYear();
+      if (y >= 2020 && y <= 2100) return t;
+    }
     return r._createdAt || t;
   }
 
