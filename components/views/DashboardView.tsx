@@ -98,9 +98,13 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
   type SummaryItem = { time: string; text: string; icon: string; record: RawLineSync };
   const allItems: SummaryItem[] = todayRecords
     .map((r) => {
-      const raw = r.recordSummary || r['AI整理結果'] || r.displayMessage || '';
+      const raw = r.recordSummary || r['AI整理結果'] || r.displayMessage || r.originalMessage || '';
       const subject = detectSubject(raw);
-      const text = stripCategoryPrefix(cleanSummaryText(raw, subject));
+      const processed = stripCategoryPrefix(cleanSummaryText(raw, subject));
+      // If AI processing produced nothing useful, fall back to the raw original message.
+      const text = processed.length >= 2
+        ? processed
+        : cleanDisplayMessage(r.originalMessage || r.displayMessage || '');
       const eventSrc = r.originalMessage || r['原始訊息'] || r.displayMessage || r.recordSummary || '';
       const time = r.eventTime || extractEventTime(eventSrc) || formatTime(effectiveAt(r), true);
       const icon = categoryIcon(raw);
