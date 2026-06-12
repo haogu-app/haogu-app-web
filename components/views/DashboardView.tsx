@@ -95,22 +95,22 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
   const stripCategoryPrefix = (t: string) =>
     CATEGORY_PREFIXES.reduce((s, c) => s.replace(new RegExp(`^${c}\\s*`), ''), t).trim();
 
-  type SummaryItem = { time: string; text: string; icon: string; record: RawLineSync };
+  type SummaryItem = { time: string; text: string; icon: string; record: RawLineSync; isPending: boolean };
   const allItems: SummaryItem[] = todayRecords
     .map((r) => {
+      const isPending = r.status === 'pending';
       const raw = r.recordSummary || r['AI整理結果'] || r.displayMessage || r.originalMessage || '';
       const subject = detectSubject(raw);
       const processed = stripCategoryPrefix(cleanSummaryText(raw, subject));
-      // If AI processing produced nothing useful, fall back to the raw original message.
-      const text = processed.length >= 2
-        ? processed
-        : cleanDisplayMessage(r.originalMessage || r.displayMessage || '');
+      const text = isPending
+        ? '待確認'
+        : (processed.length >= 2 ? processed : cleanDisplayMessage(r.originalMessage || r.displayMessage || ''));
       const eventSrc = r.originalMessage || r['原始訊息'] || r.displayMessage || r.recordSummary || '';
       const time = r.eventTime || extractEventTime(eventSrc) || formatTime(effectiveAt(r), true);
-      const icon = categoryIcon(raw);
-      return { time, text, icon, record: r };
+      const icon = isPending ? '📋' : categoryIcon(raw);
+      return { time, text, icon, record: r, isPending };
     })
-    .filter((item) => item.text.length >= 2);
+    .filter((item) => item.isPending || item.text.length >= 2);
 
   // Index of the most recently *confirmed* record (by _confirmedAt, falling back to _createdAt)
   const newestIdx = allItems.length === 0 ? -1 : allItems.reduce((best, item, idx) => {
@@ -186,20 +186,39 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
                   key={i}
                   onClick={() => setEditRecord(item.record)}
                   className={cn(
-                    'w-full flex items-center gap-3 bg-white/10 rounded-xl px-3 py-2 text-left hover:bg-white/20 active:scale-[0.99] transition-all',
-                    i === newestIdx && 'border-2 border-accent-500',
+                    'w-full flex items-center gap-3 rounded-xl px-3 py-2 text-left transition-all',
+                    item.isPending
+                      ? 'bg-white/5 hover:bg-white/10 active:scale-[0.99]'
+                      : 'bg-white/10 hover:bg-white/20 active:scale-[0.99]',
+                    !item.isPending && i === newestIdx && 'border-2 border-accent-500',
                   )}
                 >
-                  <span className="text-[14px] font-mono tabular-nums text-primary-100/80 shrink-0 w-12">
+                  <span className={cn(
+                    'text-[14px] font-mono tabular-nums shrink-0 w-12',
+                    item.isPending ? 'text-primary-200/50' : 'text-primary-100/80',
+                  )}>
                     {item.time}
                   </span>
-                  <span className="text-[16px] font-bold text-white flex-1">{item.text}</span>
-                  {i === newestIdx && (
-                    <span className="text-[11px] font-bold bg-accent-100 text-slate-700 px-2 py-0.5 rounded-full leading-none shrink-0">
-                      最新
+                  <span className={cn(
+                    'text-[16px] flex-1',
+                    item.isPending ? 'font-medium text-white/40 italic' : 'font-bold text-white',
+                  )}>
+                    {item.text}
+                  </span>
+                  {item.isPending ? (
+                    <span className="text-[11px] font-semibold bg-white/10 text-white/50 border border-white/15 px-2 py-0.5 rounded-full leading-none shrink-0">
+                      待補充
                     </span>
+                  ) : (
+                    <>
+                      {i === newestIdx && (
+                        <span className="text-[11px] font-bold bg-accent-100 text-slate-700 px-2 py-0.5 rounded-full leading-none shrink-0">
+                          最新
+                        </span>
+                      )}
+                      <span className="text-base shrink-0">{item.icon}</span>
+                    </>
                   )}
-                  <span className="text-base shrink-0">{item.icon}</span>
                 </button>
               ))
             )}
