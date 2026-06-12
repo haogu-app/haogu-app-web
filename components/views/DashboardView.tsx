@@ -56,14 +56,18 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
   }, [isLoading]);
 
   const now = new Date();
+  // Shift both sides to UTC+8 so date boundaries match Taiwan calendar.
+  const twNow = new Date(now.getTime() + 8 * 60 * 60 * 1000);
 
   const todayRecords = confirmedRecords
     .filter((r) => {
-      const d = new Date(r.receivedAt || r['收到時間'] || '');
+      const raw = r.receivedAt || r['收到時間'] || '';
+      if (!raw) return false;
+      const twD = new Date(new Date(raw).getTime() + 8 * 60 * 60 * 1000);
       return (
-        d.getFullYear() === now.getFullYear() &&
-        d.getMonth() === now.getMonth() &&
-        d.getDate() === now.getDate()
+        twD.getUTCFullYear() === twNow.getUTCFullYear() &&
+        twD.getUTCMonth() === twNow.getUTCMonth() &&
+        twD.getUTCDate() === twNow.getUTCDate()
       );
     })
     .sort((a, b) => {

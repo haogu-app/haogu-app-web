@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react';
 import { MessageCircle, ChevronRight, Clock } from 'lucide-react';
 import { Header } from '@/components/Header';
-import { cleanDisplayMessage, formatTime, cn, detectSubject, detectCategory, cleanSummaryText, extractEventTime } from '@/lib/utils';
+import { cleanDisplayMessage, formatTime, utcToTaiwanHHMM, cn, detectSubject, detectCategory, cleanSummaryText, extractEventTime } from '@/lib/utils';
 import type { RawLineSync, CareTask } from '@/lib/types';
 
 const TYPES: { label: string; emoji: string; value: CareTask['type'] }[] = [
@@ -33,7 +33,7 @@ function PendingRecordForm({ sync, onBack, onConfirm, onDelete }: PendingRecordF
   const raw = sync.recordSummary || sync['AI整理結果'] || sync.displayMessage || '';
   const detectedSubject = detectSubject(raw);
   const timeSource = sync.originalMessage || sync['原始訊息'] || sync.displayMessage || raw;
-  const detectedTime = extractEventTime(timeSource) ?? '';
+  const detectedTime = extractEventTime(timeSource) ?? utcToTaiwanHHMM(sync.receivedAt || sync['收到時間']);
 
   const [subject, setSubject] = useState(detectedSubject === '家人' ? '' : detectedSubject);
   const [time, setTime] = useState(detectedTime);

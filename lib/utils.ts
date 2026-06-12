@@ -6,6 +6,21 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/** Shift a UTC Date by +8 hours so getUTC* methods return Taiwan (UTC+8) values. */
+function toTW(d: Date): Date {
+  return new Date(d.getTime() + 8 * 60 * 60 * 1000);
+}
+
+/** Convert a UTC ISO string (or ms timestamp) to Taiwan "HH:MM" string. */
+export function utcToTaiwanHHMM(rawTime: unknown): string {
+  if (!rawTime) return '';
+  const value = String(rawTime);
+  const ms = /^\d+$/.test(value) ? Number(value) : Date.parse(value);
+  if (isNaN(ms)) return '';
+  const tw = toTW(new Date(ms));
+  return `${String(tw.getUTCHours()).padStart(2, '0')}:${String(tw.getUTCMinutes()).padStart(2, '0')}`;
+}
+
 export function formatTime(rawTime: unknown, onlyTime = false): string {
   if (rawTime === null || rawTime === undefined || rawTime === '') return '無';
 
@@ -22,20 +37,22 @@ export function formatTime(rawTime: unknown, onlyTime = false): string {
 
   if (date) {
     try {
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
+      // Use explicit UTC+8 offset so display is correct in any server/browser timezone.
+      const tw = toTW(date);
+      const hours = String(tw.getUTCHours()).padStart(2, '0');
+      const minutes = String(tw.getUTCMinutes()).padStart(2, '0');
       if (onlyTime) return `${hours}:${minutes}`;
 
-      const now = new Date();
+      const twNow = toTW(new Date());
       const isToday =
-        date.getDate() === now.getDate() &&
-        date.getMonth() === now.getMonth() &&
-        date.getFullYear() === now.getFullYear();
+        tw.getUTCDate() === twNow.getUTCDate() &&
+        tw.getUTCMonth() === twNow.getUTCMonth() &&
+        tw.getUTCFullYear() === twNow.getUTCFullYear();
 
       if (isToday) return `今天 ${hours}:${minutes}`;
 
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(tw.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(tw.getUTCDate()).padStart(2, '0');
       return `${month}/${day} ${hours}:${minutes}`;
     } catch (_) {
       // fallback below

@@ -21,15 +21,21 @@ function detectType(r: CareRecordRow): string {
   return '生理數據';
 }
 
+function toTW(d: Date): Date {
+  return new Date(d.getTime() + 8 * 60 * 60 * 1000);
+}
+
 function formatRecordTime(receivedAt: string): string {
-  const d = new Date(receivedAt);
-  const now = new Date();
-  const hh = String(d.getHours()).padStart(2, '0');
-  const mm = String(d.getMinutes()).padStart(2, '0');
+  const tw = toTW(new Date(receivedAt));
+  const twNow = toTW(new Date());
+  const hh = String(tw.getUTCHours()).padStart(2, '0');
+  const mm = String(tw.getUTCMinutes()).padStart(2, '0');
   const timeStr = `${hh}:${mm}`;
-  if (d.toDateString() === now.toDateString()) return timeStr;
-  const mo = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
+  if (tw.getUTCFullYear() === twNow.getUTCFullYear() &&
+      tw.getUTCMonth() === twNow.getUTCMonth() &&
+      tw.getUTCDate() === twNow.getUTCDate()) return timeStr;
+  const mo = String(tw.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(tw.getUTCDate()).padStart(2, '0');
   return `${mo}/${dd} ${timeStr}`;
 }
 
@@ -59,13 +65,19 @@ export default function FamilySharePage() {
 
   const now = new Date();
 
+  const twNow = toTW(now);
   const todayRecords = records
-    .filter((r) => new Date(r.received_at).toDateString() === now.toDateString())
+    .filter((r) => {
+      const tw = toTW(new Date(r.received_at));
+      return tw.getUTCFullYear() === twNow.getUTCFullYear() &&
+             tw.getUTCMonth() === twNow.getUTCMonth() &&
+             tw.getUTCDate() === twNow.getUTCDate();
+    })
     .sort((a, b) => a.received_at.localeCompare(b.received_at));
 
   const monthCount = records.filter((r) => {
-    const d = new Date(r.received_at);
-    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+    const tw = toTW(new Date(r.received_at));
+    return tw.getUTCFullYear() === twNow.getUTCFullYear() && tw.getUTCMonth() === twNow.getUTCMonth();
   }).length;
 
   if (loading) {
@@ -109,9 +121,9 @@ export default function FamilySharePage() {
           {todayRecords.length > 0 ? (
             <div className="space-y-2">
               {todayRecords.map((r) => {
-                const d = new Date(r.received_at);
-                const hh = String(d.getHours()).padStart(2, '0');
-                const mm = String(d.getMinutes()).padStart(2, '0');
+                const tw = toTW(new Date(r.received_at));
+                const hh = String(tw.getUTCHours()).padStart(2, '0');
+                const mm = String(tw.getUTCMinutes()).padStart(2, '0');
                 return (
                   <div key={r.id} className="flex items-start gap-2.5 bg-white/10 rounded-xl p-3">
                     <span className="text-[11px] font-bold text-primary-100 whitespace-nowrap pt-0.5 tabular-nums">
