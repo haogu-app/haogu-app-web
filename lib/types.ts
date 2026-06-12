@@ -27,6 +27,7 @@ export interface RawLineSync {
   containsTag?: boolean;
   groupId?: string;
   userId?: string;
+  eventTime?: string | null;
   '收到時間': string;
   '原始訊息': string;
   'AI整理結果': string;
@@ -55,6 +56,7 @@ export interface CareRecordRow {
   user_id: string | null;
   confirmed: boolean;
   created_at: string;
+  event_time: string | null;
 }
 
 export interface TaskRow {

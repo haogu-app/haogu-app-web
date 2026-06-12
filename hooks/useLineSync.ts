@@ -29,6 +29,7 @@ function rowToLineSync(row: CareRecordRow, confirmedAt?: string): RawLineSync {
     containsTag: row.contains_tag,
     groupId: row.group_id ?? '',
     userId: row.user_id ?? '',
+    eventTime: row.event_time,
     '收到時間': row.received_at,
     '原始訊息': row.display_message,
     'AI整理結果': row.record_summary,

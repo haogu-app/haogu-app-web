@@ -84,6 +84,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
     })
     .sort((a, b) => {
       const key = (r: RawLineSync) => {
+        if (r.eventTime) return r.eventTime;
         const src = r.originalMessage || r['原始訊息'] || r.displayMessage || r.recordSummary || '';
         return extractEventTime(src) ?? formatTime(effectiveAt(r), true);
       };
@@ -101,7 +102,7 @@ export function DashboardView({ setView, lineSyncs, confirmedRecords, onQuickRec
       const subject = detectSubject(raw);
       const text = stripCategoryPrefix(cleanSummaryText(raw, subject));
       const eventSrc = r.originalMessage || r['原始訊息'] || r.displayMessage || r.recordSummary || '';
-      const time = extractEventTime(eventSrc) ?? formatTime(effectiveAt(r), true);
+      const time = r.eventTime || extractEventTime(eventSrc) || formatTime(effectiveAt(r), true);
       const icon = categoryIcon(raw);
       return { time, text, icon, record: r };
     })
